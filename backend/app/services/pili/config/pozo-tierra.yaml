@@ -1,0 +1,223 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔌 CONFIGURACIÓN COMPLETA POZO A TIERRA - SISTEMAS DE PROTECCIÓN ELÉCTRICA
+# ═══════════════════════════════════════════════════════════════════════════════
+
+service: pozo-tierra
+name: "Sistema de Puesta a Tierra"
+description: "Sistemas de puesta a tierra y protección eléctrica profesional"
+normativa: "CNE Suministro 2011 - Sección 250 + IEEE Std 142"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🌍 TIPOS DE SUELO Y CARACTERÍSTICAS
+# ═══════════════════════════════════════════════════════════════════════════════
+tipos_suelo:
+  ARCILLOSO:
+    nombre: "Suelo Arcilloso"
+    resistividad: 50
+    factor_correccion: 1.0
+    descripcion: "Suelo húmedo, buena conductividad"
+    icon: "🟤"
+  
+  ARENOSO:
+    nombre: "Suelo Arenoso"
+    resistividad: 200
+    factor_correccion: 1.5
+    descripcion: "Suelo seco, conductividad media"
+    icon: "🟡"
+  
+  ROCOSO:
+    nombre: "Suelo Rocoso"
+    resistividad: 1000
+    factor_correccion: 2.0
+    descripcion: "Suelo muy seco, baja conductividad"
+    icon: "⚫"
+  
+  MIXTO:
+    nombre: "Suelo Mixto"
+    resistividad: 300
+    factor_correccion: 1.3
+    descripcion: "Combinación de tipos de suelo"
+    icon: "🔵"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 💰 PRECIOS DE MATERIALES Y SERVICIOS
+# ═══════════════════════════════════════════════════════════════════════════════
+precios:
+  pozo_completo_basico: 1760.00
+  pozo_completo_profesional: 2200.00
+  varilla_copperweld_2_4m: 85.00
+  varilla_copperweld_3m: 110.00
+  cable_desnudo_cu_25mm: 12.00
+  cable_desnudo_cu_35mm: 16.00
+  bentonita_saco_25kg: 45.00
+  thor_gel_saco: 120.00
+  sal_industrial_saco: 15.00
+  carbon_vegetal_saco: 25.00
+  conector_cadweld: 35.00
+  caja_registro: 180.00
+  medicion_telurometro: 250.00
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📊 RESISTENCIA OBJETIVO POR TIPO DE INSTALACIÓN
+# ═══════════════════════════════════════════════════════════════════════════════
+resistencia_objetivo:
+  residencial: 25
+  comercial: 10
+  industrial: 5
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📝 MENSAJES PROFESIONALES
+# ═══════════════════════════════════════════════════════════════════════════════
+mensajes:
+  presentacion: |
+    ¡Hola! 👋 Soy **Pili**, tu especialista en Sistemas de Puesta a Tierra de **Tesla Electricidad**.
+    
+    🎯 Te ayudo con:
+    ✅ Pozos a tierra profesionales
+    ✅ Medición de resistencia
+    ✅ Cumplimiento del CNE
+    ✅ Garantía de 2 años
+    
+    **Selecciona el tipo de suelo:**
+  
+  confirm_suelo: |
+    Perfecto, suelo **{tipo_suelo}**.
+    
+    📊 Resistividad: {resistividad} Ω·m
+    🔧 Factor de corrección: {factor_correccion}
+    
+    ⚡ **¿Qué tipo de instalación es?**
+  
+  ask_resistencia: |
+    Entendido, instalación **{tipo_instalacion}**.
+    
+    📏 Resistencia objetivo recomendada: **{resistencia_objetivo} Ω**
+    
+    ¿Deseas usar este valor o ingresar uno personalizado?
+    
+    _Escribe el número en Ohms (ejemplo: 10) o presiona el botón recomendado_
+  
+  cotizacion: |
+    📊 **COTIZACIÓN SISTEMA DE PUESTA A TIERRA**
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **📋 DATOS DEL PROYECTO:**
+    
+    🌍 Tipo de suelo: {tipo_suelo}
+    ⚡ Tipo instalación: {tipo_instalacion}
+    📏 Resistencia objetivo: {resistencia_objetivo} Ω
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **💰 ITEMS CALCULADOS:**
+    
+    {items_detalle}
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **📈 TOTALES:**
+    
+    Subtotal: S/ {subtotal:.2f}
+    IGV (18%): S/ {igv:.2f}
+    **TOTAL: S/ {total:.2f}**
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    
+    ✅ Incluye: Materiales + Instalación + Medición
+    ⏱️ Tiempo: 2-3 días hábiles
+    📋 Normativa: CNE 2011 Sección 250
+    🎁 Garantía: 2 años
+    
+    ¿Deseas generar el documento?
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔄 FLUJO DE CONVERSACIÓN
+# ═══════════════════════════════════════════════════════════════════════════════
+documents:
+  cotizacion-simple:
+    etapas:
+      - id: tipo_suelo
+        type: buttons
+        message_template: presentacion
+        data_source: kb.tipos_suelo
+        next: tipo_instalacion
+        progress: "1/4"
+      
+      - id: tipo_instalacion
+        type: buttons
+        message_template: confirm_suelo
+        next: resistencia
+        progress: "2/4"
+        opciones:
+          - text: "🏠 Residencial"
+            value: "RESIDENCIAL"
+          - text: "🏢 Comercial"
+            value: "COMERCIAL"
+          - text: "🏭 Industrial"
+            value: "INDUSTRIAL"
+      
+      - id: resistencia
+        type: input_number_or_button
+        message_template: ask_resistencia
+        next: quotation
+        progress: "3/4"
+        validacion:
+          min: 1
+          max: 100
+          type: float
+        opciones_dinamicas: true
+      
+      - id: quotation
+        type: generate_quote
+        message_template: cotizacion
+        calculator: calculate_pozo_tierra_quote
+        progress: "4/4"
+        actions:
+          - text: "📄 Generar Cotización"
+            value: "GENERAR"
+          - text: "🔄 Nueva consulta"
+            value: "RESTART"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📊 REGLAS DE CÁLCULO
+# ═══════════════════════════════════════════════════════════════════════════════
+reglas_calculo:
+  # Número de varillas según resistencia objetivo y tipo de suelo
+  varillas_formula: |
+    if resistencia_objetivo <= 5:
+      varillas = 4 * factor_correccion
+    elif resistencia_objetivo <= 10:
+      varillas = 3 * factor_correccion
+    elif resistencia_objetivo <= 25:
+      varillas = 2 * factor_correccion
+    else:
+      varillas = 1 * factor_correccion
+  
+  # Cable necesario (metros)
+  cable_formula: "varillas * 3 + 10"
+  
+  # Mejoradores de suelo
+  bentonita_sacos: "varillas * 2"
+  thor_gel_sacos: "varillas if resistencia_objetivo <= 10 else 0"
+  
+  items_automaticos:
+    - descripcion: "Varillas Copperweld 2.4m ({varillas} und)"
+      cantidad: "{varillas}"
+      precio: "{precios.varilla_copperweld_2_4m}"
+    
+    - descripcion: "Cable desnudo Cu 25mm² ({cable_metros}m)"
+      cantidad: "{cable_metros}"
+      precio: "{precios.cable_desnudo_cu_25mm}"
+    
+    - descripcion: "Bentonita sódica ({bentonita_sacos} sacos)"
+      cantidad: "{bentonita_sacos}"
+      precio: "{precios.bentonita_saco_25kg}"
+    
+    - descripcion: "Conectores Cadweld ({varillas} und)"
+      cantidad: "{varillas}"
+      precio: "{precios.conector_cadweld}"
+    
+    - descripcion: "Caja de registro (1 und)"
+      cantidad: 1
+      precio: "{precios.caja_registro}"
+    
+    - descripcion: "Medición con telurómetro (1 serv)"
+      cantidad: 1
+      precio: "{precios.medicion_telurometro}"

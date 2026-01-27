@@ -1,0 +1,254 @@
+/* ============================================================================
+   CALENDARIO PROFESIONAL PMI - Estilos
+   ============================================================================ */
+
+.calendario-proyecto {
+    background: rgba(17, 24, 39, 0.8);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(59, 130, 246, 0.5);
+}
+
+.calendario-titulo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #60a5fa;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+/* ============================================================================
+   GRID LAYOUT
+   ============================================================================ */
+
+.calendario-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 1200px) {
+    .calendario-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================================================
+   CONFIGURACIÓN (Columna Izquierda)
+   ============================================================================ */
+
+.calendario-config {
+    background: rgba(31, 41, 55, 0.5);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.campo-grupo {
+    margin-bottom: 16px;
+}
+
+.campo-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #60a5fa;
+    margin-bottom: 6px;
+}
+
+.campo-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 2px solid rgba(59, 130, 246, 0.5);
+    border-radius: 6px;
+    font-size: 14px;
+    background: rgba(17, 24, 39, 0.8);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.campo-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.campo-ayuda {
+    display: block;
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+.mt-2 {
+    margin-top: 8px;
+}
+
+/* ============================================================================
+   DATE PICKER
+   ============================================================================ */
+
+.fecha-picker {
+    cursor: pointer;
+}
+
+/* Estilos para días especiales en el calendario */
+.dia-habil {
+    background-color: #d4edda !important;
+    color: #155724 !important;
+}
+
+.dia-no-habil {
+    background-color: #f8f9fa !important;
+    color: #6c757d !important;
+}
+
+.dia-feriado {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+    font-weight: bold;
+}
+
+/* ============================================================================
+   TOGGLE BUTTONS
+   ============================================================================ */
+
+.toggle-grupo {
+    display: flex;
+    gap: 8px;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+    font-weight: 600;
+    color: #7f8c8d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+    border-color: #3498db;
+    color: #3498db;
+}
+
+.toggle-btn.activo {
+    background: #3498db;
+    border-color: #3498db;
+    color: white;
+}
+
+/* ============================================================================
+   RESUMEN (Columna Derecha)
+   ============================================================================ */
+
+.calendario-resumen {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.resumen-titulo {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.resumen-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    padding: 20px;
+    color: white;
+}
+
+.resumen-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.resumen-label {
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.resumen-valor {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.resumen-valor.destacado {
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 12px;
+    border-radius: 4px;
+}
+
+.resumen-separador {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.3);
+    margin: 12px 0;
+}
+
+/* ============================================================================
+   LEYENDA
+   ============================================================================ */
+
+.calendario-leyenda {
+    margin-top: 16px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.leyenda-titulo {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.leyenda-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.leyenda-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #34495e;
+}
+
+.leyenda-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+.leyenda-color.dia-habil {
+    background-color: #d4edda;
+}
+
+.leyenda-color.dia-no-habil {
+    background-color: #f8f9fa;
+}
+
+.leyenda-color.dia-feriado {
+    background-color: #f8d7da;
+}

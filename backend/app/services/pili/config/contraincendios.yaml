@@ -1,0 +1,203 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔥 CONFIGURACIÓN COMPLETA CONTRAINCENDIOS - SISTEMAS DE PROTECCIÓN
+# ═══════════════════════════════════════════════════════════════════════════════
+
+service: contraincendios
+name: "Sistemas Contraincendios"
+description: "Sistemas de detección y extinción de incendios profesionales"
+normativa_general: "NFPA 1, NFPA 13, NFPA 72, NFPA 20"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔥 TIPOS DE SISTEMAS
+# ═══════════════════════════════════════════════════════════════════════════════
+sistemas:
+  DETECCION:
+    nombre: "Sistema de Detección de Incendios"
+    descripcion: "Detectores, central, sirenas y pulsadores"
+    normativa: "NFPA 72"
+    cobertura_detector_m2: 80
+    precios:
+      detector_humo_optico: 85.00
+      detector_humo_ionico: 95.00
+      detector_calor_termico: 95.00
+      detector_llama: 180.00
+      pulsador_manual: 65.00
+      central_deteccion_4zonas: 1200.00
+      central_deteccion_8zonas: 1800.00
+      sirena_interior: 120.00
+      sirena_exterior: 180.00
+      luz_estrobo: 95.00
+      cable_deteccion_2x18: 1.80
+  
+  EXTINCION:
+    nombre: "Sistema de Extinción de Incendios"
+    descripcion: "Extintores, gabinetes, rociadores y bombas"
+    normativa: "NFPA 13, NFPA 10, NFPA 20"
+    area_por_extintor_m2: 200
+    precios:
+      extintor_pqs_6kg: 85.00
+      extintor_pqs_12kg: 120.00
+      extintor_co2_6kg: 180.00
+      extintor_agua_10lt: 95.00
+      gabinete_manguera_30m: 450.00
+      gabinete_manguera_45m: 550.00
+      rociador_sprinkler: 35.00
+      tuberia_sprinkler_1: 8.50
+      bomba_contraincendios_10hp: 3500.00
+      bomba_contraincendios_15hp: 4500.00
+      tanque_reserva_5000lt: 2800.00
+      valvula_check: 280.00
+  
+  COMPLETO:
+    nombre: "Sistema Completo (Detección + Extinción)"
+    descripcion: "Sistema integrado de protección"
+    descuento_porcentaje: 10
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📝 MENSAJES PROFESIONALES
+# ═══════════════════════════════════════════════════════════════════════════════
+mensajes:
+  presentacion: |
+    ¡Hola! 👋 Soy **Pili**, tu especialista en Sistemas Contraincendios de **Tesla Electricidad**.
+    
+    🎯 Te ayudo con:
+    ✅ Detección y alarmas
+    ✅ Rociadores automáticos
+    ✅ Extintores y señalización
+    ✅ Cumplimiento normativo NFPA
+    
+    **Selecciona el tipo de sistema:**
+  
+  confirm_sistema: |
+    Perfecto, sistema **{tipo_sistema}**.
+    
+    📋 **Normativa:** {normativa}
+    
+    📏 **¿Cuál es el área total a proteger en m²?**
+    
+    _Escribe el número (ejemplo: 200)_
+  
+  ask_pisos: |
+    ✅ Área: **{area} m²**
+    
+    🏢 **¿Cuántos pisos tiene la edificación?**
+    
+    _Escribe el número (ejemplo: 3)_
+  
+  ask_nivel_riesgo: |
+    ✅ Pisos: **{pisos}**
+    
+    🔥 **¿Cuál es el nivel de riesgo de la edificación?**
+  
+  cotizacion: |
+    📊 **COTIZACIÓN SISTEMA CONTRAINCENDIOS**
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **📋 DATOS DEL PROYECTO:**
+    
+    🔥 Sistema: {tipo_sistema}
+    📏 Área: {area} m²
+    🏢 Pisos: {pisos}
+    ⚠️ Nivel riesgo: {nivel_riesgo}
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **💰 ITEMS CALCULADOS:**
+    
+    {items_detalle}
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **📈 TOTALES:**
+    
+    Subtotal: S/ {subtotal:.2f}
+    IGV (18%): S/ {igv:.2f}
+    **TOTAL: S/ {total:.2f}**
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    
+    ✅ Incluye: Equipos + Instalación + Certificación
+    ⏱️ Tiempo: 15-20 días hábiles
+    📋 Normativa: {normativa}
+    🎁 Garantía: 1 año
+    
+    ¿Deseas generar el documento?
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔄 FLUJO DE CONVERSACIÓN
+# ═══════════════════════════════════════════════════════════════════════════════
+documents:
+  cotizacion-simple:
+    etapas:
+      - id: tipo_sistema
+        type: buttons
+        message_template: presentacion
+        next: area
+        progress: "1/5"
+        opciones:
+          - text: "🔥 Detección"
+            value: "DETECCION"
+          - text: "💧 Extinción"
+            value: "EXTINCION"
+          - text: "🧯 Sistema Completo"
+            value: "COMPLETO"
+      
+      - id: area
+        type: input_number
+        message_template: confirm_sistema
+        next: pisos
+        progress: "2/5"
+        validacion:
+          min: 10
+          max: 10000
+          type: float
+      
+      - id: pisos
+        type: input_number
+        message_template: ask_pisos
+        next: nivel_riesgo
+        progress: "3/5"
+        validacion:
+          min: 1
+          max: 50
+          type: int
+      
+      - id: nivel_riesgo
+        type: buttons
+        message_template: ask_nivel_riesgo
+        next: quotation
+        progress: "4/5"
+        opciones:
+          - text: "🟢 Bajo"
+            value: "BAJO"
+          - text: "🟡 Medio"
+            value: "MEDIO"
+          - text: "🟠 Alto"
+            value: "ALTO"
+      
+      - id: quotation
+        type: generate_quote
+        message_template: cotizacion
+        calculator: calculate_contraincendios_quote
+        progress: "5/5"
+        actions:
+          - text: "📄 Generar Cotización"
+            value: "GENERAR"
+          - text: "🔄 Nueva consulta"
+            value: "RESTART"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📊 REGLAS DE CÁLCULO
+# ═══════════════════════════════════════════════════════════════════════════════
+reglas_calculo:
+  # Detectores según área
+  detectores_formula: "ceil(area / 80)"
+  
+  # Extintores según área
+  extintores_formula: "ceil(area / 200)"
+  
+  # Pulsadores (1 por piso)
+  pulsadores_formula: "pisos"
+  
+  # Sirenas (1 cada 2 pisos)
+  sirenas_formula: "ceil(pisos / 2)"
+  
+  # Cable (metros)
+  cable_formula: "area * 0.5 * pisos"

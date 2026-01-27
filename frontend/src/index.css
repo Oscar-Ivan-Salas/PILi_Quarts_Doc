@@ -1,0 +1,358 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===================================
+   Variables CSS Personalizadas
+   =================================== */
+:root {
+  --color-tesla-red: #8B0000;
+  --color-tesla-gold: #D4AF37;
+  --color-black: #000000;
+  --color-gray-dark: #1f2937;
+  --color-gray-light: #f3f4f6;
+}
+
+/* ===================================
+   Estilos Globales
+   =================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  min-height: 100vh;
+  color: white;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* ===================================
+   Scrollbar Personalizado
+   =================================== */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #D4AF37 0%, #b8941f 100%);
+  border-radius: 10px;
+  border: 2px solid #1f2937;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #b8941f 0%, #D4AF37 100%);
+}
+
+/* Firefox y Global def */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #D4AF37 #1f2937;
+}
+
+/* ===================================
+   Clases de Utilidad para Scrollbars (Manuales)
+   =================================== */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px; /* Más fino */
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.5);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* Variante Púrpura (Chat) */
+.scrollbar-purple::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #a855f7, #6366f1);
+  border: 1px solid #4c1d95;
+}
+.scrollbar-purple::-webkit-scrollbar-track {
+  background: rgba(88, 28, 135, 0.2);
+}
+
+/* Variante Dorada (App/Preview) */
+.scrollbar-gold::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #D4AF37, #b8941f);
+  border: 1px solid #713f12;
+}
+.scrollbar-gold::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.8);
+}
+
+/* ===================================
+   Animaciones Personalizadas
+   =================================== */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.8);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-slide-in-right {
+    animation: slide-in-right 0.3s ease-out;
+  }
+
+  .animate-slide-in-left {
+    animation: slide-in-left 0.3s ease-out;
+  }
+
+  .animate-slide-in-up {
+    animation: slide-in-up 0.5s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+
+  .animate-progress {
+    animation: progress linear;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+}
+
+/* ===================================
+   Utilidades Personalizadas
+   =================================== */
+.glass-effect {
+  background: rgba(31, 41, 55, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.hover-scale {
+  transition: transform 0.2s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* ===================================
+   Botones Personalizados
+   =================================== */
+.btn-tesla-primary {
+  @apply bg-gradient-to-r from-tesla-red-900 to-tesla-red-800 text-tesla-gold-500 font-bold py-3 px-6 rounded-xl hover:from-tesla-red-800 hover:to-tesla-red-700 transition-all duration-300 shadow-tesla hover:shadow-2xl hover:scale-105;
+}
+
+.btn-tesla-secondary {
+  @apply bg-gradient-to-r from-tesla-gold-500 to-tesla-gold-600 text-black font-bold py-3 px-6 rounded-xl hover:from-tesla-gold-600 hover:to-tesla-gold-700 transition-all duration-300 shadow-gold hover:shadow-2xl hover:scale-105;
+}
+
+.btn-tesla-outline {
+  @apply border-2 border-tesla-gold-500 text-tesla-gold-500 font-bold py-3 px-6 rounded-xl hover:bg-tesla-gold-500 hover:text-black transition-all duration-300;
+}
+
+/* ===================================
+   Cards Personalizadas
+   =================================== */
+.card-tesla {
+  @apply bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-tesla-gold-500 shadow-tesla hover-lift;
+}
+
+.card-dark {
+  @apply bg-gray-800 rounded-xl p-4 border border-gray-700 hover:border-tesla-gold-500 transition-all duration-300;
+}
+
+/* ===================================
+   Inputs Personalizados
+   =================================== */
+.input-tesla {
+  @apply bg-gray-800 text-white rounded-xl p-3 border-2 border-gray-700 focus:border-tesla-gold-500 focus:outline-none transition-colors duration-300;
+}
+
+.textarea-tesla {
+  @apply bg-gray-800 text-white rounded-xl p-3 border-2 border-gray-700 focus:border-tesla-gold-500 focus:outline-none resize-none transition-colors duration-300;
+}
+
+/* ===================================
+   Loading Spinner
+   =================================== */
+.spinner {
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #D4AF37;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===================================
+   Tooltips
+   =================================== */
+.tooltip {
+  @apply invisible absolute;
+}
+
+.has-tooltip:hover .tooltip {
+  @apply visible z-50;
+}
+
+/* ===================================
+   Print Styles
+   =================================== */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* ===================================
+   Responsive Utilities
+   =================================== */
+@media (max-width: 640px) {
+  .responsive-text-sm {
+    font-size: 0.875rem;
+  }
+  
+  .responsive-padding-sm {
+    padding: 1rem;
+  }
+}
+
+/* ===================================
+   Accessibility
+   =================================== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus visible para accesibilidad */
+*:focus-visible {
+  outline: 2px solid #D4AF37;
+  outline-offset: 2px;
+}
+
+/* ===================================
+   Selection Color
+   =================================== */
+::selection {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+::-moz-selection {
+  background-color: #D4AF37;
+  color: #000000;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } } .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
