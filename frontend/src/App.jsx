@@ -1853,343 +1853,260 @@ const PILIQuartsApp = () => {
             {/* CONTENIDO PRINCIPAL */}
             <div className="p-6">
               {/* PASO 1: CONFIGURACIÓN */}
+              {/* PASO 1: CONFIGURACIÓN */}
               {paso === 1 && (
-                <div className="max-w-5xl mx-auto space-y-6">
+                tipoFlujo === 'proyecto-complejo' ? (
+                  <div className="absolute inset-0 z-50 bg-black h-full w-full overflow-y-auto">
+                    <ModuloC
+                      datosIniciales={proyecto}
+                      onBack={() => setTipoFlujo(null)}
+                      onGuardarBorrador={(datos) => {
+                        setProyecto(datos);
+                        handleGuardarBorrador(datos);
+                      }}
+                      proyectoId={proyectoId}
+                      setProyectoId={setProyectoId}
+                      onGenerarDocumento={() => setPaso(2)}
+                    />
+                  </div>
+                ) : (
+                  <div className="max-w-5xl mx-auto space-y-6">
 
-                  {/* LOGO UNIVERSAL (TODOS LOS SERVICIOS) */}
-                  <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-yellow-600 shadow-xl">
-                    <h2 className="text-2xl font-bold mb-4 text-yellow-400 flex items-center gap-2">
-                      🎨 Logo Empresa (Aparecerá en el documento final)
-                    </h2>
+                    {/* LOGO UNIVERSAL (TODOS LOS SERVICIOS) */}
+                    <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-yellow-600 shadow-xl">
+                      <h2 className="text-2xl font-bold mb-4 text-yellow-400 flex items-center gap-2">
+                        🎨 Logo Empresa (Aparecerá en el documento final)
+                      </h2>
 
-                    <div className="flex gap-4 items-center">
-                      <div className="flex-1">
-                        <input
-                          ref={fileInputLogoRef}
-                          type="file"
-                          onChange={cargarLogo}
-                          className="hidden"
-                          accept="image/*"
-                        />
-                        <button
-                          onClick={() => fileInputLogoRef.current?.click()}
-                          className="w-full bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 hover:from-yellow-500 hover:to-yellow-400 text-black px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl border-2 border-yellow-400 transition-all duration-300 hover:scale-105">
-                          <Upload className="w-5 h-5" />
-                          {logoBase64 ? 'Cambiar Logo' : 'Subir Logo'}
-                        </button>
-                        <p className="text-xs text-gray-400 mt-2 text-center">
-                          PNG, JPG, WebP - Máx 2MB • Se integrará automáticamente en Word
+                      <div className="flex gap-4 items-center">
+                        <div className="flex-1">
+                          <input
+                            ref={fileInputLogoRef}
+                            type="file"
+                            onChange={cargarLogo}
+                            className="hidden"
+                            accept="image/*"
+                          />
+                          <button
+                            onClick={() => fileInputLogoRef.current?.click()}
+                            className="w-full bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 hover:from-yellow-500 hover:to-yellow-400 text-black px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl border-2 border-yellow-400 transition-all duration-300 hover:scale-105">
+                            <Upload className="w-5 h-5" />
+                            {logoBase64 ? 'Cambiar Logo' : 'Subir Logo'}
+                          </button>
+                          <p className="text-xs text-gray-400 mt-2 text-center">
+                            PNG, JPG, WebP - Máx 2MB • Se integrará automáticamente en Word
+                          </p>
+                        </div>
+
+                        {logoBase64 && (
+                          <div className="bg-white rounded-xl p-3 border-2 border-yellow-400 shadow-lg">
+                            <img src={logoBase64} alt="Logo" className="w-24 h-24 object-contain" />
+                            <p className="text-xs text-gray-600 mt-2 text-center font-semibold">✅ Cargado</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* ✅ FORMULARIO UNIVERSAL DE CLIENTE (TODOS LOS 6 TIPOS DE DOCUMENTOS) */}
+                    <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-yellow-600 shadow-xl">
+                      <h2 className="text-2xl font-bold mb-6 text-yellow-400 flex items-center gap-3">
+                        <Users className="w-7 h-7" />
+                        Datos del Cliente
+                      </h2>
+
+                      {/* Selector de cliente existente o nuevo */}
+                      <div className="mb-6">
+                        <label className="block text-yellow-400 font-semibold mb-2 flex items-center gap-2">
+                          <Building2 className="w-5 h-5" />
+                          Seleccionar Cliente
+                        </label>
+                        <select
+                          value={clienteSeleccionadoId || ''}
+                          onChange={cargarDatosCliente}
+                          className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white"
+                        >
+                          <option value="">+ Nuevo Cliente</option>
+                          {listaClientes.map(c => (
+                            <option key={c.id} value={c.id}>
+                              {c.nombre} - RUC: {c.ruc}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Selecciona un cliente existente o crea uno nuevo
                         </p>
                       </div>
 
-                      {logoBase64 && (
-                        <div className="bg-white rounded-xl p-3 border-2 border-yellow-400 shadow-lg">
-                          <img src={logoBase64} alt="Logo" className="w-24 h-24 object-contain" />
-                          <p className="text-xs text-gray-600 mt-2 text-center font-semibold">✅ Cargado</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* ✅ FORMULARIO UNIVERSAL DE CLIENTE (TODOS LOS 6 TIPOS DE DOCUMENTOS) */}
-                  <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-yellow-600 shadow-xl">
-                    <h2 className="text-2xl font-bold mb-6 text-yellow-400 flex items-center gap-3">
-                      <Users className="w-7 h-7" />
-                      Datos del Cliente
-                    </h2>
-
-                    {/* Selector de cliente existente o nuevo */}
-                    <div className="mb-6">
-                      <label className="block text-yellow-400 font-semibold mb-2 flex items-center gap-2">
-                        <Building2 className="w-5 h-5" />
-                        Seleccionar Cliente
-                      </label>
-                      <select
-                        value={clienteSeleccionadoId || ''}
-                        onChange={cargarDatosCliente}
-                        className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white"
-                      >
-                        <option value="">+ Nuevo Cliente</option>
-                        {listaClientes.map(c => (
-                          <option key={c.id} value={c.id}>
-                            {c.nombre} - RUC: {c.ruc}
-                          </option>
-                        ))}
-                      </select>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Selecciona un cliente existente o crea uno nuevo
-                      </p>
-                    </div>
-
-                    {/* Campos del formulario */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      <div>
-                        <label className="block text-yellow-400 font-semibold mb-2">
-                          Nombre/Razón Social *
-                        </label>
-                        <input
-                          type="text"
-                          name="nombre"
-                          value={datosCliente.nombre}
-                          onChange={handleClienteChange}
-                          className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white"
-                          placeholder="Ej: Constructora ABC S.A.C."
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-yellow-400 font-semibold mb-2">
-                          RUC *
-                        </label>
-                        <input
-                          type="text"
-                          name="ruc"
-                          value={datosCliente.ruc}
-                          onChange={handleClienteChange}
-                          className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white"
-                          placeholder="11 dígitos"
-                          maxLength={11}
-                          required
-                        />
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <label className="block text-yellow-400 font-semibold mb-2 flex items-center gap-2">
-                          <MapPin className="w-4 h-4" />
-                          Dirección
-                        </label>
-                        <input
-                          type="text"
-                          name="direccion"
-                          value={datosCliente.direccion}
-                          onChange={handleClienteChange}
-                          className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white"
-                          placeholder="Ej: Av. Principal 123, Lima"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-yellow-400 font-semibold mb-2 flex items-center gap-2">
-                          <Phone className="w-4 h-4" />
-                          Teléfono
-                        </label>
-                        <input
-                          type="tel"
-                          name="telefono"
-                          value={datosCliente.telefono}
-                          onChange={handleClienteChange}
-                          className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white"
-                          placeholder="Ej: 987654321"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-yellow-400 font-semibold mb-2 flex items-center gap-2">
-                          <Mail className="w-4 h-4" />
-                          Email
-                        </label>
-                        <input
-                          type="email"
-                          name="email"
-                          value={datosCliente.email}
-                          onChange={handleClienteChange}
-                          className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white"
-                          placeholder="cliente@empresa.com"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Botón guardar cliente */}
-                    <button
-                      onClick={guardarCliente}
-                      disabled={guardandoCliente || !datosCliente.nombre || !datosCliente.ruc}
-                      className="w-full bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 hover:from-yellow-500 hover:to-yellow-400 disabled:from-gray-800 disabled:to-gray-700 disabled:cursor-not-allowed text-black px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl border-2 border-yellow-400 transition-all duration-300 hover:scale-105"
-                    >
-                      {guardandoCliente ? (
-                        <>
-                          <Loader className="w-5 h-5 animate-spin" />
-                          Guardando...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="w-5 h-5" />
-                          {clienteSeleccionadoId ? 'Actualizar Cliente' : 'Guardar Cliente'}
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* CONFIGURACIÓN ESPECÍFICA POR TIPO */}
-                  {esProyecto && (
-                    <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-blue-700 shadow-xl">
-                      <h2 className="text-2xl font-bold mb-4 text-blue-400">📋 Información del Proyecto</h2>
-                      <div className="space-y-6">
+                      {/* Campos del formulario */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
-                          <label className="block text-blue-400 font-semibold mb-2">Nombre del Proyecto *</label>
+                          <label className="block text-yellow-400 font-semibold mb-2">
+                            Nombre/Razón Social *
+                          </label>
                           <input
                             type="text"
-                            value={nombre_proyecto}
-                            onChange={(e) => setNombre_proyecto(e.target.value)}
-                            className="w-full px-4 py-3 bg-gray-950 border border-blue-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-white"
-                            placeholder="Ej: Instalación Eléctrica Edificio Central"
+                            name="nombre"
+                            value={datosCliente.nombre}
+                            onChange={handleClienteChange}
+                            className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white"
+                            placeholder="Ej: Constructora ABC S.A.C."
+                            required
                           />
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4">
-                          <div className="col-span-2">
-                            <label className="block text-blue-400 font-semibold mb-2">Presupuesto Estimado</label>
-                            <input
-                              type="number"
-                              value={presupuesto}
-                              onChange={(e) => setPresupuesto(e.target.value)}
-                              className="w-full px-4 py-3 bg-gray-950 border border-blue-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-white"
-                              placeholder="50000"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-blue-400 font-semibold mb-2">Moneda</label>
-                            <select
-                              value={moneda}
-                              onChange={(e) => setMoneda(e.target.value)}
-                              className="w-full px-4 py-3 bg-gray-950 border border-blue-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-white"
-                            >
-                              <option value="PEN">S/ (PEN)</option>
-                              <option value="USD">$ (USD)</option>
-                              <option value="EUR">€ (EUR)</option>
-                            </select>
-                          </div>
+                        <div>
+                          <label className="block text-yellow-400 font-semibold mb-2">
+                            RUC *
+                          </label>
+                          <input
+                            type="text"
+                            name="ruc"
+                            value={datosCliente.ruc}
+                            onChange={handleClienteChange}
+                            className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white"
+                            placeholder="11 dígitos"
+                            maxLength={11}
+                            required
+                          />
                         </div>
 
-                        {/* ✅ CALENDARIO PROFESIONAL - Persistencia corregida y Sincronizada */}
-                        {/* GRID DE DISEÑO: CALENDARIO IZQUIERDA - FASES DERECHA */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                        <div className="md:col-span-2">
+                          <label className="block text-yellow-400 font-semibold mb-2 flex items-center gap-2">
+                            <MapPin className="w-4 h-4" />
+                            Dirección
+                          </label>
+                          <input
+                            type="text"
+                            name="direccion"
+                            value={datosCliente.direccion}
+                            onChange={handleClienteChange}
+                            className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white"
+                            placeholder="Ej: Av. Principal 123, Lima"
+                          />
+                        </div>
 
-                          {/* COLUMNA IZQUIERDA: CONFIGURACIÓN */}
-                          <div className="space-y-6">
-                            <CalendarioProyecto
-                              onChange={(datos) => {
-                                setDatosCalendario(datos);
-                                setDatosCronograma(datos);
-                                if (datos && datos.duracion_dias) {
-                                  if (!duracion_total || duracion_total === datos.duracion_dias) {
-                                    console.log('🔄 Sincronizando duración desde calendario:', datos.duracion_dias);
-                                    setDuracion_total(datos.duracion_dias);
-                                  } else {
-                                    console.log('⚠️ Preservando duración manual del usuario:', duracion_total);
-                                  }
-                                }
-                              }}
-                              valoresIniciales={{
-                                fechaInicio: datosCalendario?.fechaInicio ? new Date(datosCalendario.fechaInicio) : new Date(),
-                                duracionMeses: 4,
-                                usarDiasHabiles: true
-                              }}
+                        <div>
+                          <label className="block text-yellow-400 font-semibold mb-2 flex items-center gap-2">
+                            <Phone className="w-4 h-4" />
+                            Teléfono
+                          </label>
+                          <input
+                            type="tel"
+                            name="telefono"
+                            value={datosCliente.telefono}
+                            onChange={handleClienteChange}
+                            className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white"
+                            placeholder="Ej: 987654321"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-yellow-400 font-semibold mb-2 flex items-center gap-2">
+                            <Mail className="w-4 h-4" />
+                            Email
+                          </label>
+                          <input
+                            type="email"
+                            name="email"
+                            value={datosCliente.email}
+                            onChange={handleClienteChange}
+                            className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white"
+                            placeholder="cliente@empresa.com"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Botón guardar cliente */}
+                      <button
+                        onClick={guardarCliente}
+                        disabled={guardandoCliente || !datosCliente.nombre || !datosCliente.ruc}
+                        className="w-full bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 hover:from-yellow-500 hover:to-yellow-400 disabled:from-gray-800 disabled:to-gray-700 disabled:cursor-not-allowed text-black px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl border-2 border-yellow-400 transition-all duration-300 hover:scale-105"
+                      >
+                        {guardandoCliente ? (
+                          <>
+                            <Loader className="w-5 h-5 animate-spin" />
+                            Guardando...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-5 h-5" />
+                            {clienteSeleccionadoId ? 'Actualizar Cliente' : 'Guardar Cliente'}
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* CONFIGURACIÓN ESPECÍFICA POR TIPO */}
+                    {esProyecto && (
+                      <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-blue-700 shadow-xl">
+                        <h2 className="text-2xl font-bold mb-4 text-blue-400">📋 Información del Proyecto</h2>
+                        <div className="space-y-6">
+                          <div>
+                            <label className="block text-blue-400 font-semibold mb-2">Nombre del Proyecto *</label>
+                            <input
+                              type="text"
+                              value={nombre_proyecto}
+                              onChange={(e) => setNombre_proyecto(e.target.value)}
+                              className="w-full px-4 py-3 bg-gray-950 border border-blue-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-white"
+                              placeholder="Ej: Instalación Eléctrica Edificio Central"
                             />
-
-                            {/* CONFIGURACIÓN PROYECTO COMPLEJO (Checklist y Metrado) */}
-                            {tipoFlujo === 'proyecto-complejo' && (
-                              <div className="space-y-6 animate-fadeIn">
-                                {/* Checklist Alcance */}
-                                <div className="border-t border-blue-800 pt-6">
-                                  <h3 className="text-xl font-bold text-blue-300 mb-4 flex items-center gap-2">
-                                    <CheckSquare className="w-5 h-5" />
-                                    Definir Alcance del Proyecto
-                                  </h3>
-                                  <div className="flex gap-4 mb-6">
-                                    <button
-                                      onClick={() => {
-                                        setComplejidad(5);
-                                        setEtapasSeleccionadas(['acta_constitucion', 'stakeholders', 'cronograma', 'cierre']);
-                                      }}
-                                      className={`flex-1 p-4 rounded-xl border-2 transition-all ${complejidad === 5 ? 'bg-blue-600 border-blue-400 text-white' : 'bg-gray-900 border-gray-700 text-gray-400'}`}
-                                    >
-                                      <div className="font-bold text-lg">5 Fases - Básico</div>
-                                      <div className="text-xs opacity-80">Proyectos estándar</div>
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        setComplejidad(7);
-                                        setEtapasSeleccionadas(['acta_constitucion', 'stakeholders', 'riesgos', 'cronograma', 'calidad', 'comunicaciones', 'cierre']);
-                                      }}
-                                      className={`flex-1 p-4 rounded-xl border-2 transition-all ${complejidad === 7 ? 'bg-purple-600 border-purple-400 text-white' : 'bg-gray-900 border-gray-700 text-gray-400'}`}
-                                    >
-                                      <div className="font-bold text-lg">7 Fases - Avanzado</div>
-                                      <div className="text-xs opacity-80">Gestión integral PMI</div>
-                                    </button>
-                                  </div>
-                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                    {[
-                                      { id: 'acta_constitucion', label: 'Acta de Constitución' },
-                                      { id: 'stakeholders', label: 'Interesados (Stakeholders)' },
-                                      { id: 'riesgos', label: 'Gestión de Riesgos' },
-                                      { id: 'cronograma', label: 'Cronograma Detallado' },
-                                      { id: 'calidad', label: 'Plan de Calidad' },
-                                      { id: 'comunicaciones', label: 'Plan de Comunicaciones' },
-                                      { id: 'cierre', label: 'Informe de Cierre' }
-                                    ].map(etapa => (
-                                      <label key={etapa.id} className="flex items-center gap-3 p-3 bg-gray-950 rounded-lg border border-gray-800 cursor-pointer hover:border-blue-500 transition-colors">
-                                        <input
-                                          type="checkbox"
-                                          checked={etapasSeleccionadas.includes(etapa.id)}
-                                          onChange={(e) => {
-                                            if (e.target.checked) setEtapasSeleccionadas([...etapasSeleccionadas, etapa.id]);
-                                            else setEtapasSeleccionadas(etapasSeleccionadas.filter(id => id !== etapa.id));
-                                          }}
-                                          className="w-5 h-5 rounded border-gray-600 text-blue-500 focus:ring-blue-500 bg-gray-800"
-                                        />
-                                        <span className={etapasSeleccionadas.includes(etapa.id) ? 'text-white font-medium' : 'text-gray-500'}>
-                                          {etapa.label}
-                                        </span>
-                                      </label>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {/* Metrado */}
-                                <div className="border-t border-blue-800 pt-6">
-                                  <h3 className="text-xl font-bold text-blue-300 mb-4 flex items-center gap-2">
-                                    <TrendingUp className="w-5 h-5" />
-                                    Metrado y Dimensiones
-                                  </h3>
-                                  <div className="bg-gray-950 rounded-xl p-4 border border-blue-900">
-                                    <div className="flex items-center justify-between mb-4">
-                                      <div>
-                                        <p className="font-semibold text-white">¿Definir Metrado Total?</p>
-                                        <p className="text-xs text-gray-400">Especificar área total del proyecto (m²)</p>
-                                      </div>
-                                      <label className="relative inline-flex items-center cursor-pointer">
-                                        <input
-                                          type="checkbox"
-                                          checked={incluirMetrado}
-                                          onChange={(e) => setIncluirMetrado(e.target.checked)}
-                                          className="sr-only peer"
-                                        />
-                                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                      </label>
-                                    </div>
-                                    {incluirMetrado && (
-                                      <div className="animate-fadeIn">
-                                        <label className="block text-blue-400 font-semibold mb-2">Área Total del Proyecto (m²)</label>
-                                        <input
-                                          type="number"
-                                          value={areaMetrado}
-                                          onChange={(e) => setAreaMetrado(e.target.value)}
-                                          className="w-full px-4 py-3 bg-gray-900 border border-blue-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-white text-lg font-bold"
-                                          placeholder="Ej: 150"
-                                        />
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            )}
                           </div>
 
-                          {/* COLUMNA DERECHA: EDITOR DE FASES Y RESUMEN */}
-                          <div className="space-y-6">
-                            {/* EDITOR DE FASES (Solo Proyecto Complejo) */}
-                            {tipoFlujo === 'proyecto-complejo' && (
+                          <div className="grid grid-cols-3 gap-4">
+                            <div className="col-span-2">
+                              <label className="block text-blue-400 font-semibold mb-2">Presupuesto Estimado</label>
+                              <input
+                                type="number"
+                                value={presupuesto}
+                                onChange={(e) => setPresupuesto(e.target.value)}
+                                className="w-full px-4 py-3 bg-gray-950 border border-blue-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-white"
+                                placeholder="50000"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-blue-400 font-semibold mb-2">Moneda</label>
+                              <select
+                                value={moneda}
+                                onChange={(e) => setMoneda(e.target.value)}
+                                className="w-full px-4 py-3 bg-gray-950 border border-blue-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-white"
+                              >
+                                <option value="PEN">S/ (PEN)</option>
+                                <option value="USD">$ (USD)</option>
+                                <option value="EUR">€ (EUR)</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* ✅ CALENDARIO PROFESIONAL - Persistencia corregida y Sincronizada */}
+                          {/* GRID DE DISEÑO: CALENDARIO IZQUIERDA - FASES DERECHA */}
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+                            {/* COLUMNA IZQUIERDA: CONFIGURACIÓN */}
+                            <div className="space-y-6">
+                              <CalendarioProyecto
+                                onChange={(datos) => {
+                                  setDatosCalendario(datos);
+                                  setDatosCronograma(datos);
+                                  if (datos && datos.duracion_dias) {
+                                    if (!duracion_total || duracion_total === datos.duracion_dias) {
+                                      console.log('🔄 Sincronizando duración desde calendario:', datos.duracion_dias);
+                                      setDuracion_total(datos.duracion_dias);
+                                    } else {
+                                      console.log('⚠️ Preservando duración manual del usuario:', duracion_total);
+                                    }
+                                  }
+                                }}
+                                valoresIniciales={{
+                                  fechaInicio: datosCalendario?.fechaInicio ? new Date(datosCalendario.fechaInicio) : new Date(),
+                                  duracionMeses: 4,
+                                  usarDiasHabiles: true
+                                }}
+                              />
+                            </div>
+
+                            {/* COLUMNA DERECHA: EDITOR DE FASES Y RESUMEN */}
+                            <div className="space-y-6">
+                              {/* Editor de Fases */}
                               <div className="animate-fadeIn">
                                 <div className="flex items-center justify-between mb-4">
                                   <h3 className="text-xl font-bold text-blue-300 flex items-center gap-2">
@@ -2273,506 +2190,190 @@ const PILIQuartsApp = () => {
                                   </div>
                                 )}
                               </div>
-                            )}
-
-                            {/* RESUMEN DEL PROYECTO (Siempre Visible) */}
-                            <ProyectoResumen
-                              datos={datosCronograma}
-                              fases={fasesCalculadas}
-                              usarDiasHabiles={datosCalendario?.usarDiasHabiles}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {esInforme && (
-                    <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-green-700 shadow-xl">
-                      <h2 className="text-2xl font-bold mb-4 text-green-400">📄 Configuración del Informe</h2>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-green-400 font-semibold mb-2">Proyecto Base *</label>
-                          <select
-                            value={proyectoSeleccionado}
-                            onChange={(e) => setProyectoSeleccionado(e.target.value)}
-                            className="w-full px-4 py-3 bg-gray-950 border border-green-700 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none text-white">
-                            <option value="">Seleccionar proyecto...</option>
-                            {proyectosMock.map(p => (
-                              <option key={p.id} value={p.id}>{p.nombre} - {p.cliente}</option>
-                            ))}
-                            <option value="general">📋 Informe General</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-green-400 font-semibold mb-2">Formato de Salida</label>
-                          <select
-                            value={formatoInforme}
-                            onChange={(e) => setFormatoInforme(e.target.value)}
-                            className="w-full px-4 py-3 bg-gray-950 border border-green-700 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none text-white">
-                            <option value="word">📄 Word (Editable)</option>
-                            <option value="pdf">📃 PDF (Final)</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* SERVICIO E INDUSTRIA */}
-                  <div className={`bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-${colores.border} shadow-xl`}>
-                    <h2 className={`text-2xl font-bold mb-4 text-${colores.primary}-400`}>⚙️ Tipo de Servicio</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {servicios.map(servicio => (
-                        <button
-                          key={servicio.id}
-                          onClick={() => setServicioSeleccionado(servicio.id)}
-                          className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${servicioSeleccionado === servicio.id
-                            ? 'border-yellow-500 bg-gradient-to-br from-red-900 to-red-800 text-white shadow-xl scale-105'
-                            : 'border-gray-700 bg-gray-900 hover:border-yellow-600 hover:bg-gray-800'
-                            }`}>
-                          <div className="text-2xl mb-2">{servicio.icon}</div>
-                          <div className="text-sm font-semibold">{servicio.nombre.split(' ').slice(1).join(' ')}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className={`bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-${colores.border} shadow-xl`}>
-                    <h2 className={`text-2xl font-bold mb-4 text-${colores.primary}-400`}>🏢 Industria</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {industrias.map(industria => (
-                        <button
-                          key={industria.id}
-                          onClick={() => setIndustriaSeleccionada(industria.id)}
-                          className={`p-3 rounded-xl border-2 transition-all duration-300 ${industriaSeleccionada === industria.id
-                            ? 'border-yellow-500 bg-gradient-to-br from-red-900 to-red-800 text-white shadow-xl'
-                            : 'border-gray-700 bg-gray-900 hover:border-yellow-600 hover:bg-gray-800'
-                            }`}>
-                          <div className="text-sm font-semibold">{industria.nombre}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* DESCRIPCIÓN */}
-                  <div className={`bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-${colores.border} shadow-xl`}>
-                    <h2 className={`text-2xl font-bold mb-4 text-${colores.primary}-400`}>📝 Descripción Detallada</h2>
-
-                    {esCotizacion && servicioSeleccionado && basePreciosUniversal[servicioSeleccionado] && (
-                      <div className="mb-4 p-4 bg-blue-950 bg-opacity-50 border border-blue-700 rounded-xl">
-                        <p className="text-sm font-semibold text-blue-300 mb-2">
-                          💡 Precios base {servicios.find(s => s.id === servicioSeleccionado)?.nombre}
-                        </p>
-                        <div className="grid grid-cols-2 gap-2 text-xs text-gray-300">
-                          {Object.entries(basePreciosUniversal[servicioSeleccionado]).slice(0, 4).map(([item, precio]) => (
-                            <div key={item}>• {item}: S/ {precio}</div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <textarea
-                      value={contextoUsuario}
-                      onChange={(e) => setContextoUsuario(e.target.value)}
-                      className="w-full h-32 px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none resize-none mb-4 text-white placeholder-gray-500"
-                      placeholder={
-                        esCotizacion ? "Describe el proyecto a cotizar detalladamente..." :
-                          esProyecto ? "Describe los objetivos y alcance del proyecto..." :
-                            "Describe el propósito y contenido del informe..."
-                      }
-                    />
-
-                    {/* UPLOAD DE DOCUMENTOS */}
-                    <div className="border-t-2 border-gray-800 pt-4">
-                      <h3 className="text-lg font-semibold mb-3 text-gray-300">Documentos (Opcional)</h3>
-                      <div className="border-2 border-dashed border-gray-700 rounded-xl p-6 text-center hover:border-yellow-600 transition-all cursor-pointer mb-4 bg-gray-950 bg-opacity-50">
-                        <input type="file" multiple onChange={handleFileUpload} className="hidden" id="fileInput" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.xlsx,.xls,.docx,.doc,.html,.json,.txt,.csv" />
-                        <label htmlFor="fileInput" className="cursor-pointer">
-                          <Upload className="w-12 h-12 mx-auto mb-3 text-yellow-500" />
-                          <p className="text-sm text-gray-400 font-semibold">Sube documentos (máx 10MB)</p>
-                        </label>
-                      </div>
-
-                      {archivos.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-sm font-semibold text-yellow-400 mb-2">📁 Archivos:</p>
-                          {archivos.map((archivo, index) => (
-                            <div key={index} className="flex items-center justify-between bg-gray-950 bg-opacity-70 p-3 rounded-xl border border-gray-800">
-                              <div className="flex items-center gap-2">
-                                <FileText className="w-5 h-5 text-yellow-500" />
-                                <span className="text-sm font-semibold">{archivo.nombre}</span>
-                              </div>
-                              <button
-                                onClick={() => setArchivos(prev => prev.filter((_, i) => i !== index))}
-                                className="text-red-400 hover:text-red-300">
-                                <X className="w-5 h-5" />
-                              </button>
                             </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
 
-                  {/* BOTÓN CONTINUAR */}
-                  <button
-                    onClick={async () => {
-                      // ✅ Guardar proyecto en BD antes de ir al chat
-                      if (esProyecto) {
-                        await guardarProyectoEnBD();
-                      }
-                      setPaso(2);
-                    }}
-                    disabled={!servicioSeleccionado || !industriaSeleccionada || !contextoUsuario.trim() ||
-                      (esProyecto && (!nombre_proyecto || !datosCliente.nombre)) ||
-                      (esInforme && !proyectoSeleccionado)}
-                    className="w-full bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 hover:from-yellow-500 hover:to-yellow-400 disabled:from-gray-800 disabled:to-gray-700 disabled:cursor-not-allowed py-4 rounded-xl font-bold text-lg text-black shadow-2xl border-2 border-yellow-400 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3">
-                    <MessageSquare className="w-6 h-6" />
-                    Comenzar Chat con Vista Previa
-                  </button>
-                </div>
-              )}
-              {/* PASO 2: CHAT + VISTA PREVIA SPLIT-SCREEN */}
-              {paso === 2 && (
-                <div className="max-w-full mx-auto h-[calc(100vh-200px)] overflow-hidden flex flex-col">
+                          </div>
 
-
-
-                  {/* 🔥 MODAL: Preview Pantalla Completa */}
-                  {viewMode === 'preview' && (
-                    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                      <div className="relative w-full h-full max-w-7xl bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-                        <button
-                          onClick={() => setViewMode('split')}
-                          className="absolute top-4 right-4 z-10 p-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-all shadow-lg"
-                        >
-                          <X className="w-6 h-6" />
-                        </button>
-                        <div className="flex-1 overflow-y-auto p-6">
-                          <VistaPreviaProfesional
-                            cotizacion={cotizacion || proyecto || informe || datosEditables}
-                            onGenerarDocumento={handleDescargar}
-                            onDatosChange={handleDatosChange}
-                            tipoDocumento={tipoFlujo}
-                            htmlPreview={htmlPreview}
-                            esquemaColores={esquemaColores}
-                            logoBase64={logoBase64}
-                            fuenteDocumento={fuenteDocumento}
-                            ocultarIGV={ocultarIGV}
-                            ocultarPreciosUnitarios={ocultarPreciosUnitarios}
-                            ocultarTotalesPorItem={ocultarTotalesPorItem}
-                            modoEdicion={modoEdicion}
+                          {/* RESUMEN DEL PROYECTO (Siempre Visible) */}
+                          <ProyectoResumen
+                            datos={datosCronograma}
+                            fases={fasesCalculadas}
+                            usarDiasHabiles={datosCalendario?.usarDiasHabiles}
                           />
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  <div className="flex-1 overflow-hidden grid grid-cols-12 h-full gap-4">
+                    {esInforme && (
+                      <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-green-700 shadow-xl">
+                        <h2 className="text-2xl font-bold mb-4 text-green-400">📄 Configuración del Informe</h2>
 
-
-                    {/* CHAT (IZQUIERDA) */}
-                    {servicioSeleccionado === 'itse' && tipoFlujo === 'cotizacion-simple' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}>
-                        <PiliITSEChat
-                          onDatosGenerados={(datos) => { console.log(' DATOS RECIBIDOS DE ITSE:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }}
-                          onBotonesUpdate={(botones) => setBotonesContextuales(botones)}
-                          onBack={() => setPaso(1)}
-                          onFinish={() => setPaso(3)}
-                          viewMode={viewMode}
-                          setViewMode={setViewMode}
-                        />
-                      </div>
-                    ) : servicioSeleccionado === 'electricidad' && tipoFlujo === 'cotizacion-simple' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}>
-                        <PiliElectricidadChat
-                          onDatosGenerados={(datos) => { console.log('✅ DATOS RECIBIDOS DE ELECTRICIDAD:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }}
-                          onBotonesUpdate={(botones) => setBotonesContextuales(botones)}
-                          onBack={() => setPaso(1)}
-                          onFinish={() => setPaso(3)}
-                          viewMode={viewMode}
-                          setViewMode={setViewMode}
-                        />
-                      </div>
-                    ) : servicioSeleccionado === 'puesta-tierra' && tipoFlujo === 'cotizacion-simple' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}>
-                        <PiliPuestaTierraChat
-                          onDatosGenerados={(datos) => { console.log('✅ DATOS RECIBIDOS DE PUESTA A TIERRA:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }}
-                          onBotonesUpdate={(botones) => setBotonesContextuales(botones)}
-                          onBack={() => setPaso(1)}
-                          onFinish={() => setPaso(3)}
-                          viewMode={viewMode}
-                          setViewMode={setViewMode}
-                        />
-                      </div>
-                    ) : servicioSeleccionado === 'contra-incendios' && tipoFlujo === 'cotizacion-simple' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}>
-                        <PiliContraIncendiosChat
-                          onDatosGenerados={(datos) => { console.log('✅ DATOS CONTRA INCENDIOS:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }}
-                          onBotonesUpdate={(botones) => setBotonesContextuales(botones)}
-                          onBack={() => setPaso(1)}
-                          onFinish={() => setPaso(3)}
-                          viewMode={viewMode}
-                          setViewMode={setViewMode}
-                        />
-                      </div>
-                    ) : servicioSeleccionado === 'domotica' && tipoFlujo === 'cotizacion-simple' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}>
-                        <PiliDomoticaChat
-                          onDatosGenerados={(datos) => { console.log('✅ DATOS DOMÓTICA:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }}
-                          onBotonesUpdate={(botones) => setBotonesContextuales(botones)}
-                          onBack={() => setPaso(1)}
-                          onFinish={() => setPaso(3)}
-                          viewMode={viewMode}
-                          setViewMode={setViewMode}
-                        />
-                      </div>
-                    ) : servicioSeleccionado === 'cctv' && tipoFlujo === 'cotizacion-simple' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliCCTVChat onDatosGenerados={(datos) => { console.log('✅ DATOS CCTV:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
-                    ) : servicioSeleccionado === 'redes' && tipoFlujo === 'cotizacion-simple' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliRedesChat onDatosGenerados={(datos) => { console.log('✅ DATOS REDES:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
-                    ) : servicioSeleccionado === 'automatizacion-industrial' && tipoFlujo === 'cotizacion-simple' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliAutomatizacionChat onDatosGenerados={(datos) => { console.log('✅ DATOS AUTOMATIZACIÓN:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
-                    ) : servicioSeleccionado === 'expedientes' && tipoFlujo === 'cotizacion-simple' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliExpedientesChat onDatosGenerados={(datos) => { console.log('✅ DATOS EXPEDIENTES:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
-                    ) : servicioSeleccionado === 'saneamiento' && tipoFlujo === 'cotizacion-simple' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliSaneamientoChat onDatosGenerados={(datos) => { console.log('✅ DATOS SANEAMIENTO:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
-                    ) : servicioSeleccionado === 'electricidad' && tipoFlujo === 'cotizacion-compleja' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliElectricidadComplejoChat onDatosGenerados={(datos) => { console.log('✅ DATOS ELECTRICIDAD COMPLEJO:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
-                    ) : servicioSeleccionado === 'automatizacion-industrial' && tipoFlujo === 'cotizacion-compleja' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliAutomatizacionComplejoChat onDatosGenerados={(datos) => { console.log('✅ DATOS AUTOMATIZACIÓN COMPLEJO:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
-                    ) : servicioSeleccionado === 'contra-incendios' && tipoFlujo === 'cotizacion-compleja' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliContraIncendiosComplejoChat onDatosGenerados={(datos) => { console.log('✅ DATOS CONTRA INCENDIOS COMPLEJO:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
-                    ) : servicioSeleccionado === 'electricidad' && tipoFlujo === 'proyecto-simple' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliElectricidadProyectoSimpleChat datosCliente={datosCliente} nombre_proyecto={nombre_proyecto} presupuesto={presupuesto} moneda={moneda} duracion_total={duracion_total} onDatosGenerados={(datos) => { console.log('✅ DATOS PROYECTO SIMPLE:', datos); setProyecto(datos); setDatosEditables(datos); setMostrarPreview(true); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
-                    ) : servicioSeleccionado === 'electricidad' && tipoFlujo === 'proyecto-complejo' ? (
-                      <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}>
-                        <ModuloC
-                          datosIniciales={proyecto}
-                          onBack={() => setPaso(1)}
-                          onGuardarBorrador={handleGuardarBorrador}
-                          proyectoId={proyectoId}
-                          setProyectoId={setProyectoId}
-                          onGenerarDocumento={(fmt) => {
-                            // Solicitud de documento desde Módulo
-                            handleDescargar(fmt);
-                          }}
-                        />
-
-                      </div>
-                    ) : (
-                      <div className="col-span-6 bg-white rounded-2xl shadow-xl flex flex-col">
-                        <div className="bg-gradient-to-r from-yellow-600 to-yellow-500 p-4 rounded-t-2xl">
-                          <h3 className="text-xl font-bold text-black flex items-center gap-2">
-                            <div className="bg-white p-1 rounded-full">
-                              <PiliAvatar size={24} showCrown={true} />
-                            </div>
-                            👑 PILI - {servicios.find(s => s.id === servicioSeleccionado)?.nombre}
-                          </h3>
-                        </div>
-
-                        {/* CONVERSACIÓN */}
-                        <div ref={chatContainerRef} className="flex-grow bg-gray-100 p-4 overflow-y-auto">
-                          {conversacion.length === 0 ? (
-                            <div className="text-center text-gray-600 mt-8">
-                              <div className="inline-block bg-yellow-600 p-3 rounded-full mb-3">
-                                <PiliAvatar size={32} showCrown={true} />
-                              </div>
-                              <p className="font-semibold text-lg">¡Hola! Soy 👑 PILI - Tu Asistente IA</p>
-                              <p className="text-xs text-gray-500 mb-2">Procesadora Inteligente de Licitaciones Industriales v3.0</p>
-                              <p className="text-sm mt-1">
-                                {esCotizacion && "Empezemos con tu cotización..."}
-                                {esProyecto && "Vamos a planificar tu proyecto..."}
-                                {esInforme && "Generemos tu informe profesional..."}
-                              </p>
-                            </div>
-                          ) : (
-                            <div className="space-y-3">
-                              {conversacion.map((mensaje, index) => (
-                                <div key={index} className={`flex ${mensaje.tipo === 'usuario' ? 'justify-end' : 'justify-start'}`}>
-                                  <div className={`max-w-[85%] p-3 rounded-2xl ${mensaje.tipo === 'usuario'
-                                    ? 'bg-yellow-600 text-black'
-                                    : 'bg-white border-2 border-gray-300 text-gray-800'
-                                    }`}>
-                                    <p className="text-sm">{mensaje.mensaje}</p>
-                                  </div>
-                                </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-green-400 font-semibold mb-2">Proyecto Base *</label>
+                            <select
+                              value={proyectoSeleccionado}
+                              onChange={(e) => setProyectoSeleccionado(e.target.value)}
+                              className="w-full px-4 py-3 bg-gray-950 border border-green-700 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none text-white">
+                              <option value="">Seleccionar proyecto...</option>
+                              {proyectosMock.map(p => (
+                                <option key={p.id} value={p.id}>{p.nombre} - {p.cliente}</option>
                               ))}
-
-                              {analizando && (
-                                <div className="flex justify-start">
-                                  <div className="bg-white border-2 border-gray-300 p-3 rounded-2xl">
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                      <div className="bg-yellow-600 p-1 rounded-full animate-pulse">
-                                        <PiliAvatar size={16} showCrown={true} />
-                                      </div>
-                                      <Loader className="w-4 h-4 animate-spin text-yellow-600" />
-                                      <span className="text-sm font-medium">PILI está pensando... 🤔</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* ✅ NUEVO: Indicador de Progreso de Datos */}
-                        {(datosRecopilados.length > 0 || datosFaltantes.length > 0) && (
-                          <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-200">
-                            <div className="bg-white rounded-lg p-3 shadow-sm">
-                              <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                                  <BarChart3 className="w-4 h-4 text-blue-600" />
-                                  Progreso de Datos
-                                </span>
-                                <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">
-                                  {progresoChat}
-                                </span>
-                              </div>
-
-                              <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
-                                <div
-                                  className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-500"
-                                  style={{
-                                    width: `${(datosRecopilados.length / (datosRecopilados.length + datosFaltantes.length)) * 100}%`
-                                  }}
-                                />
-                              </div>
-
-                              <div className="flex flex-wrap gap-2">
-                                {datosRecopilados.map(campo => (
-                                  <span
-                                    key={campo}
-                                    className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1"
-                                  >
-                                    <CheckCircle className="w-3 h-3" />
-                                    {campo.replace('_', ' ')}
-                                  </span>
-                                ))}
-                                {datosFaltantes.map(campo => (
-                                  <span
-                                    key={campo}
-                                    className="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs flex items-center gap-1"
-                                  >
-                                    <Clock className="w-3 h-3" />
-                                    {campo.replace('_', ' ')}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* BOTONES CONTEXTUALES */}
-                        {botonesContextuales.length > 0 && (
-                          <div className="px-4 py-2 bg-gray-50 border-t">
-                            <div className="flex flex-wrap gap-2">
-                              {botonesContextuales.map((boton, index) => (
-                                <button
-                                  key={index}
-                                  onClick={() => enviarRespuestaRapida(boton)}
-                                  className="px-3 py-1 bg-yellow-100 hover:bg-yellow-200 text-gray-800 rounded-lg text-xs border border-yellow-300 transition-all">
-                                  {boton}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* INPUT CHAT */}
-                        <div className="p-4 bg-white border-t rounded-b-2xl">
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={inputChat}
-                              onChange={(e) => setInputChat(e.target.value)}
-                              onKeyPress={(e) => e.key === 'Enter' && !analizando && handleEnviarMensajeChat()}
-                              placeholder="Escribe aquí..."
-                              className="flex-grow p-2 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:outline-none text-gray-800"
-                              disabled={analizando}
-                            />
-                            <button
-                              onClick={handleEnviarMensajeChat}
-                              disabled={analizando || !inputChat.trim()}
-                              className="p-2 bg-yellow-600 hover:bg-yellow-500 disabled:bg-gray-400 text-black rounded-xl transition-all">
-                              <Send className="w-5 h-5" />
-                            </button>
+                              <option value="general">📋 Informe General</option>
+                            </select>
                           </div>
 
-                          <div className="flex justify-between items-center mt-3">
-                            <button
-                              onClick={() => setPaso(1)}
-                              className="px-3 py-1 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg text-sm">
-                              ← Configuración
-                            </button>
-                            <button
-                              onClick={() => setPaso(3)}
-                              disabled={!mostrarPreview}
-                              className="px-4 py-1 bg-green-600 hover:bg-green-500 disabled:bg-gray-400 text-white font-bold rounded-lg text-sm">
-                              Finalizar →
-                            </button>
+                          <div>
+                            <label className="block text-green-400 font-semibold mb-2">Formato de Salida</label>
+                            <select
+                              value={formatoInforme}
+                              onChange={(e) => setFormatoInforme(e.target.value)}
+                              className="w-full px-4 py-3 bg-gray-950 border border-green-700 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none text-white">
+                              <option value="word">📄 Word (Editable)</option>
+                              <option value="pdf">📃 PDF (Final)</option>
+                            </select>
                           </div>
                         </div>
                       </div>
                     )}
 
-                    {/* VISTA PREVIA (DERECHA) */}
-                    <div className={`${viewMode === 'chat' ? 'hidden' : viewMode === 'preview' ? 'col-span-12' : 'col-span-6'} h-full min-h-0 bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden`}>
-                      <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-4 shrink-0 flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <Eye className="w-6 h-6 text-white" />
-                          <h3 className="text-xl font-bold text-white">Vista Previa</h3>
+                    {/* SERVICIO E INDUSTRIA */}
+                    <div className={`bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-${colores.border} shadow-xl`}>
+                      <h2 className={`text-2xl font-bold mb-4 text-${colores.primary}-400`}>⚙️ Tipo de Servicio</h2>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {servicios.map(servicio => (
+                          <button
+                            key={servicio.id}
+                            onClick={() => setServicioSeleccionado(servicio.id)}
+                            className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${servicioSeleccionado === servicio.id
+                              ? 'border-yellow-500 bg-gradient-to-br from-red-900 to-red-800 text-white shadow-xl scale-105'
+                              : 'border-gray-700 bg-gray-900 hover:border-yellow-600 hover:bg-gray-800'
+                              }`}>
+                            <div className="text-2xl mb-2">{servicio.icon}</div>
+                            <div className="text-sm font-semibold">{servicio.nombre.split(' ').slice(1).join(' ')}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className={`bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-${colores.border} shadow-xl`}>
+                      <h2 className={`text-2xl font-bold mb-4 text-${colores.primary}-400`}>🏢 Industria</h2>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {industrias.map(industria => (
+                          <button
+                            key={industria.id}
+                            onClick={() => setIndustriaSeleccionada(industria.id)}
+                            className={`p-3 rounded-xl border-2 transition-all duration-300 ${industriaSeleccionada === industria.id
+                              ? 'border-yellow-500 bg-gradient-to-br from-red-900 to-red-800 text-white shadow-xl'
+                              : 'border-gray-700 bg-gray-900 hover:border-yellow-600 hover:bg-gray-800'
+                              }`}>
+                            <div className="text-sm font-semibold">{industria.nombre}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* DESCRIPCIÓN */}
+                    <div className={`bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-${colores.border} shadow-xl`}>
+                      <h2 className={`text-2xl font-bold mb-4 text-${colores.primary}-400`}>📝 Descripción Detallada</h2>
+
+                      {esCotizacion && servicioSeleccionado && basePreciosUniversal[servicioSeleccionado] && (
+                        <div className="mb-4 p-4 bg-blue-950 bg-opacity-50 border border-blue-700 rounded-xl">
+                          <p className="text-sm font-semibold text-blue-300 mb-2">
+                            💡 Precios base {servicios.find(s => s.id === servicioSeleccionado)?.nombre}
+                          </p>
+                          <div className="grid grid-cols-2 gap-2 text-xs text-gray-300">
+                            {Object.entries(basePreciosUniversal[servicioSeleccionado]).slice(0, 4).map(([item, precio]) => (
+                              <div key={item}>• {item}: S/ {precio}</div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <textarea
+                        value={contextoUsuario}
+                        onChange={(e) => setContextoUsuario(e.target.value)}
+                        className="w-full h-32 px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none resize-none mb-4 text-white placeholder-gray-500"
+                        placeholder={
+                          esCotizacion ? "Describe el proyecto a cotizar detalladamente..." :
+                            esProyecto ? "Describe los objetivos y alcance del proyecto..." :
+                              "Describe el propósito y contenido del informe..."
+                        }
+                      />
+
+                      {/* UPLOAD DE DOCUMENTOS */}
+                      <div className="border-t-2 border-gray-800 pt-4">
+                        <h3 className="text-lg font-semibold mb-3 text-gray-300">Documentos (Opcional)</h3>
+                        <div className="border-2 border-dashed border-gray-700 rounded-xl p-6 text-center hover:border-yellow-600 transition-all cursor-pointer mb-4 bg-gray-950 bg-opacity-50">
+                          <input type="file" multiple onChange={handleFileUpload} className="hidden" id="fileInput" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.xlsx,.xls,.docx,.doc,.html,.json,.txt,.csv" />
+                          <label htmlFor="fileInput" className="cursor-pointer">
+                            <Upload className="w-12 h-12 mx-auto mb-3 text-yellow-500" />
+                            <p className="text-sm text-gray-400 font-semibold">Sube documentos (máx 10MB)</p>
+                          </label>
                         </div>
 
-                        {mostrarPreview && (
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => setModoEdicion(!modoEdicion)}
-                              className="px-3 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg text-sm flex items-center gap-1">
-                              <Edit className="w-4 h-4" />
-                              {modoEdicion ? 'Ver' : 'Editar'}
-                            </button>
-
-                            {esCotizacion && (
-                              <div className="flex gap-2">
+                        {archivos.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-sm font-semibold text-yellow-400 mb-2">📁 Archivos:</p>
+                            {archivos.map((archivo, index) => (
+                              <div key={index} className="flex items-center justify-between bg-gray-950 bg-opacity-70 p-3 rounded-xl border border-gray-800">
+                                <div className="flex items-center gap-2">
+                                  <FileText className="w-5 h-5 text-yellow-500" />
+                                  <span className="text-sm font-semibold">{archivo.nombre}</span>
+                                </div>
                                 <button
-                                  onClick={() => setOcultarIGV(!ocultarIGV)}
-                                  className="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded text-xs">
-                                  {ocultarIGV ? 'Mostrar' : 'Ocultar'} IGV
-                                </button>
-                                <button
-                                  onClick={() => setOcultarPreciosUnitarios(!ocultarPreciosUnitarios)}
-                                  className="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded text-xs">
-                                  P. Unit
+                                  onClick={() => setArchivos(prev => prev.filter((_, i) => i !== index))}
+                                  className="text-red-400 hover:text-red-300">
+                                  <X className="w-5 h-5" />
                                 </button>
                               </div>
-                            )}
+                            ))}
                           </div>
                         )}
                       </div>
+                    </div>
 
-                      <div className="flex-1 overflow-y-scroll min-h-0 p-4 bg-white custom-scrollbar scrollbar-gold">
-                        {!mostrarPreview ? (
-                          <div className="text-center text-gray-500 mt-20">
-                            <Eye className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                            <p className="text-lg">Vista Previa</p>
-                            <p className="text-sm">Aparecerá cuando la IA genere contenido</p>
-                          </div>
-                        ) : (() => {
-                          // ✅ RENDERIZAR VistaPreviaProfesional en Paso 2
-                          return (
+                    {/* BOTÓN CONTINUAR */}
+                    <button
+                      onClick={async () => {
+                        // ✅ Guardar proyecto en BD antes de ir al chat
+                        if (esProyecto) {
+                          await guardarProyectoEnBD();
+                        }
+                        setPaso(2);
+                      }}
+                      disabled={!servicioSeleccionado || !industriaSeleccionada || !contextoUsuario.trim() ||
+                        (esProyecto && (!nombre_proyecto || !datosCliente.nombre)) ||
+                        (esInforme && !proyectoSeleccionado)}
+                      className="w-full bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 hover:from-yellow-500 hover:to-yellow-400 disabled:from-gray-800 disabled:to-gray-700 disabled:cursor-not-allowed py-4 rounded-xl font-bold text-lg text-black shadow-2xl border-2 border-yellow-400 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3">
+                      <MessageSquare className="w-6 h-6" />
+                      Comenzar Chat con Vista Previa
+                    </button>
+                  </div>
+                )
+              )}
+              {/* PASO 2: CHAT + VISTA PREVIA SPLIT-SCREEN */}
+              {
+                paso === 2 && (
+                  <div className="max-w-full mx-auto h-[calc(100vh-200px)] overflow-hidden flex flex-col">
+
+
+
+                    {/* 🔥 MODAL: Preview Pantalla Completa */}
+                    {viewMode === 'preview' && (
+                      <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                        <div className="relative w-full h-full max-w-7xl bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+                          <button
+                            onClick={() => setViewMode('split')}
+                            className="absolute top-4 right-4 z-10 p-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-all shadow-lg"
+                          >
+                            <X className="w-6 h-6" />
+                          </button>
+                          <div className="flex-1 overflow-y-auto p-6">
                             <VistaPreviaProfesional
-                              // ✅ FIX CRÍTICO: Selección explícita de datos para evitar conflictos de estado
-                              cotizacion={
-                                esCotizacion ? cotizacion :
-                                  esProyecto ? proyecto :
-                                    esInforme ? informe :
-                                      datosEditables
-                              }
+                              cotizacion={cotizacion || proyecto || informe || datosEditables}
                               onGenerarDocumento={handleDescargar}
-                              onDatosChange={handleDatosChange} // ✅ Conectar callback
+                              onDatosChange={handleDatosChange}
                               tipoDocumento={tipoFlujo}
                               htmlPreview={htmlPreview}
                               esquemaColores={esquemaColores}
@@ -2783,277 +2384,585 @@ const PILIQuartsApp = () => {
                               ocultarTotalesPorItem={ocultarTotalesPorItem}
                               modoEdicion={modoEdicion}
                             />
-                          );
-                        })()}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* PASO 3: FINALIZACIÓN */}
-              {paso === 3 && (
-                <div className="max-w-5xl mx-auto space-y-6">
-                  <div className="bg-white rounded-2xl p-8 shadow-xl border-4 border-green-600">
-                    <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                      <CheckCircle className="w-8 h-8 text-green-600" />
-                      Documento Listo para Generar
-                    </h2>
-
-                    <div className="bg-green-50 p-6 rounded-xl mb-6">
-                      <h3 className="text-lg font-bold text-green-800 mb-3">✅ Lo que se incluirá:</h3>
-                      <div className="grid grid-cols-2 gap-4 text-sm text-green-700">
-                        <div className="space-y-1">
-                          <p>• Contenido generado por IA</p>
-                          <p>• Datos personalizados</p>
-                          <p>• Formato profesional Tesla</p>
-                        </div>
-                        <div className="space-y-1">
-                          {logoBase64 && <p>• Logo de la empresa</p>}
-                          <p>• Colores corporativos</p>
-                          <p>• Información de contacto</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
-                    {/* ✅ VISTA PREVIA PROFESIONAL A PANTALLA COMPLETA */}
-                    <VistaPreviaProfesional
-                      cotizacion={cotizacion || proyecto || informe || {}}
-                      onGenerarDocumento={handleDescargar}
-                      tipoDocumento={tipoFlujo}
-                      htmlPreview={htmlPreview}
-                      esquemaColores={esquemaColores}
-                      logoBase64={logoBase64}
-                      fuenteDocumento={fuenteDocumento}
-                      ocultarIGV={ocultarIGV}
-                      ocultarPreciosUnitarios={ocultarPreciosUnitarios}
-                      ocultarTotalesPorItem={ocultarTotalesPorItem}
-                    />
+                    <div className="flex-1 overflow-hidden grid grid-cols-12 h-full gap-4">
 
 
-                    {/* ✅ PANEL DE PERSONALIZACIÓN */}
-                    <div className="mb-6 border-2 border-blue-500 rounded-xl overflow-hidden">
-                      {/* Header del Panel */}
-                      <button
-                        onClick={() => setMostrarPanelPersonalizacion(!mostrarPanelPersonalizacion)}
-                        className="w-full bg-gradient-to-r from-blue-600 to-blue-500 p-4 flex items-center justify-between hover:from-blue-700 hover:to-blue-600 transition-all">
-                        <div className="flex items-center gap-3">
-                          <Settings className="w-6 h-6 text-white" />
-                          <h3 className="text-lg font-bold text-white">Personalización del Documento</h3>
+                      {/* CHAT (IZQUIERDA) */}
+                      {servicioSeleccionado === 'itse' && tipoFlujo === 'cotizacion-simple' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}>
+                          <PiliITSEChat
+                            onDatosGenerados={(datos) => { console.log(' DATOS RECIBIDOS DE ITSE:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }}
+                            onBotonesUpdate={(botones) => setBotonesContextuales(botones)}
+                            onBack={() => setPaso(1)}
+                            onFinish={() => setPaso(3)}
+                            viewMode={viewMode}
+                            setViewMode={setViewMode}
+                          />
                         </div>
-                        {mostrarPanelPersonalizacion ? (
-                          <ChevronUp className="w-5 h-5 text-white" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-white" />
-                        )}
-                      </button>
-
-                      {/* Contenido del Panel (Colapsable) */}
-                      {mostrarPanelPersonalizacion && (
-                        <div className="bg-gray-900 p-6 space-y-6">
-                          {/* Sección: Esquema de Colores */}
-                          <div>
-                            <label className="block text-blue-400 font-semibold mb-3 flex items-center gap-2">
-                              <PieChart className="w-5 h-5" />
-                              Esquema de Colores
-                            </label>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                              <button
-                                onClick={() => setEsquemaColores('azul-tesla')}
-                                className={`p-3 rounded-lg border-2 transition-all ${esquemaColores === 'azul-tesla'
-                                  ? 'border-blue-500 bg-blue-900 text-white'
-                                  : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-blue-600'
-                                  }`}>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <div className="w-4 h-4 rounded-full bg-blue-500"></div>
-                                  <span className="font-semibold">Azul Tesla</span>
-                                </div>
-                                <span className="text-xs">Corporativo</span>
-                              </button>
-                              <button
-                                onClick={() => setEsquemaColores('rojo-energia')}
-                                className={`p-3 rounded-lg border-2 transition-all ${esquemaColores === 'rojo-energia'
-                                  ? 'border-red-500 bg-red-900 text-white'
-                                  : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-red-600'
-                                  }`}>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                                  <span className="font-semibold">Rojo Energía</span>
-                                </div>
-                                <span className="text-xs">Vibrante</span>
-                              </button>
-                              <button
-                                onClick={() => setEsquemaColores('verde-ecologico')}
-                                className={`p-3 rounded-lg border-2 transition-all ${esquemaColores === 'verde-ecologico'
-                                  ? 'border-green-500 bg-green-900 text-white'
-                                  : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-green-600'
-                                  }`}>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                                  <span className="font-semibold">Verde Eco</span>
-                                </div>
-                                <span className="text-xs">Sostenible</span>
-                              </button>
-                              <button
-                                onClick={() => setEsquemaColores('personalizado')}
-                                className={`p-3 rounded-lg border-2 transition-all ${esquemaColores === 'personalizado'
-                                  ? 'border-purple-500 bg-purple-900 text-white'
-                                  : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-600'
-                                  }`}>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <div className="w-4 h-4 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
-                                  <span className="font-semibold">Personalizado</span>
-                                </div>
-                                <span className="text-xs">A medida</span>
-                              </button>
-                            </div>
+                      ) : servicioSeleccionado === 'electricidad' && tipoFlujo === 'cotizacion-simple' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}>
+                          <PiliElectricidadChat
+                            onDatosGenerados={(datos) => { console.log('✅ DATOS RECIBIDOS DE ELECTRICIDAD:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }}
+                            onBotonesUpdate={(botones) => setBotonesContextuales(botones)}
+                            onBack={() => setPaso(1)}
+                            onFinish={() => setPaso(3)}
+                            viewMode={viewMode}
+                            setViewMode={setViewMode}
+                          />
+                        </div>
+                      ) : servicioSeleccionado === 'puesta-tierra' && tipoFlujo === 'cotizacion-simple' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}>
+                          <PiliPuestaTierraChat
+                            onDatosGenerados={(datos) => { console.log('✅ DATOS RECIBIDOS DE PUESTA A TIERRA:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }}
+                            onBotonesUpdate={(botones) => setBotonesContextuales(botones)}
+                            onBack={() => setPaso(1)}
+                            onFinish={() => setPaso(3)}
+                            viewMode={viewMode}
+                            setViewMode={setViewMode}
+                          />
+                        </div>
+                      ) : servicioSeleccionado === 'contra-incendios' && tipoFlujo === 'cotizacion-simple' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}>
+                          <PiliContraIncendiosChat
+                            onDatosGenerados={(datos) => { console.log('✅ DATOS CONTRA INCENDIOS:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }}
+                            onBotonesUpdate={(botones) => setBotonesContextuales(botones)}
+                            onBack={() => setPaso(1)}
+                            onFinish={() => setPaso(3)}
+                            viewMode={viewMode}
+                            setViewMode={setViewMode}
+                          />
+                        </div>
+                      ) : servicioSeleccionado === 'domotica' && tipoFlujo === 'cotizacion-simple' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}>
+                          <PiliDomoticaChat
+                            onDatosGenerados={(datos) => { console.log('✅ DATOS DOMÓTICA:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }}
+                            onBotonesUpdate={(botones) => setBotonesContextuales(botones)}
+                            onBack={() => setPaso(1)}
+                            onFinish={() => setPaso(3)}
+                            viewMode={viewMode}
+                            setViewMode={setViewMode}
+                          />
+                        </div>
+                      ) : servicioSeleccionado === 'cctv' && tipoFlujo === 'cotizacion-simple' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliCCTVChat onDatosGenerados={(datos) => { console.log('✅ DATOS CCTV:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
+                      ) : servicioSeleccionado === 'redes' && tipoFlujo === 'cotizacion-simple' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliRedesChat onDatosGenerados={(datos) => { console.log('✅ DATOS REDES:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
+                      ) : servicioSeleccionado === 'automatizacion-industrial' && tipoFlujo === 'cotizacion-simple' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliAutomatizacionChat onDatosGenerados={(datos) => { console.log('✅ DATOS AUTOMATIZACIÓN:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
+                      ) : servicioSeleccionado === 'expedientes' && tipoFlujo === 'cotizacion-simple' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliExpedientesChat onDatosGenerados={(datos) => { console.log('✅ DATOS EXPEDIENTES:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
+                      ) : servicioSeleccionado === 'saneamiento' && tipoFlujo === 'cotizacion-simple' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliSaneamientoChat onDatosGenerados={(datos) => { console.log('✅ DATOS SANEAMIENTO:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
+                      ) : servicioSeleccionado === 'electricidad' && tipoFlujo === 'cotizacion-compleja' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliElectricidadComplejoChat onDatosGenerados={(datos) => { console.log('✅ DATOS ELECTRICIDAD COMPLEJO:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
+                      ) : servicioSeleccionado === 'automatizacion-industrial' && tipoFlujo === 'cotizacion-compleja' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliAutomatizacionComplejoChat onDatosGenerados={(datos) => { console.log('✅ DATOS AUTOMATIZACIÓN COMPLEJO:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
+                      ) : servicioSeleccionado === 'contra-incendios' && tipoFlujo === 'cotizacion-compleja' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliContraIncendiosComplejoChat onDatosGenerados={(datos) => { console.log('✅ DATOS CONTRA INCENDIOS COMPLEJO:', datos); setCotizacion(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
+                      ) : servicioSeleccionado === 'electricidad' && tipoFlujo === 'proyecto-simple' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliElectricidadProyectoSimpleChat datosCliente={datosCliente} nombre_proyecto={nombre_proyecto} presupuesto={presupuesto} moneda={moneda} duracion_total={duracion_total} onDatosGenerados={(datos) => { console.log('✅ DATOS PROYECTO SIMPLE:', datos); setProyecto(datos); setDatosEditables(datos); setMostrarPreview(true); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
+                      ) : servicioSeleccionado === 'electricidad' && tipoFlujo === 'proyecto-complejo' ? (
+                        <div className={`${viewMode === 'preview' ? 'hidden' : viewMode === 'chat' ? 'fixed inset-0 z-50 bg-black/90 backdrop-blur-sm p-4 flex flex-col' : 'col-span-6'} h-full min-h-0 overflow-y-auto`}><PiliElectricidadProyectoComplejoPMIChat datosCliente={datosCliente} nombre_proyecto={nombre_proyecto} presupuesto={presupuesto} moneda={moneda} duracion_total={duracion_total} datosCalendario={datosCalendario} servicio={servicioSeleccionado} industria={industriaSeleccionada} descripcion_inicial={contextoUsuario} proyectoId={proyectoId} onDatosGenerados={(datos) => { console.log('✅ DATOS PROYECTO COMPLEJO:', datos); setProyecto(datos); setDatosEditables(datos); setMostrarPreview(true); actualizarVistaPrevia(); }} onBotonesUpdate={(botones) => setBotonesContextuales(botones)} onBack={() => setPaso(1)} onFinish={() => setPaso(3)} viewMode={viewMode} setViewMode={setViewMode} /></div>
+                      ) : (
+                        <div className="col-span-6 bg-white rounded-2xl shadow-xl flex flex-col">
+                          <div className="bg-gradient-to-r from-yellow-600 to-yellow-500 p-4 rounded-t-2xl">
+                            <h3 className="text-xl font-bold text-black flex items-center gap-2">
+                              <div className="bg-white p-1 rounded-full">
+                                <PiliAvatar size={24} showCrown={true} />
+                              </div>
+                              👑 PILI - {servicios.find(s => s.id === servicioSeleccionado)?.nombre}
+                            </h3>
                           </div>
 
-                          {/* Sección: Fuente */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                              <label className="block text-blue-400 font-semibold mb-3">Fuente del Documento</label>
-                              <select
-                                value={fuenteDocumento}
-                                onChange={(e) => setFuenteDocumento(e.target.value)}
-                                className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500 transition-colors">
-                                <option value="Calibri">Calibri (Recomendada)</option>
-                                <option value="Arial">Arial</option>
-                                <option value="Times New Roman">Times New Roman</option>
-                              </select>
-                            </div>
+                          {/* CONVERSACIÓN */}
+                          <div ref={chatContainerRef} className="flex-grow bg-gray-100 p-4 overflow-y-auto">
+                            {conversacion.length === 0 ? (
+                              <div className="text-center text-gray-600 mt-8">
+                                <div className="inline-block bg-yellow-600 p-3 rounded-full mb-3">
+                                  <PiliAvatar size={32} showCrown={true} />
+                                </div>
+                                <p className="font-semibold text-lg">¡Hola! Soy 👑 PILI - Tu Asistente IA</p>
+                                <p className="text-xs text-gray-500 mb-2">Procesadora Inteligente de Licitaciones Industriales v3.0</p>
+                                <p className="text-sm mt-1">
+                                  {esCotizacion && "Empezemos con tu cotización..."}
+                                  {esProyecto && "Vamos a planificar tu proyecto..."}
+                                  {esInforme && "Generemos tu informe profesional..."}
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                {conversacion.map((mensaje, index) => (
+                                  <div key={index} className={`flex ${mensaje.tipo === 'usuario' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[85%] p-3 rounded-2xl ${mensaje.tipo === 'usuario'
+                                      ? 'bg-yellow-600 text-black'
+                                      : 'bg-white border-2 border-gray-300 text-gray-800'
+                                      }`}>
+                                      <p className="text-sm">{mensaje.mensaje}</p>
+                                    </div>
+                                  </div>
+                                ))}
 
-                            <div>
-                              <label className="block text-blue-400 font-semibold mb-3">Tamaño de Fuente</label>
-                              <select
-                                value={tamañoFuente}
-                                onChange={(e) => setTamañoFuente(Number(e.target.value))}
-                                className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500 transition-colors">
-                                <option value={10}>10 pt (Pequeña)</option>
-                                <option value={11}>11 pt (Normal)</option>
-                                <option value={12}>12 pt (Grande)</option>
-                              </select>
-                            </div>
+                                {analizando && (
+                                  <div className="flex justify-start">
+                                    <div className="bg-white border-2 border-gray-300 p-3 rounded-2xl">
+                                      <div className="flex items-center gap-2 text-gray-600">
+                                        <div className="bg-yellow-600 p-1 rounded-full animate-pulse">
+                                          <PiliAvatar size={16} showCrown={true} />
+                                        </div>
+                                        <Loader className="w-4 h-4 animate-spin text-yellow-600" />
+                                        <span className="text-sm font-medium">PILI está pensando... 🤔</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
 
-                          {/* Sección: Logo */}
-                          <div>
-                            <label className="block text-blue-400 font-semibold mb-3 flex items-center gap-2">
-                              <Upload className="w-5 h-5" />
-                              Logo de la Empresa
-                            </label>
-                            <div className="flex items-center gap-4">
-                              <button
-                                onClick={() => setMostrarLogo(!mostrarLogo)}
-                                className={`px-4 py-2 rounded-lg font-semibold transition-all ${mostrarLogo
-                                  ? 'bg-green-600 text-white'
-                                  : 'bg-gray-700 text-gray-300'
-                                  }`}>
-                                {mostrarLogo ? '✓ Mostrar Logo' : '✕ Ocultar Logo'}
-                              </button>
+                          {/* ✅ NUEVO: Indicador de Progreso de Datos */}
+                          {(datosRecopilados.length > 0 || datosFaltantes.length > 0) && (
+                            <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-200">
+                              <div className="bg-white rounded-lg p-3 shadow-sm">
+                                <div className="flex justify-between items-center mb-2">
+                                  <span className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <BarChart3 className="w-4 h-4 text-blue-600" />
+                                    Progreso de Datos
+                                  </span>
+                                  <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                                    {progresoChat}
+                                  </span>
+                                </div>
+
+                                <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+                                  <div
+                                    className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-500"
+                                    style={{
+                                      width: `${(datosRecopilados.length / (datosRecopilados.length + datosFaltantes.length)) * 100}%`
+                                    }}
+                                  />
+                                </div>
+
+                                <div className="flex flex-wrap gap-2">
+                                  {datosRecopilados.map(campo => (
+                                    <span
+                                      key={campo}
+                                      className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1"
+                                    >
+                                      <CheckCircle className="w-3 h-3" />
+                                      {campo.replace('_', ' ')}
+                                    </span>
+                                  ))}
+                                  {datosFaltantes.map(campo => (
+                                    <span
+                                      key={campo}
+                                      className="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs flex items-center gap-1"
+                                    >
+                                      <Clock className="w-3 h-3" />
+                                      {campo.replace('_', ' ')}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* BOTONES CONTEXTUALES */}
+                          {botonesContextuales.length > 0 && (
+                            <div className="px-4 py-2 bg-gray-50 border-t">
+                              <div className="flex flex-wrap gap-2">
+                                {botonesContextuales.map((boton, index) => (
+                                  <button
+                                    key={index}
+                                    onClick={() => enviarRespuestaRapida(boton)}
+                                    className="px-3 py-1 bg-yellow-100 hover:bg-yellow-200 text-gray-800 rounded-lg text-xs border border-yellow-300 transition-all">
+                                    {boton}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* INPUT CHAT */}
+                          <div className="p-4 bg-white border-t rounded-b-2xl">
+                            <div className="flex gap-2">
                               <input
-                                ref={fileInputLogoRef}
-                                type="file"
-                                accept="image/*"
-                                onChange={cargarLogo}
-                                className="hidden"
+                                type="text"
+                                value={inputChat}
+                                onChange={(e) => setInputChat(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && !analizando && handleEnviarMensajeChat()}
+                                placeholder="Escribe aquí..."
+                                className="flex-grow p-2 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:outline-none text-gray-800"
+                                disabled={analizando}
                               />
                               <button
-                                onClick={() => fileInputLogoRef.current?.click()}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-500 transition-all flex items-center gap-2">
-                                <Upload className="w-4 h-4" />
-                                {logoBase64 ? 'Cambiar Logo' : 'Subir Logo'}
+                                onClick={handleEnviarMensajeChat}
+                                disabled={analizando || !inputChat.trim()}
+                                className="p-2 bg-yellow-600 hover:bg-yellow-500 disabled:bg-gray-400 text-black rounded-xl transition-all">
+                                <Send className="w-5 h-5" />
                               </button>
-                              {logoBase64 && (
-                                <span className="text-green-400 text-sm">✓ Logo cargado</span>
-                              )}
                             </div>
-                          </div>
 
-                          {/* Sección: Opciones de Visualización */}
-                          <div>
-                            <label className="block text-blue-400 font-semibold mb-3">Opciones de Visualización</label>
-                            <div className="flex flex-wrap gap-4">
+                            <div className="flex justify-between items-center mt-3">
                               <button
-                                onClick={() => setOcultarIGV(!ocultarIGV)}
-                                className={`px-4 py-2 rounded-lg font-semibold transition-all ${ocultarIGV
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-gray-700 text-gray-300'
-                                  }`}>
-                                {ocultarIGV ? '✓ IGV Oculto' : 'Mostrar IGV'}
+                                onClick={() => setPaso(1)}
+                                className="px-3 py-1 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg text-sm">
+                                ← Configuración
                               </button>
                               <button
-                                onClick={() => setOcultarPreciosUnitarios(!ocultarPreciosUnitarios)}
-                                className={`px-4 py-2 rounded-lg font-semibold transition-all ${ocultarPreciosUnitarios
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-gray-700 text-gray-300'
-                                  }`}>
-                                {ocultarPreciosUnitarios ? '✓ P. Unit. Ocultos' : 'Mostrar P. Unitarios'}
-                              </button>
-                              <button
-                                onClick={() => setOcultarTotalesPorItem(!ocultarTotalesPorItem)}
-                                className={`px-4 py-2 rounded-lg font-semibold transition-all ${ocultarTotalesPorItem
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-gray-700 text-gray-300'
-                                  }`}>
-                                {ocultarTotalesPorItem ? '✓ Totales Ocultos' : 'Mostrar Totales por Ítem'}
+                                onClick={() => setPaso(3)}
+                                disabled={!mostrarPreview}
+                                className="px-4 py-1 bg-green-600 hover:bg-green-500 disabled:bg-gray-400 text-white font-bold rounded-lg text-sm">
+                                Finalizar →
                               </button>
                             </div>
                           </div>
                         </div>
                       )}
-                    </div>
 
-                    {/* BOTONES DE ACCIÓN */}
-                    <div className="flex gap-4">
-                      <button
-                        onClick={() => setPaso(2)}
-                        className="px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white rounded-xl transition-all">
-                        ← Volver al Chat
-                      </button>
+                      {/* VISTA PREVIA (DERECHA) */}
+                      <div className={`${viewMode === 'chat' ? 'hidden' : viewMode === 'preview' ? 'col-span-12' : 'col-span-6'} h-full min-h-0 bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden`}>
+                        <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-4 shrink-0 flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <Eye className="w-6 h-6 text-white" />
+                            <h3 className="text-xl font-bold text-white">Vista Previa</h3>
+                          </div>
 
-                      <div className="flex-1 flex gap-4">
-                        <button
-                          onClick={() => handleDescargar('pdf')}
-                          disabled={descargando === 'pdf'}
-                          className="flex-1 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 disabled:from-gray-600 disabled:to-gray-500 text-white py-3 rounded-xl font-bold transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
-                          {descargando === 'pdf' ? (
-                            <>
-                              <Loader className="w-5 h-5 animate-spin" />
-                              Generando PDF...
-                            </>
-                          ) : (
-                            <>
-                              <FileText className="w-5 h-5" />
-                              Descargar PDF
-                            </>
+                          {mostrarPreview && (
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => setModoEdicion(!modoEdicion)}
+                                className="px-3 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg text-sm flex items-center gap-1">
+                                <Edit className="w-4 h-4" />
+                                {modoEdicion ? 'Ver' : 'Editar'}
+                              </button>
+
+                              {esCotizacion && (
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => setOcultarIGV(!ocultarIGV)}
+                                    className="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded text-xs">
+                                    {ocultarIGV ? 'Mostrar' : 'Ocultar'} IGV
+                                  </button>
+                                  <button
+                                    onClick={() => setOcultarPreciosUnitarios(!ocultarPreciosUnitarios)}
+                                    className="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded text-xs">
+                                    P. Unit
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           )}
-                        </button>
+                        </div>
 
-                        <button
-                          onClick={() => handleDescargar('word')}
-                          disabled={descargando === 'word'}
-                          className="flex-1 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 disabled:from-gray-600 disabled:to-gray-500 text-white py-3 rounded-xl font-bold transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
-                          {descargando === 'word' ? (
-                            <>
-                              <Loader className="w-5 h-5 animate-spin" />
-                              Generando Word...
-                            </>
-                          ) : (
-                            <>
-                              <Download className="w-5 h-5" />
-                              Descargar Word
-                            </>
-                          )}
-                        </button>
+                        <div className="flex-1 overflow-y-scroll min-h-0 p-4 bg-white custom-scrollbar scrollbar-gold">
+                          {!mostrarPreview ? (
+                            <div className="text-center text-gray-500 mt-20">
+                              <Eye className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                              <p className="text-lg">Vista Previa</p>
+                              <p className="text-sm">Aparecerá cuando la IA genere contenido</p>
+                            </div>
+                          ) : (() => {
+                            // ✅ RENDERIZAR VistaPreviaProfesional en Paso 2
+                            return (
+                              <VistaPreviaProfesional
+                                // ✅ FIX CRÍTICO: Selección explícita de datos para evitar conflictos de estado
+                                cotizacion={
+                                  esCotizacion ? cotizacion :
+                                    esProyecto ? proyecto :
+                                      esInforme ? informe :
+                                        datosEditables
+                                }
+                                onGenerarDocumento={handleDescargar}
+                                onDatosChange={handleDatosChange} // ✅ Conectar callback
+                                tipoDocumento={tipoFlujo}
+                                htmlPreview={htmlPreview}
+                                esquemaColores={esquemaColores}
+                                logoBase64={logoBase64}
+                                fuenteDocumento={fuenteDocumento}
+                                ocultarIGV={ocultarIGV}
+                                ocultarPreciosUnitarios={ocultarPreciosUnitarios}
+                                ocultarTotalesPorItem={ocultarTotalesPorItem}
+                                modoEdicion={modoEdicion}
+                              />
+                            );
+                          })()}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+                )
+              }
+
+              {/* PASO 3: FINALIZACIÓN */}
+              {
+                paso === 3 && (
+                  <div className="max-w-5xl mx-auto space-y-6">
+                    <div className="bg-white rounded-2xl p-8 shadow-xl border-4 border-green-600">
+                      <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <CheckCircle className="w-8 h-8 text-green-600" />
+                        Documento Listo para Generar
+                      </h2>
+
+                      <div className="bg-green-50 p-6 rounded-xl mb-6">
+                        <h3 className="text-lg font-bold text-green-800 mb-3">✅ Lo que se incluirá:</h3>
+                        <div className="grid grid-cols-2 gap-4 text-sm text-green-700">
+                          <div className="space-y-1">
+                            <p>• Contenido generado por IA</p>
+                            <p>• Datos personalizados</p>
+                            <p>• Formato profesional Tesla</p>
+                          </div>
+                          <div className="space-y-1">
+                            {logoBase64 && <p>• Logo de la empresa</p>}
+                            <p>• Colores corporativos</p>
+                            <p>• Información de contacto</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* ✅ VISTA PREVIA PROFESIONAL A PANTALLA COMPLETA */}
+                      <VistaPreviaProfesional
+                        cotizacion={cotizacion || proyecto || informe || {}}
+                        onGenerarDocumento={handleDescargar}
+                        tipoDocumento={tipoFlujo}
+                        htmlPreview={htmlPreview}
+                        esquemaColores={esquemaColores}
+                        logoBase64={logoBase64}
+                        fuenteDocumento={fuenteDocumento}
+                        ocultarIGV={ocultarIGV}
+                        ocultarPreciosUnitarios={ocultarPreciosUnitarios}
+                        ocultarTotalesPorItem={ocultarTotalesPorItem}
+                      />
+
+
+                      {/* ✅ PANEL DE PERSONALIZACIÓN */}
+                      <div className="mb-6 border-2 border-blue-500 rounded-xl overflow-hidden">
+                        {/* Header del Panel */}
+                        <button
+                          onClick={() => setMostrarPanelPersonalizacion(!mostrarPanelPersonalizacion)}
+                          className="w-full bg-gradient-to-r from-blue-600 to-blue-500 p-4 flex items-center justify-between hover:from-blue-700 hover:to-blue-600 transition-all">
+                          <div className="flex items-center gap-3">
+                            <Settings className="w-6 h-6 text-white" />
+                            <h3 className="text-lg font-bold text-white">Personalización del Documento</h3>
+                          </div>
+                          {mostrarPanelPersonalizacion ? (
+                            <ChevronUp className="w-5 h-5 text-white" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5 text-white" />
+                          )}
+                        </button>
+
+                        {/* Contenido del Panel (Colapsable) */}
+                        {mostrarPanelPersonalizacion && (
+                          <div className="bg-gray-900 p-6 space-y-6">
+                            {/* Sección: Esquema de Colores */}
+                            <div>
+                              <label className="block text-blue-400 font-semibold mb-3 flex items-center gap-2">
+                                <PieChart className="w-5 h-5" />
+                                Esquema de Colores
+                              </label>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <button
+                                  onClick={() => setEsquemaColores('azul-tesla')}
+                                  className={`p-3 rounded-lg border-2 transition-all ${esquemaColores === 'azul-tesla'
+                                    ? 'border-blue-500 bg-blue-900 text-white'
+                                    : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-blue-600'
+                                    }`}>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+                                    <span className="font-semibold">Azul Tesla</span>
+                                  </div>
+                                  <span className="text-xs">Corporativo</span>
+                                </button>
+                                <button
+                                  onClick={() => setEsquemaColores('rojo-energia')}
+                                  className={`p-3 rounded-lg border-2 transition-all ${esquemaColores === 'rojo-energia'
+                                    ? 'border-red-500 bg-red-900 text-white'
+                                    : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-red-600'
+                                    }`}>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
+                                    <span className="font-semibold">Rojo Energía</span>
+                                  </div>
+                                  <span className="text-xs">Vibrante</span>
+                                </button>
+                                <button
+                                  onClick={() => setEsquemaColores('verde-ecologico')}
+                                  className={`p-3 rounded-lg border-2 transition-all ${esquemaColores === 'verde-ecologico'
+                                    ? 'border-green-500 bg-green-900 text-white'
+                                    : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-green-600'
+                                    }`}>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                                    <span className="font-semibold">Verde Eco</span>
+                                  </div>
+                                  <span className="text-xs">Sostenible</span>
+                                </button>
+                                <button
+                                  onClick={() => setEsquemaColores('personalizado')}
+                                  className={`p-3 rounded-lg border-2 transition-all ${esquemaColores === 'personalizado'
+                                    ? 'border-purple-500 bg-purple-900 text-white'
+                                    : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-600'
+                                    }`}>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-4 h-4 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
+                                    <span className="font-semibold">Personalizado</span>
+                                  </div>
+                                  <span className="text-xs">A medida</span>
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Sección: Fuente */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                <label className="block text-blue-400 font-semibold mb-3">Fuente del Documento</label>
+                                <select
+                                  value={fuenteDocumento}
+                                  onChange={(e) => setFuenteDocumento(e.target.value)}
+                                  className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500 transition-colors">
+                                  <option value="Calibri">Calibri (Recomendada)</option>
+                                  <option value="Arial">Arial</option>
+                                  <option value="Times New Roman">Times New Roman</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                <label className="block text-blue-400 font-semibold mb-3">Tamaño de Fuente</label>
+                                <select
+                                  value={tamañoFuente}
+                                  onChange={(e) => setTamañoFuente(Number(e.target.value))}
+                                  className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-blue-500 transition-colors">
+                                  <option value={10}>10 pt (Pequeña)</option>
+                                  <option value={11}>11 pt (Normal)</option>
+                                  <option value={12}>12 pt (Grande)</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* Sección: Logo */}
+                            <div>
+                              <label className="block text-blue-400 font-semibold mb-3 flex items-center gap-2">
+                                <Upload className="w-5 h-5" />
+                                Logo de la Empresa
+                              </label>
+                              <div className="flex items-center gap-4">
+                                <button
+                                  onClick={() => setMostrarLogo(!mostrarLogo)}
+                                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${mostrarLogo
+                                    ? 'bg-green-600 text-white'
+                                    : 'bg-gray-700 text-gray-300'
+                                    }`}>
+                                  {mostrarLogo ? '✓ Mostrar Logo' : '✕ Ocultar Logo'}
+                                </button>
+                                <input
+                                  ref={fileInputLogoRef}
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={cargarLogo}
+                                  className="hidden"
+                                />
+                                <button
+                                  onClick={() => fileInputLogoRef.current?.click()}
+                                  className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-500 transition-all flex items-center gap-2">
+                                  <Upload className="w-4 h-4" />
+                                  {logoBase64 ? 'Cambiar Logo' : 'Subir Logo'}
+                                </button>
+                                {logoBase64 && (
+                                  <span className="text-green-400 text-sm">✓ Logo cargado</span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Sección: Opciones de Visualización */}
+                            <div>
+                              <label className="block text-blue-400 font-semibold mb-3">Opciones de Visualización</label>
+                              <div className="flex flex-wrap gap-4">
+                                <button
+                                  onClick={() => setOcultarIGV(!ocultarIGV)}
+                                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${ocultarIGV
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-gray-700 text-gray-300'
+                                    }`}>
+                                  {ocultarIGV ? '✓ IGV Oculto' : 'Mostrar IGV'}
+                                </button>
+                                <button
+                                  onClick={() => setOcultarPreciosUnitarios(!ocultarPreciosUnitarios)}
+                                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${ocultarPreciosUnitarios
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-gray-700 text-gray-300'
+                                    }`}>
+                                  {ocultarPreciosUnitarios ? '✓ P. Unit. Ocultos' : 'Mostrar P. Unitarios'}
+                                </button>
+                                <button
+                                  onClick={() => setOcultarTotalesPorItem(!ocultarTotalesPorItem)}
+                                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${ocultarTotalesPorItem
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-gray-700 text-gray-300'
+                                    }`}>
+                                  {ocultarTotalesPorItem ? '✓ Totales Ocultos' : 'Mostrar Totales por Ítem'}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* BOTONES DE ACCIÓN */}
+                      <div className="flex gap-4">
+                        <button
+                          onClick={() => setPaso(2)}
+                          className="px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white rounded-xl transition-all">
+                          ← Volver al Chat
+                        </button>
+
+                        <div className="flex-1 flex gap-4">
+                          <button
+                            onClick={() => handleDescargar('pdf')}
+                            disabled={descargando === 'pdf'}
+                            className="flex-1 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 disabled:from-gray-600 disabled:to-gray-500 text-white py-3 rounded-xl font-bold transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
+                            {descargando === 'pdf' ? (
+                              <>
+                                <Loader className="w-5 h-5 animate-spin" />
+                                Generando PDF...
+                              </>
+                            ) : (
+                              <>
+                                <FileText className="w-5 h-5" />
+                                Descargar PDF
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            onClick={() => handleDescargar('word')}
+                            disabled={descargando === 'word'}
+                            className="flex-1 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 disabled:from-gray-600 disabled:to-gray-500 text-white py-3 rounded-xl font-bold transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
+                            {descargando === 'word' ? (
+                              <>
+                                <Loader className="w-5 h-5 animate-spin" />
+                                Generando Word...
+                              </>
+                            ) : (
+                              <>
+                                <Download className="w-5 h-5" />
+                                Descargar Word
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              }
+            </div >
+          </div >
+        </div >
       );
     }
   }

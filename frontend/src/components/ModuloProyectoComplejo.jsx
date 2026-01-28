@@ -399,7 +399,7 @@ const ModuloProyectoComplejo = ({
                     <div className="absolute inset-0 bg-gray-950/90 pointer-events-none"></div>
 
                     {/* Contenido Real */}
-                    <div className="relative z-10 flex-1 overflow-hidden">
+                    <div className="relative z-10 flex-1 overflow-y-auto custom-scrollbar">
                         {renderContent()}
                     </div>
                 </div>
