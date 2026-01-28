@@ -4,7 +4,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 import math
 
-router = APIRouter(prefix="/api/calculos", tags=["Calculos Deterministicos"])
+router = APIRouter(tags=["Calculos Deterministicos"])
 
 # ==========================================
 # MODELOS

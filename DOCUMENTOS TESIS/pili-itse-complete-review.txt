@@ -1,0 +1,632 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Send, Zap, Phone, MapPin, Clock, CheckCircle, Menu, X } from 'lucide-react';
+
+const PiliChatbotComplete = () => {
+  const [messages, setMessages] = useState([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [showChat, setShowChat] = useState(true);
+  const messagesEndRef = useRef(null);
+
+  const [conversationState, setConversationState] = useState({
+    stage: 'initial',
+    selectedCategory: null,
+    businessType: null,
+    area: null,
+    floors: 1,
+    riskLevel: null,
+    clientName: null,
+    phone: null,
+    address: null
+  });
+
+  // Colores corporativos Tesla
+  const colors = {
+    primary: '#8B0000',
+    secondary: '#FFD700',
+    fire: '#FF4500',
+    dark: '#2C0000'
+  };
+
+  // Base de conocimiento completa de Pili
+  const knowledgeBase = {
+    municipalPrices: {
+      BAJO: { price: 168.30, renewal: 90.30, days: 7 },
+      MEDIO: { price: 208.60, renewal: 109.40, days: 7 },
+      ALTO: { price: 703.00, renewal: 417.40, days: 7 },
+      MUY_ALTO: { price: 1084.60, renewal: 629.20, days: 7 }
+    },
+    teslaServices: {
+      BAJO: { min: 300, max: 500 },
+      MEDIO: { min: 450, max: 650 },
+      ALTO: { min: 800, max: 1200 },
+      MUY_ALTO: { min: 1200, max: 1800 }
+    },
+    categories: {
+      SALUD: {
+        types: ['Hospital', 'Clínica', 'Centro Médico', 'Consultorio', 'Laboratorio'],
+        defaultRisk: 'ALTO',
+        specialRules: 'Más de 500m² o 2+ pisos = MUY ALTO'
+      },
+      EDUCACION: {
+        types: ['Colegio', 'Universidad', 'Instituto', 'Academia', 'Guardería'],
+        defaultRisk: 'MEDIO',
+        specialRules: 'Más de 1000m² o 3+ pisos = ALTO'
+      },
+      HOSPEDAJE: {
+        types: ['Hotel', 'Hostal', 'Residencia', 'Apart-hotel'],
+        defaultRisk: 'MEDIO',
+        specialRules: 'Más de 20 habitaciones = ALTO'
+      },
+      COMERCIO: {
+        types: ['Tienda', 'Supermercado', 'Centro Comercial', 'Galería'],
+        defaultRisk: 'MEDIO',
+        specialRules: 'Más de 500m² = ALTO'
+      },
+      RESTAURANTE: {
+        types: ['Restaurante', 'Cafetería', 'Bar', 'Discoteca'],
+        defaultRisk: 'MEDIO',
+        specialRules: 'Con GLP o >100 personas = ALTO'
+      },
+      OFICINA: {
+        types: ['Oficina', 'Estudio', 'Coworking'],
+        defaultRisk: 'BAJO',
+        specialRules: 'Más de 500m² = MEDIO'
+      },
+      INDUSTRIAL: {
+        types: ['Fábrica', 'Taller', 'Almacén', 'Planta'],
+        defaultRisk: 'ALTO',
+        specialRules: 'Materiales peligrosos = MUY ALTO'
+      },
+      ENCUENTRO: {
+        types: ['Auditorio', 'Cine', 'Teatro', 'Iglesia', 'Gimnasio'],
+        defaultRisk: 'ALTO',
+        specialRules: 'Más de 100 personas = MUY ALTO'
+      }
+    }
+  };
+
+  useEffect(() => {
+    addBotMessage(`¡Hola! 👋 Soy **Pili**, tu especialista en certificados ITSE de **Tesla Electricidad**.
+
+🎯 Te ayudo a obtener tu certificado ITSE con:
+✅ Visita técnica GRATUITA
+✅ Precios oficiales TUPA Huancayo
+✅ Trámite 100% gestionado
+✅ Entrega en 7 días hábiles
+
+**Selecciona tu tipo de establecimiento:**`, [
+      { text: '🏥 Salud', value: 'SALUD' },
+      { text: '🎓 Educación', value: 'EDUCACION' },
+      { text: '🏨 Hospedaje', value: 'HOSPEDAJE' },
+      { text: '🏪 Comercio', value: 'COMERCIO' },
+      { text: '🍽️ Restaurante', value: 'RESTAURANTE' },
+      { text: '🏢 Oficina', value: 'OFICINA' },
+      { text: '🏭 Industrial', value: 'INDUSTRIAL' },
+      { text: '🎭 Encuentro', value: 'ENCUENTRO' }
+    ]);
+  }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const addBotMessage = (text, buttons = null) => {
+    setMessages(prev => [...prev, { sender: 'bot', text, buttons, timestamp: new Date() }]);
+  };
+
+  const addUserMessage = (text) => {
+    setMessages(prev => [...prev, { sender: 'user', text, timestamp: new Date() }]);
+  };
+
+  const determineRiskLevel = (category, area, floors, businessType) => {
+    const cat = knowledgeBase.categories[category];
+    
+    if (category === 'SALUD') {
+      if (area > 500 || floors >= 2) return 'MUY_ALTO';
+      return 'ALTO';
+    }
+    
+    if (category === 'EDUCACION') {
+      if (area > 1000 || floors >= 3) return 'ALTO';
+      return 'MEDIO';
+    }
+    
+    if (category === 'HOSPEDAJE') {
+      if (area > 500 || floors >= 3) return 'ALTO';
+      return 'MEDIO';
+    }
+    
+    if (category === 'COMERCIO') {
+      if (area > 500) return 'ALTO';
+      return 'MEDIO';
+    }
+    
+    if (category === 'RESTAURANTE') {
+      if (area > 300) return 'ALTO';
+      return 'MEDIO';
+    }
+    
+    if (category === 'OFICINA') {
+      if (area > 500) return 'MEDIO';
+      return 'BAJO';
+    }
+    
+    if (category === 'INDUSTRIAL') {
+      return 'ALTO';
+    }
+    
+    if (category === 'ENCUENTRO') {
+      if (area > 500) return 'MUY_ALTO';
+      return 'ALTO';
+    }
+    
+    return cat.defaultRisk;
+  };
+
+  const handleButtonClick = (value, label) => {
+    addUserMessage(label);
+    setIsTyping(true);
+
+    setTimeout(() => {
+      processResponse(value);
+      setIsTyping(false);
+    }, 800);
+  };
+
+  const processResponse = (value) => {
+    const state = conversationState;
+
+    if (state.stage === 'initial') {
+      state.selectedCategory = value;
+      state.stage = 'businessType';
+      setConversationState({...state});
+      
+      const types = knowledgeBase.categories[value].types;
+      addBotMessage(`Perfecto, sector **${value}**. ¿Qué tipo específico es?`, 
+        types.map(t => ({ text: t, value: t }))
+      );
+      return;
+    }
+
+    if (state.stage === 'businessType') {
+      state.businessType = value;
+      state.stage = 'area';
+      setConversationState({...state});
+      
+      addBotMessage(`Entendido, es un **${value}**. 
+
+¿Cuál es el área total en m²?
+
+_Escribe el número (ejemplo: 150)_`);
+      return;
+    }
+
+    if (state.stage === 'area') {
+      const area = parseFloat(inputValue);
+      if (isNaN(area) || area <= 0) {
+        addBotMessage('Por favor ingresa un número válido de área en m²');
+        return;
+      }
+      
+      state.area = area;
+      state.stage = 'floors';
+      setConversationState({...state});
+      
+      addBotMessage(`📐 Área: **${area} m²**
+
+¿Cuántos pisos tiene el establecimiento?
+
+_Escribe el número (ejemplo: 2)_`);
+      return;
+    }
+
+    if (state.stage === 'floors') {
+      const floors = parseInt(inputValue);
+      if (isNaN(floors) || floors <= 0) {
+        addBotMessage('Por favor ingresa un número válido de pisos');
+        return;
+      }
+      
+      state.floors = floors;
+      const riskLevel = determineRiskLevel(state.selectedCategory, state.area, floors, state.businessType);
+      state.riskLevel = riskLevel;
+      state.stage = 'quotation';
+      setConversationState({...state});
+      
+      showQuotation(riskLevel);
+      return;
+    }
+
+    if (state.stage === 'quotation') {
+      if (value === 'AGENDAR') {
+        state.stage = 'clientName';
+        setConversationState({...state});
+        addBotMessage('¡Excelente! 📅 Vamos a agendar tu visita técnica GRATUITA.\n\n¿Cuál es tu nombre?');
+      } else if (value === 'CONSULTA') {
+        addBotMessage(`📞 Puedes contactarnos:
+
+**WhatsApp:** 906 315 961
+**Email:** ingenieria.teslaelectricidad@gmail.com
+**Dirección:** Jr. Las Ágatas Mz B Lote 09, San Juan de Lurigancho
+
+¿Deseas agendar la visita técnica?`, [
+          { text: '✅ Sí, agendar', value: 'AGENDAR' },
+          { text: '🔄 Nueva consulta', value: 'RESTART' }
+        ]);
+      } else if (value === 'RESTART') {
+        resetConversation();
+      }
+      return;
+    }
+
+    if (state.stage === 'clientName') {
+      state.clientName = inputValue;
+      state.stage = 'phone';
+      setConversationState({...state});
+      
+      addBotMessage(`Mucho gusto **${inputValue}** 👋\n\n¿Cuál es tu número de teléfono?`);
+      return;
+    }
+
+    if (state.stage === 'phone') {
+      state.phone = inputValue;
+      state.stage = 'address';
+      setConversationState({...state});
+      
+      addBotMessage(`Perfecto. ¿Cuál es la dirección del establecimiento?`);
+      return;
+    }
+
+    if (state.stage === 'address') {
+      state.address = inputValue;
+      state.stage = 'confirmation';
+      setConversationState({...state});
+      
+      showConfirmation();
+      return;
+    }
+  };
+
+  const showQuotation = (riskLevel) => {
+    const municipal = knowledgeBase.municipalPrices[riskLevel];
+    const tesla = knowledgeBase.teslaServices[riskLevel];
+    const totalMin = municipal.price + tesla.min;
+    const totalMax = municipal.price + tesla.max;
+
+    addBotMessage(`📊 **COTIZACIÓN ITSE - NIVEL ${riskLevel.replace('_', ' ')}**
+
+━━━━━━━━━━━━━━━━━━━━━━━
+**💰 COSTOS DESGLOSADOS:**
+
+🏛️ **Derecho Municipal (TUPA):**
+└ S/ ${municipal.price.toFixed(2)}
+
+⚡ **Servicio Técnico TESLA:**
+└ S/ ${tesla.min} - ${tesla.max}
+└ Incluye: Evaluación + Planos + Gestión + Seguimiento
+
+━━━━━━━━━━━━━━━━━━━━━━━
+**📈 TOTAL ESTIMADO:**
+**S/ ${totalMin} - ${totalMax}**
+━━━━━━━━━━━━━━━━━━━━━━━
+
+⏱️ **Tiempo:** ${municipal.days} días hábiles
+🎁 **Visita técnica:** GRATUITA
+✅ **Garantía:** 100% aprobación
+
+¿Qué deseas hacer?`, [
+      { text: '📅 Agendar visita', value: 'AGENDAR' },
+      { text: '💬 Más información', value: 'CONSULTA' },
+      { text: '🔄 Nueva consulta', value: 'RESTART' }
+    ]);
+  };
+
+  const showConfirmation = () => {
+    const { clientName, phone, address, businessType, area, floors, riskLevel } = conversationState;
+    
+    addBotMessage(`✅ **RESUMEN DE TU SOLICITUD:**
+
+👤 **Cliente:** ${clientName}
+📞 **Teléfono:** ${phone}
+📍 **Dirección:** ${address}
+
+🏢 **Establecimiento:**
+└ Tipo: ${businessType}
+└ Área: ${area} m²
+└ Pisos: ${floors}
+└ Nivel riesgo: ${riskLevel.replace('_', ' ')}
+
+━━━━━━━━━━━━━━━━━━━━━━━
+
+**Nos comunicaremos contigo en las próximas 2 horas para coordinar la visita técnica GRATUITA.**
+
+📞 WhatsApp: 906 315 961
+
+¡Gracias por confiar en Tesla Electricidad! ⚡`, [
+      { text: '🏠 Inicio', value: 'RESTART' }
+    ]);
+  };
+
+  const resetConversation = () => {
+    setConversationState({
+      stage: 'initial',
+      selectedCategory: null,
+      businessType: null,
+      area: null,
+      floors: 1,
+      riskLevel: null,
+      clientName: null,
+      phone: null,
+      address: null
+    });
+    
+    setMessages([]);
+    
+    addBotMessage(`¡Hola! 👋 Soy **Pili**, tu especialista en certificados ITSE.
+
+**Selecciona tu tipo de establecimiento:**`, [
+      { text: '🏥 Salud', value: 'SALUD' },
+      { text: '🎓 Educación', value: 'EDUCACION' },
+      { text: '🏨 Hospedaje', value: 'HOSPEDAJE' },
+      { text: '🏪 Comercio', value: 'COMERCIO' },
+      { text: '🍽️ Restaurante', value: 'RESTAURANTE' },
+      { text: '🏢 Oficina', value: 'OFICINA' },
+      { text: '🏭 Industrial', value: 'INDUSTRIAL' },
+      { text: '🎭 Encuentro', value: 'ENCUENTRO' }
+    ]);
+  };
+
+  const handleSendMessage = () => {
+    if (!inputValue.trim()) return;
+    
+    const message = inputValue.trim();
+    addUserMessage(message);
+    setInputValue('');
+    setIsTyping(true);
+
+    setTimeout(() => {
+      processResponse(message);
+      setIsTyping(false);
+    }, 800);
+  };
+
+  return (
+    <div style={{ 
+      minHeight: '100vh',
+      background: `linear-gradient(135deg, ${colors.dark} 0%, ${colors.primary} 50%, ${colors.fire} 100%)`,
+      padding: '20px',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    }}>
+      {/* Header */}
+      <div style={{
+        background: `linear-gradient(90deg, ${colors.primary}, ${colors.fire})`,
+        padding: '20px',
+        borderRadius: '20px 20px 0 0',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderBottom: `3px solid ${colors.secondary}`
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <div style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            background: `linear-gradient(135deg, ${colors.secondary}, #FFA500)`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 0 20px rgba(255, 215, 0, 0.5)',
+            border: `3px solid ${colors.primary}`
+          }}>
+            <Zap size={32} color={colors.primary} strokeWidth={3} />
+          </div>
+          <div>
+            <h1 style={{ 
+              color: colors.secondary, 
+              margin: 0, 
+              fontSize: '24px',
+              fontWeight: 'bold',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+            }}>
+              Pili - Especialista ITSE
+            </h1>
+            <p style={{ 
+              color: 'white', 
+              margin: 0, 
+              fontSize: '14px',
+              opacity: 0.9
+            }}>
+              Tesla Electricidad • Huancayo
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Chat Container */}
+      <div style={{
+        background: 'white',
+        borderRadius: '0 0 20px 20px',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+        maxWidth: '900px',
+        margin: '0 auto',
+        overflow: 'hidden'
+      }}>
+        {/* Messages */}
+        <div style={{
+          height: '600px',
+          overflowY: 'auto',
+          padding: '20px',
+          background: 'linear-gradient(to bottom, #f9f9f9, #ffffff)'
+        }}>
+          {messages.map((msg, index) => (
+            <div key={index} style={{
+              display: 'flex',
+              justifyContent: msg.sender === 'bot' ? 'flex-start' : 'flex-end',
+              marginBottom: '15px',
+              animation: 'slideIn 0.3s ease-out'
+            }}>
+              <div style={{
+                maxWidth: '75%',
+                padding: '12px 18px',
+                borderRadius: msg.sender === 'bot' ? '20px 20px 20px 5px' : '20px 20px 5px 20px',
+                background: msg.sender === 'bot' 
+                  ? `linear-gradient(135deg, ${colors.primary}, ${colors.fire})`
+                  : `linear-gradient(135deg, ${colors.secondary}, #FFA500)`,
+                color: msg.sender === 'bot' ? 'white' : colors.dark,
+                boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
+                whiteSpace: 'pre-line'
+              }}>
+                <div dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                
+                {msg.buttons && (
+                  <div style={{ marginTop: '15px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {msg.buttons.map((btn, btnIndex) => (
+                      <button
+                        key={btnIndex}
+                        onClick={() => handleButtonClick(btn.value, btn.text)}
+                        style={{
+                          background: 'white',
+                          color: colors.primary,
+                          border: `2px solid ${colors.secondary}`,
+                          padding: '8px 16px',
+                          borderRadius: '20px',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                          fontSize: '14px',
+                          transition: 'all 0.2s',
+                          boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                        }}
+                        onMouseOver={(e) => {
+                          e.target.style.background = colors.secondary;
+                          e.target.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.background = 'white';
+                          e.target.style.transform = 'scale(1)';
+                        }}
+                      >
+                        {btn.text}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+          
+          {isTyping && (
+            <div style={{ display: 'flex', gap: '5px', padding: '10px' }}>
+              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: colors.primary, animation: 'bounce 1.4s infinite' }} />
+              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: colors.fire, animation: 'bounce 1.4s infinite 0.2s' }} />
+              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: colors.secondary, animation: 'bounce 1.4s infinite 0.4s' }} />
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input */}
+        {(conversationState.stage === 'area' || conversationState.stage === 'floors' || 
+          conversationState.stage === 'clientName' || conversationState.stage === 'phone' || 
+          conversationState.stage === 'address') && (
+          <div style={{
+            padding: '15px',
+            borderTop: `2px solid ${colors.secondary}`,
+            background: `linear-gradient(to right, ${colors.primary}, ${colors.fire})`,
+            display: 'flex',
+            gap: '10px'
+          }}>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder="Escribe tu respuesta..."
+              style={{
+                flex: 1,
+                padding: '12px 20px',
+                border: `2px solid ${colors.secondary}`,
+                borderRadius: '25px',
+                fontSize: '15px',
+                outline: 'none'
+              }}
+            />
+            <button
+              onClick={handleSendMessage}
+              style={{
+                background: colors.secondary,
+                border: 'none',
+                borderRadius: '50%',
+                width: '50px',
+                height: '50px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'transform 0.2s',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
+              }}
+              onMouseOver={(e) => e.target.style.transform = 'scale(1.1)'}
+              onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+            >
+              <Send size={24} color={colors.primary} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Footer Info */}
+      <div style={{
+        maxWidth: '900px',
+        margin: '20px auto',
+        textAlign: 'center',
+        color: 'white',
+        padding: '20px',
+        background: 'rgba(0,0,0,0.3)',
+        borderRadius: '15px'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Phone size={18} />
+            <span>906 315 961</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <MapPin size={18} />
+            <span>San Juan de Lurigancho, Lima</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Clock size={18} />
+            <span>Lun-Sáb: 8am-6pm</span>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes bounce {
+          0%, 80%, 100% {
+            transform: scale(0);
+          }
+          40% {
+            transform: scale(1);
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default PiliChatbotComplete;

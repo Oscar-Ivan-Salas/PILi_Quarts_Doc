@@ -32,7 +32,8 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host ""
     Write-Host "✅ ¡ÉXITO! Tu código está en GitHub." -ForegroundColor Green
     Write-Host "🔗 Ver aquí: $repoUrl"
-} else {
+}
+else {
     Write-Error "❌ Hubo un error al subir. Verifica tus permisos o la URL."
 }
 
