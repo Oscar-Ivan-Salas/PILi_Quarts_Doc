@@ -1,13 +1,12 @@
 from fastapi import APIRouter, HTTPException
 from typing import Optional
-from app.routers.chat import (
-    generar_preview_cotizacion_simple_editable,
-    generar_preview_cotizacion_compleja_editable,
-    generar_preview_proyecto_simple_editable,
-    generar_preview_proyecto_complejo_pmi_editable,
-    generar_preview_informe_tecnico_editable,
-    generar_preview_informe_ejecutivo_apa_editable
-)
+from app.documents.cotizacion_simple import generar_preview_cotizacion_simple_editable
+from app.documents.cotizacion_compleja import generar_preview_cotizacion_compleja_editable
+from app.documents.proyecto_simple import generar_preview_proyecto_simple_editable
+from app.documents.proyecto_complejo import generar_preview_proyecto_complejo_pmi_editable
+from app.documents.informe_tecnico import generar_preview_informe_tecnico_editable
+from app.documents.informe_ejecutivo import generar_preview_informe_ejecutivo_apa_editable
+from app.documents.informe_simple import generar_preview_informe
 
 router = APIRouter(prefix="/api/templates", tags=["templates"])
 
