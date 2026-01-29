@@ -1,7 +1,6 @@
 {
-  "short_name": "Tesla Cotizador",
-  "name": "Tesla Cotizador - Sistema Inteligente",
-  
+  "short_name": "PILi_Quarts",
+  "name": "PILi_Quarts - Sistema de Gestión de Documentos Técnicos",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#8B0000",

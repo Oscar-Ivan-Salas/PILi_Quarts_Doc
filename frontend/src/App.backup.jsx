@@ -23,7 +23,6 @@ import VistaPreviaProfesional from './components/VistaPreviaProfesional';
 import CalendarioProyecto from './components/CalendarioProyecto';
 import ProyectoResumen from './components/ProyectoResumen';
 import ModuloC from './components/ModuloProyectoComplejo';
-import TestThreePanel from './pages/TestThreePanel';
 
 // ============================================
 // COMPONENTE ALERTA
@@ -61,9 +60,6 @@ const PILIQuartsApp = () => {
   // Dashboard State
   const [mostrarDashboard, setMostrarDashboard] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
-
-  // Test Mode State
-  const [testMode, setTestMode] = useState(false);
 
   // Estados del flujo general
   const [paso, setPaso] = useState(1);
@@ -1792,10 +1788,10 @@ const PILIQuartsApp = () => {
   // ============================================
 
   if (pantallaActual === 'flujo-pasos') {
-    const esCotizacion = tipoFlujo?.includes('cotizacion') || false;
-    const esProyecto = tipoFlujo?.includes('proyecto') || false;
-    const esInforme = tipoFlujo?.includes('informe') || false;
-    const esComplejo = tipoFlujo?.includes('complejo') || tipoFlujo?.includes('compleja') || tipoFlujo?.includes('ejecutivo') || false;
+    const esCotizacion = tipoFlujo.includes('cotizacion');
+    const esProyecto = tipoFlujo.includes('proyecto');
+    const esInforme = tipoFlujo.includes('informe');
+    const esComplejo = tipoFlujo.includes('complejo') || tipoFlujo.includes('compleja') || tipoFlujo.includes('ejecutivo');
 
     let colores = { primary: 'yellow', border: 'yellow-700', bg: 'yellow-600' };
     if (esProyecto) colores = { primary: 'blue', border: 'blue-700', bg: 'blue-600' };
@@ -2964,60 +2960,48 @@ const PILIQuartsApp = () => {
                   </div>
                 )
               }
-            </div>
-          </div>
-        </div>
+            </div >
+          </div >
+        </div >
       );
     }
-
-    // Test Mode - Three Panel Layout
-    if (testMode) {
-      return <TestThreePanel />;
-    }
-
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-red-950 to-black text-white p-6">
-        <div className="max-w-5xl mx-auto text-center">
-          <h1 className="text-4xl font-bold text-yellow-400 mb-4">PILi_Quarts</h1>
-          <p className="text-gray-300 mb-6">Sistema profesional completamente funcional</p>
-          <div className="flex gap-4 justify-center">
-            <button
-              onClick={volverAlInicio}
-              className="px-6 py-3 bg-yellow-600 text-black rounded-lg font-bold hover:bg-yellow-500 transition-all">
-              Ir al Inicio
-            </button>
-            <button
-              onClick={() => setTestMode(true)}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-500 transition-all">
-              🧪 Probar Layout 3 Paneles
-            </button>
-          </div>
-          <div className="mt-8 opacity-0 hover:opacity-100 transition-opacity duration-500">
-            <button
-              onClick={() => setMostrarDashboard(!mostrarDashboard)}
-              className="text-xs text-gray-800 hover:text-red-900">
-
-              🔒 Admin Access
-            </button>
-          </div>
-
-          {mostrarDashboard && (
-            <div className="fixed inset-0 z-[100] bg-black text-white overflow-auto">
-              <div className="p-4">
-                <button
-                  onClick={() => setMostrarDashboard(false)}
-                  className="mb-4 bg-red-600 px-4 py-2 rounded text-white"
-                >
-                  Cerrar Panel
-                </button>
-                <AdminDashboard />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
   }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-red-950 to-black text-white p-6">
+      <div className="max-w-5xl mx-auto text-center">
+        <h1 className="text-4xl font-bold text-yellow-400 mb-4">Sistema Tesla v3.0</h1>
+        <p className="text-gray-300 mb-6">Sistema profesional completamente funcional</p>
+        <button
+          onClick={volverAlInicio}
+          className="px-6 py-3 bg-yellow-600 text-black rounded-lg font-bold hover:bg-yellow-500 transition-all">
+          Ir al Inicio
+        </button>
+        <div className="mt-8 opacity-0 hover:opacity-100 transition-opacity duration-500">
+          <button
+            onClick={() => setMostrarDashboard(!mostrarDashboard)}
+            className="text-xs text-gray-800 hover:text-red-900"
+          >
+            🔒 Admin Access
+          </button>
+        </div>
+
+        {mostrarDashboard && (
+          <div className="fixed inset-0 z-[100] bg-black text-white overflow-auto">
+            <div className="p-4">
+              <button
+                onClick={() => setMostrarDashboard(false)}
+                className="mb-4 bg-red-600 px-4 py-2 rounded text-white"
+              >
+                Cerrar Panel
+              </button>
+              <AdminDashboard />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default PILIQuartsApp;

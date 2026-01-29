@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 
 /**
- * Panel de Administración - Tesla Cotizador V3.0
+ * Panel de Administración - PILi_Quarts V1.0
  *
  * Requiere autenticación básica: Admin/Admin1234
  *

@@ -218,7 +218,7 @@ const VistaPrevia = forwardRef(({
         <div className="border-b-4 border-red-900 pb-6 mb-6">
           <div className="flex justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-red-900">TESLA COTIZADOR PRO</h1>
+              <h1 className="text-4xl font-bold text-red-900">PILi_Quarts</h1>
               <p className="text-gray-600 mt-2">RUC: 20601138787</p>
               <p className="text-sm text-gray-500">Lima, Perú</p>
             </div>
@@ -366,7 +366,7 @@ const VistaPrevia = forwardRef(({
 
         {/* Footer */}
         <div className="border-t-2 pt-6 text-center text-gray-600">
-          <p className="font-bold text-red-900 text-xl mb-2">TESLA COTIZADOR PRO</p>
+          <p className="font-bold text-red-900 text-xl mb-2">PILi_Quarts</p>
           <p>📱 WhatsApp: +51 999 888 777</p>
           <p>📧 ventas@teslacotizador.com</p>
           <p>📍 Lima, Perú</p>
