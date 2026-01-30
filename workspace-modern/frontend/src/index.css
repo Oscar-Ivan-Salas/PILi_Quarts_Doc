@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  /* Light Theme (Default) */
+  html.light {
+    @apply bg-white text-gray-900;
+  }
+
+  /* Dark Theme */
+  html.dark {
+    @apply bg-gray-950 text-white;
+  }
+
+  /* Magenta Dark Theme */
+  html.magenta {
+    background: linear-gradient(135deg, #1a0a1f 0%, #2d1b3d 50%, #1a0a1f 100%);
+    @apply text-purple-100;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors;
+  }
+
+  /* Magenta theme overrides */
+  html.magenta .btn-secondary {
+    @apply bg-purple-900 text-purple-100 hover:bg-purple-800;
+  }
+
+  html.magenta .border-gray-200 {
+    @apply border-purple-700;
+  }
+
+  html.magenta .bg-gray-50 {
+    @apply bg-purple-950;
+  }
+
+  html.magenta .bg-gray-900 {
+    @apply bg-purple-950;
+  }
+
+  html.magenta .text-gray-900 {
+    @apply text-purple-100;
+  }
+
+  html.magenta .text-gray-500 {
+    @apply text-purple-300;
+  }
+}

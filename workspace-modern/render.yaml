@@ -1,0 +1,55 @@
+# Render Configuration
+# Full-stack deployment for PILi Quarts
+# https://render.com/docs/yaml-spec
+
+services:
+  # Backend API
+  - type: web
+    name: pili-quarts-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pili-quarts-db
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://pili-quarts-frontend.onrender.com
+
+  # Frontend
+  - type: web
+    name: pili-quarts-frontend
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://pili-quarts-backend.onrender.com
+      - key: VITE_WS_URL
+        value: wss://pili-quarts-backend.onrender.com
+
+databases:
+  # PostgreSQL Database
+  - name: pili-quarts-db
+    databaseName: pili_quarts
+    user: pili_user
+    plan: free
+    region: oregon

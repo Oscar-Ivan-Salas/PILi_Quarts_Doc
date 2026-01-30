@@ -1,0 +1,4 @@
+# Runtime Configuration
+# Specifies Python version for deployment platforms
+
+python-3.11.0

@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Frontend - React + Vite
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - pili-network
+
+  # Backend - Python FastAPI
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - DATABASE_URL=postgresql://pili:pili123@db:5432/pili_workspace
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - db
+    networks:
+      - pili-network
+
+  # Database - PostgreSQL
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=pili
+      - POSTGRES_PASSWORD=pili123
+      - POSTGRES_DB=pili_workspace
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pili-network
+
+networks:
+  pili-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
