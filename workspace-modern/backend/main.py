@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 import os
 
 from database.sqlite_config import init_db
-from routers import documents
+from routers import documents, generation
 
 # Initialize FastAPI
 app = FastAPI(
@@ -20,7 +20,7 @@ app = FastAPI(
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"],
+    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,6 +34,7 @@ def on_startup():
 
 # Include Routers
 app.include_router(documents.router)
+app.include_router(generation.router)
 
 # Mount Static Files (for avatars, logos, generated PDFs)
 static_path = os.path.join(os.path.dirname(__file__), "static")
