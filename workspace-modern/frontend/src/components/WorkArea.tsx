@@ -3,11 +3,13 @@ import { useWorkspaceStore } from '../store/useWorkspaceStore'
 import { FileText, FolderOpen, BarChart3, Plus, Search } from 'lucide-react'
 
 export function WorkArea() {
-    const { activeSection } = useWorkspaceStore()
+    const { activeSection, projects, quotes, reports } = useWorkspaceStore()
 
     const renderContent = () => {
         switch (activeSection) {
             case 'proyecto-simple':
+                const simpleProjects = projects.filter(p => p.type === 'simple')
+
                 return (
                     <div className="space-y-6">
                         <div>
@@ -15,27 +17,45 @@ export function WorkArea() {
                                 Proyectos Simples
                             </h2>
                             <p className="text-gray-600 dark:text-gray-400">
-                                Gestiona tus proyectos de construcción simples
+                                Gestiona tus proyectos de construcción simples ({simpleProjects.length} activos)
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {[1, 2, 3].map((i) => (
+                            {simpleProjects.map((project) => (
                                 <motion.div
-                                    key={i}
+                                    key={project.id}
                                     whileHover={{ scale: 1.02 }}
                                     className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer"
                                 >
                                     <FolderOpen className="w-8 h-8 text-brand-red mb-3" />
                                     <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                        Proyecto {i}
+                                        {project.name}
                                     </h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                                        Instalación eléctrica residencial
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                        {project.description}
                                     </p>
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-gray-500">Progreso</span>
+                                            <span className="font-medium text-gray-900 dark:text-white">{project.progress}%</span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                            <div
+                                                className="bg-brand-red h-2 rounded-full transition-all"
+                                                style={{ width: `${project.progress}%` }}
+                                            />
+                                        </div>
+                                    </div>
                                     <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
-                                        <span>Actualizado hace 2 días</span>
-                                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded">Activo</span>
+                                        <span>Actualizado {new Date(project.updatedAt).toLocaleDateString()}</span>
+                                        <span className={`px-2 py-1 rounded ${project.status === 'active' ? 'bg-green-100 text-green-800' :
+                                            project.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                'bg-gray-100 text-gray-800'
+                                            }`}>
+                                            {project.status === 'active' ? 'Activo' :
+                                                project.status === 'pending' ? 'Pendiente' : 'Completado'}
+                                        </span>
                                     </div>
                                 </motion.div>
                             ))}
@@ -49,6 +69,8 @@ export function WorkArea() {
                 )
 
             case 'proyecto-complejo':
+                const complexProjects = projects.filter(p => p.type === 'complex')
+
                 return (
                     <div className="space-y-6">
                         <div>
@@ -56,14 +78,14 @@ export function WorkArea() {
                                 Proyectos Complejos
                             </h2>
                             <p className="text-gray-600 dark:text-gray-400">
-                                Gestiona proyectos de gran escala con múltiples fases
+                                Gestiona proyectos de gran escala con múltiples fases ({complexProjects.length} activos)
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4">
-                            {[1].map((i) => (
+                            {complexProjects.map((project) => (
                                 <motion.div
-                                    key={i}
+                                    key={project.id}
                                     whileHover={{ scale: 1.01 }}
                                     className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer"
                                 >
@@ -72,29 +94,33 @@ export function WorkArea() {
                                             <FolderOpen className="w-10 h-10 text-brand-yellow" />
                                             <div>
                                                 <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                                                    Edificio Comercial - Centro
+                                                    {project.name}
                                                 </h3>
                                                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                                                    Sistema eléctrico completo + iluminación LED
+                                                    {project.description}
                                                 </p>
                                             </div>
                                         </div>
-                                        <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded text-sm">
-                                            En Progreso
+                                        <span className={`px-3 py-1 rounded text-sm ${project.status === 'active' ? 'bg-blue-100 text-blue-800' :
+                                            project.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                'bg-green-100 text-green-800'
+                                            }`}>
+                                            {project.status === 'active' ? 'En Progreso' :
+                                                project.status === 'pending' ? 'Pendiente' : 'Completado'}
                                         </span>
                                     </div>
 
                                     <div className="grid grid-cols-3 gap-4 mb-4">
                                         <div className="text-center p-3 bg-gray-50 dark:bg-gray-900 rounded">
-                                            <p className="text-2xl font-bold text-brand-red">75%</p>
+                                            <p className="text-2xl font-bold text-brand-red">{project.progress}%</p>
                                             <p className="text-xs text-gray-600 dark:text-gray-400">Completado</p>
                                         </div>
                                         <div className="text-center p-3 bg-gray-50 dark:bg-gray-900 rounded">
-                                            <p className="text-2xl font-bold text-brand-yellow">$250K</p>
+                                            <p className="text-2xl font-bold text-brand-yellow">${(project.budget / 1000).toFixed(0)}K</p>
                                             <p className="text-xs text-gray-600 dark:text-gray-400">Presupuesto</p>
                                         </div>
                                         <div className="text-center p-3 bg-gray-50 dark:bg-gray-900 rounded">
-                                            <p className="text-2xl font-bold text-green-600">45</p>
+                                            <p className="text-2xl font-bold text-green-600">{project.daysRemaining}</p>
                                             <p className="text-xs text-gray-600 dark:text-gray-400">Días restantes</p>
                                         </div>
                                     </div>
@@ -116,6 +142,10 @@ export function WorkArea() {
 
             case 'cotizacion-simple':
             case 'cotizacion-compleja':
+                const filteredQuotes = activeSection === 'cotizacion-simple'
+                    ? quotes.slice(0, 5)  // First 5 for simple
+                    : quotes.slice(5)     // Rest for complex
+
                 return (
                     <div className="space-y-6">
                         <div>
@@ -123,7 +153,7 @@ export function WorkArea() {
                                 {activeSection === 'cotizacion-simple' ? 'Cotizaciones Simples' : 'Cotizaciones Complejas'}
                             </h2>
                             <p className="text-gray-600 dark:text-gray-400">
-                                Genera y gestiona cotizaciones para tus proyectos
+                                Genera y gestiona cotizaciones para tus proyectos ({filteredQuotes.length} cotizaciones)
                             </p>
                         </div>
 
@@ -140,18 +170,19 @@ export function WorkArea() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                    {[1, 2, 3, 4, 5].map((i) => (
-                                        <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-900">
-                                            <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">COT-{1000 + i}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">Cliente {i}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">Instalación eléctrica</td>
-                                            <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">${(Math.random() * 50000 + 10000).toFixed(2)}</td>
+                                    {filteredQuotes.map((quote) => (
+                                        <tr key={quote.id} className="hover:bg-gray-50 dark:hover:bg-gray-900">
+                                            <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{quote.id}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{quote.clientName}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{quote.projectName}</td>
+                                            <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">${quote.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                                             <td className="px-6 py-4 text-sm">
-                                                <span className={`px-2 py-1 rounded text-xs ${i % 3 === 0 ? 'bg-green-100 text-green-800' :
-                                                        i % 3 === 1 ? 'bg-yellow-100 text-yellow-800' :
-                                                            'bg-gray-100 text-gray-800'
+                                                <span className={`px-2 py-1 rounded text-xs ${quote.status === 'approved' ? 'bg-green-100 text-green-800' :
+                                                    quote.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-gray-100 text-gray-800'
                                                     }`}>
-                                                    {i % 3 === 0 ? 'Aprobada' : i % 3 === 1 ? 'Pendiente' : 'Borrador'}
+                                                    {quote.status === 'approved' ? 'Aprobada' :
+                                                        quote.status === 'pending' ? 'Pendiente' : 'Borrador'}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm">
@@ -172,6 +203,10 @@ export function WorkArea() {
 
             case 'informe-tecnico':
             case 'informe-ejecutivo':
+                const filteredReports = reports.filter(r =>
+                    activeSection === 'informe-tecnico' ? r.type === 'technical' : r.type === 'executive'
+                )
+
                 return (
                     <div className="space-y-6">
                         <div>
@@ -179,23 +214,26 @@ export function WorkArea() {
                                 {activeSection === 'informe-tecnico' ? 'Informes Técnicos' : 'Informes Ejecutivos'}
                             </h2>
                             <p className="text-gray-600 dark:text-gray-400">
-                                Genera informes detallados de tus proyectos
+                                Genera informes detallados de tus proyectos ({filteredReports.length} informes)
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {[1, 2, 3, 4].map((i) => (
+                            {filteredReports.map((report) => (
                                 <motion.div
-                                    key={i}
+                                    key={report.id}
                                     whileHover={{ scale: 1.02 }}
                                     className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer"
                                 >
                                     <BarChart3 className="w-8 h-8 text-brand-yellow mb-3" />
                                     <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                        Informe {i} - {new Date().toLocaleDateString()}
+                                        {report.name}
                                     </h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                        Análisis de progreso y costos del proyecto
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        {report.description}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mb-4">
+                                        Fecha: {report.date}
                                     </p>
                                     <div className="flex gap-2">
                                         <button className="btn-secondary flex-1 text-sm">Descargar PDF</button>
