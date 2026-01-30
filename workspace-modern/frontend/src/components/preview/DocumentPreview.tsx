@@ -1,16 +1,13 @@
 /**
  * DocumentPreview - Universal Document Renderer
- * 
- * Renders any document type based on documentType prop
- * Supports all 6 document types:
- * - proyecto-simple
- * - proyecto-complejo
- * - cotizacion-simple
- * - cotizacion-compleja
- * - informe-tecnico
- * - informe-ejecutivo
+ * Renders all 6 document types
  */
 import { ProjectSimple } from '../documents/ProjectSimple';
+import { ProjectComplex } from '../documents/ProjectComplex';
+import { QuoteSimple } from '../documents/QuoteSimple';
+import { QuoteComplex } from '../documents/QuoteComplex';
+import { ReportTechnical } from '../documents/ReportTechnical';
+import { ReportExecutive } from '../documents/ReportExecutive';
 import { useDocumentStore, type DocumentType } from '../../store/useDocumentStore';
 
 interface DocumentPreviewProps {
@@ -19,57 +16,24 @@ interface DocumentPreviewProps {
 
 export function DocumentPreview({ documentType }: DocumentPreviewProps) {
     const { documentData, colorScheme, logo, font } = useDocumentStore();
-
-    // Use prop or store value
     const type = documentType || useDocumentStore((state) => state.documentType);
+
+    const commonProps = { data: documentData, colorScheme, logo, font };
 
     const renderDocument = () => {
         switch (type) {
             case 'proyecto-simple':
-                return (
-                    <ProjectSimple
-                        data={documentData}
-                        colorScheme={colorScheme}
-                        logo={logo}
-                        font={font}
-                    />
-                );
-
+                return <ProjectSimple {...commonProps} />;
             case 'proyecto-complejo':
-                return (
-                    <div className="p-8 text-center text-gray-500">
-                        <p>Proyecto Complejo - En desarrollo</p>
-                    </div>
-                );
-
+                return <ProjectComplex {...commonProps} />;
             case 'cotizacion-simple':
-                return (
-                    <div className="p-8 text-center text-gray-500">
-                        <p>Cotización Simple - En desarrollo</p>
-                    </div>
-                );
-
+                return <QuoteSimple {...commonProps} />;
             case 'cotizacion-compleja':
-                return (
-                    <div className="p-8 text-center text-gray-500">
-                        <p>Cotización Compleja - En desarrollo</p>
-                    </div>
-                );
-
+                return <QuoteComplex {...commonProps} />;
             case 'informe-tecnico':
-                return (
-                    <div className="p-8 text-center text-gray-500">
-                        <p>Informe Técnico - En desarrollo</p>
-                    </div>
-                );
-
+                return <ReportTechnical {...commonProps} />;
             case 'informe-ejecutivo':
-                return (
-                    <div className="p-8 text-center text-gray-500">
-                        <p>Informe Ejecutivo - En desarrollo</p>
-                    </div>
-                );
-
+                return <ReportExecutive {...commonProps} />;
             default:
                 return (
                     <div className="p-8 text-center text-gray-500">

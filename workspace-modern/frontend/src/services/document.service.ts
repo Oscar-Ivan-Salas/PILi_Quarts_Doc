@@ -1,124 +1,77 @@
 /**
- * Document Service
- * API service for document generation and management
- * Following clean-code and api-patterns
+ * Document Service - API Client for Documents
+ * Handles communication with the backend for document operations
  */
+import axios from 'axios';
+import { DocumentType, DocumentData, ColorScheme } from '../store/useDocumentStore';
 
-import { apiClient } from '../lib/api-client';
-import type {
-    Documento,
-    DocumentoVersion,
-    Folder,
-    GenerateDocumentRequest,
-} from '../lib/api-types';
+const API_URL = 'http://localhost:8001/api';
 
-/**
- * Document Service
- * 
- * Handles document generation, upload, download, versioning
- */
+export interface DocumentResponse {
+    id: number;
+    title: string;
+    type: DocumentType;
+    data: DocumentData;
+    color_scheme: ColorScheme;
+    font: string;
+    user_id: string;
+    created_at: string;
+    updated_at: string;
+}
+
 export const documentService = {
     /**
-     * Generate document (PDF, Word, Excel)
+     * Get all documents for a user
      */
-    async generateDocument(request: GenerateDocumentRequest): Promise<Blob> {
-        const response = await fetch(`${apiClient['baseURL']}/api/documents/generate`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-            },
-            body: JSON.stringify(request),
+    async getDocuments(userId: string): Promise<DocumentResponse[]> {
+        const response = await axios.get(`${API_URL}/documents`, {
+            params: { user_id: userId }
         });
-
-        if (!response.ok) {
-            throw new Error('Failed to generate document');
-        }
-
-        return response.blob();
+        return response.data;
     },
 
     /**
-     * Upload document
+     * Get a single document by ID
      */
-    async uploadDocument(
-        proyectoId: string,
-        file: File,
-        metadata?: Record<string, unknown>
-    ): Promise<Documento> {
-        return apiClient.upload<Documento>('/api/documents/upload', file, {
-            proyecto_id: proyectoId,
-            ...metadata,
-        });
+    async getDocument(id: number): Promise<DocumentResponse> {
+        const response = await axios.get(`${API_URL}/documents/${id}`);
+        return response.data;
     },
 
     /**
-     * Get document by ID
+     * Create a new document
      */
-    async getDocument(documentId: string): Promise<Documento> {
-        return apiClient.get<Documento>(`/api/documents/${documentId}`);
+    async createDocument(doc: {
+        title: string;
+        type: DocumentType;
+        data: DocumentData;
+        color_scheme: ColorScheme;
+        font: string;
+        user_id: string;
+    }): Promise<DocumentResponse> {
+        const response = await axios.post(`${API_URL}/documents/`, doc);
+        return response.data;
     },
 
     /**
-     * Get documents for project
+     * Update an existing document
      */
-    async getProjectDocuments(proyectoId: string): Promise<Documento[]> {
-        return apiClient.get<Documento[]>(`/api/projects/${proyectoId}/documents`);
+    async updateDocument(id: number, doc: {
+        title: string;
+        type: DocumentType;
+        data: DocumentData;
+        color_scheme: ColorScheme;
+        font: string;
+        user_id: string;
+    }): Promise<DocumentResponse> {
+        const response = await axios.put(`${API_URL}/documents/${id}`, doc);
+        return response.data;
     },
 
     /**
-     * Download document
+     * Delete a document
      */
-    async downloadDocument(documentId: string): Promise<Blob> {
-        const response = await fetch(
-            `${apiClient['baseURL']}/api/documents/${documentId}/download`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error('Failed to download document');
-        }
-
-        return response.blob();
-    },
-
-    /**
-     * Delete document
-     */
-    async deleteDocument(documentId: string): Promise<{ message: string }> {
-        return apiClient.delete<{ message: string }>(`/api/documents/${documentId}`);
-    },
-
-    /**
-     * Get document versions
-     */
-    async getDocumentVersions(documentId: string): Promise<DocumentoVersion[]> {
-        return apiClient.get<DocumentoVersion[]>(`/api/documents/${documentId}/versions`);
-    },
-
-    /**
-     * Create folder
-     */
-    async createFolder(
-        proyectoId: string,
-        nombre: string,
-        parentId?: string
-    ): Promise<Folder> {
-        return apiClient.post<Folder>('/api/folders', {
-            proyecto_id: proyectoId,
-            nombre,
-            parent_id: parentId,
-        });
-    },
-
-    /**
-     * Get folders for project
-     */
-    async getProjectFolders(proyectoId: string): Promise<Folder[]> {
-        return apiClient.get<Folder[]>(`/api/projects/${proyectoId}/folders`);
-    },
+    async deleteDocument(id: number): Promise<void> {
+        await axios.delete(`${API_URL}/documents/${id}`);
+    }
 };

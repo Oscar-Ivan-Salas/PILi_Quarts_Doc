@@ -1,9 +1,10 @@
-"""
-Document Store - Zustand State Management
-Manages document data, type, settings, and editing state
-"""
+/**
+ * Document Store - Zustand State Management
+ * Manages document data, type, settings, and editing state
+ */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { documentService } from '../services/document.service';
 
 // Document types
 export type DocumentType =
@@ -92,10 +93,21 @@ export interface DocumentData {
         interes: 'bajo' | 'medio' | 'alto';
         poder: 'bajo' | 'medio' | 'alto';
     }>;
+
+    // Additional data (conclusions, recommendations for reports)
+    titulo?: string;
+    codigo?: string;
+    resumen_ejecutivo?: string;
+    introduccion?: string;
+    analisis_tecnico?: string;
+    resultados?: string;
+    conclusiones?: string;
+    recomendaciones?: string[];
 }
 
 interface DocumentStore {
     // State
+    documentId: number | null;
     documentType: DocumentType;
     documentData: DocumentData;
     colorScheme: ColorScheme;
@@ -104,6 +116,7 @@ interface DocumentStore {
     isEditing: boolean;
     isSaving: boolean;
     lastSaved: Date | null;
+    error: string | null;
 
     // Actions
     setDocumentType: (type: DocumentType) => void;
@@ -112,9 +125,12 @@ interface DocumentStore {
     setLogo: (logo: string | null) => void;
     setFont: (font: string) => void;
     setIsEditing: (editing: boolean) => void;
-    setIsSaving: (saving: boolean) => void;
     resetDocument: () => void;
     loadDocument: (data: DocumentData) => void;
+
+    // Async Actions
+    saveDocument: (userId: string, title: string) => Promise<void>;
+    fetchDocument: (id: number) => Promise<void>;
 }
 
 // Initial document data
@@ -132,18 +148,20 @@ const initialDocumentData: DocumentData = {
         ubicacion: '',
         presupuesto: 0,
         duracion: 0,
-        fechaInicio: '',
+        fechaInicio: new Date().toISOString().split('T')[0],
         fechaFin: '',
     },
     profesionales: [],
     suministros: [],
     entregables: [],
+    recomendaciones: [],
 };
 
 export const useDocumentStore = create<DocumentStore>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             // Initial state
+            documentId: null,
             documentType: 'proyecto-simple',
             documentData: initialDocumentData,
             colorScheme: 'azul-tesla',
@@ -152,6 +170,7 @@ export const useDocumentStore = create<DocumentStore>()(
             isEditing: false,
             isSaving: false,
             lastSaved: null,
+            error: null,
 
             // Actions
             setDocumentType: (type) => set({ documentType: type }),
@@ -161,7 +180,6 @@ export const useDocumentStore = create<DocumentStore>()(
                     ...state.documentData,
                     ...data,
                 },
-                lastSaved: new Date(),
             })),
 
             setColorScheme: (scheme) => set({ colorScheme: scheme }),
@@ -172,24 +190,90 @@ export const useDocumentStore = create<DocumentStore>()(
 
             setIsEditing: (editing) => set({ isEditing: editing }),
 
-            setIsSaving: (saving) => set({ isSaving: saving }),
-
             resetDocument: () => set({
+                documentId: null,
                 documentData: initialDocumentData,
                 logo: null,
                 isEditing: false,
                 isSaving: false,
                 lastSaved: null,
+                error: null,
             }),
 
             loadDocument: (data) => set({
                 documentData: data,
                 lastSaved: new Date(),
             }),
+
+            // Async Actions
+            saveDocument: async (userId, title) => {
+                set({ isSaving: true, error: null });
+                try {
+                    const { documentId, documentType, documentData, colorScheme, font } = get();
+
+                    let response;
+                    if (documentId) {
+                        // Update existing
+                        response = await documentService.updateDocument(documentId, {
+                            title,
+                            type: documentType,
+                            data: documentData,
+                            color_scheme: colorScheme,
+                            font,
+                            user_id: userId,
+                        });
+                    } else {
+                        // Create new
+                        response = await documentService.createDocument({
+                            title,
+                            type: documentType,
+                            data: documentData,
+                            color_scheme: colorScheme,
+                            font,
+                            user_id: userId,
+                        });
+                    }
+
+                    set({
+                        documentId: response.id,
+                        lastSaved: new Date(),
+                        isSaving: false
+                    });
+                } catch (error) {
+                    console.error('Failed to save document:', error);
+                    set({
+                        isSaving: false,
+                        error: 'Error al guardar el documento'
+                    });
+                }
+            },
+
+            fetchDocument: async (id) => {
+                set({ isSaving: true, error: null });
+                try {
+                    const doc = await documentService.getDocument(id);
+                    set({
+                        documentId: doc.id,
+                        documentType: doc.type,
+                        documentData: doc.data,
+                        colorScheme: doc.color_scheme,
+                        font: doc.font,
+                        isSaving: false,
+                        lastSaved: new Date(doc.updated_at || doc.created_at)
+                    });
+                } catch (error) {
+                    console.error('Failed to fetch document:', error);
+                    set({
+                        isSaving: false,
+                        error: 'Error al cargar el documento'
+                    });
+                }
+            }
         }),
         {
-            name: 'document-storage', // LocalStorage key
+            name: 'document-storage',
             partialize: (state) => ({
+                documentId: state.documentId,
                 documentType: state.documentType,
                 documentData: state.documentData,
                 colorScheme: state.colorScheme,
