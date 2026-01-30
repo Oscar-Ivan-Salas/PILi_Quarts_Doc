@@ -6,8 +6,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { piliService } from '../services/pili.service';
-import { PILIWebSocketClient, PILIMessage } from '../lib/websocket-client';
-import type { ChatMessageResponse } from '../lib/api-types';
+import { PILIWebSocketClient, type PILIMessage } from '../lib/websocket-client';
 
 export interface UsePILIOptions {
     userId: string;
@@ -16,11 +15,14 @@ export interface UsePILIOptions {
     onError?: (error: Error) => void;
 }
 
+export type ConnectionStatus = 'connected' | 'connecting' | 'disconnected';
+
 export interface UsePILIReturn {
     messages: PILIMessage[];
     isLoading: boolean;
     isTyping: boolean;
     isConnected: boolean;
+    connectionStatus: ConnectionStatus;
     error: Error | null;
     sendMessage: (message: string, context?: Record<string, unknown>) => Promise<void>;
     clearHistory: () => Promise<void>;
@@ -32,13 +34,19 @@ export interface UsePILIReturn {
  * 
  * Provides PILI AI chat functionality with WebSocket support
  */
-export function usePILI(options: UsePILIOptions): UsePILIReturn {
-    const { userId, useWebSocket = true, onMessage, onError } = options;
+export function usePILI(userIdOrOptions: string | UsePILIOptions): UsePILIReturn {
+    // Support both string and options object
+    const options: UsePILIOptions = typeof userIdOrOptions === 'string'
+        ? { userId: userIdOrOptions, useWebSocket: false }  // Default to HTTP for simplicity
+        : userIdOrOptions;
+
+    const { userId, useWebSocket = false, onMessage, onError } = options;
 
     const [messages, setMessages] = useState<PILIMessage[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
+    const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
     const [error, setError] = useState<Error | null>(null);
 
     const wsClient = useRef<PILIWebSocketClient | null>(null);
@@ -48,7 +56,12 @@ export function usePILI(options: UsePILIOptions): UsePILIReturn {
      * Initialize WebSocket
      */
     useEffect(() => {
-        if (!useWebSocket) return;
+        if (!useWebSocket) {
+            setConnectionStatus('disconnected');
+            return;
+        }
+
+        setConnectionStatus('connecting');
 
         wsClient.current = new PILIWebSocketClient(userId, {
             onMessage: (message) => {
@@ -61,13 +74,16 @@ export function usePILI(options: UsePILIOptions): UsePILIReturn {
             },
             onConnect: () => {
                 setIsConnected(true);
+                setConnectionStatus('connected');
                 setError(null);
             },
             onDisconnect: () => {
                 setIsConnected(false);
+                setConnectionStatus('disconnected');
             },
             onError: (err) => {
                 setError(err);
+                setConnectionStatus('disconnected');
                 onError?.(err);
             },
         });
@@ -168,6 +184,7 @@ export function usePILI(options: UsePILIOptions): UsePILIReturn {
         isLoading,
         isTyping,
         isConnected,
+        connectionStatus,
         error,
         sendMessage,
         clearHistory,
