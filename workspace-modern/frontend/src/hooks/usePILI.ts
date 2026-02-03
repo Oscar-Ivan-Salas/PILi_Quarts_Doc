@@ -107,7 +107,8 @@ export function usePILI(userIdOrOptions: string | UsePILIOptions): UsePILIReturn
 
             // Add user message to UI
             const userMessage: PILIMessage = {
-                type: 'user',
+                id: crypto.randomUUID(),
+                role: 'user',
                 content: message,
                 timestamp: new Date().toISOString(),
             };
@@ -124,7 +125,8 @@ export function usePILI(userIdOrOptions: string | UsePILIOptions): UsePILIReturn
                     const response = await piliService.sendMessage({ message, context });
 
                     const assistantMessage: PILIMessage = {
-                        type: 'assistant',
+                        id: crypto.randomUUID(),
+                        role: 'assistant',
                         content: response.response,
                         timestamp: response.timestamp,
                         metadata: {
@@ -142,7 +144,8 @@ export function usePILI(userIdOrOptions: string | UsePILIOptions): UsePILIReturn
 
                 // Add error message to UI
                 const errorMessage: PILIMessage = {
-                    type: 'error',
+                    id: crypto.randomUUID(),
+                    role: 'error',
                     content: 'Lo siento, hubo un error al procesar tu mensaje. Por favor intenta de nuevo.',
                     timestamp: new Date().toISOString(),
                 };

@@ -5,11 +5,11 @@ import { X, Maximize2, Minimize2 } from 'lucide-react';
  * ThreePanelLayout - Layout de 3 paneles estilo IDE
  * 
  * Inspirado en VS Code, Cursor, Windsurf
- * - Izquierda (30%): Formulario
- * - Centro (40%): Vista previa del documento
- * - Derecha (30%): Chat con PILI
+ * - Izquierda (30%): Panel izquierdo
+ * - Centro (40%): Panel central
+ * - Derecha (30%): Panel derecho
  */
-const ThreePanelLayout = ({ children }) => {
+const ThreePanelLayout = ({ leftPanel, centerPanel, rightPanel }) => {
     const [leftPanelVisible, setLeftPanelVisible] = useState(true);
     const [rightPanelVisible, setRightPanelVisible] = useState(true);
     const [centerMaximized, setCenterMaximized] = useState(false);
@@ -52,7 +52,7 @@ const ThreePanelLayout = ({ children }) => {
                         </button>
                     </div>
                     <div className="p-4">
-                        {children[0]}
+                        {leftPanel}
                     </div>
                 </div>
             )}
@@ -93,7 +93,7 @@ const ThreePanelLayout = ({ children }) => {
                     </div>
                 </div>
                 <div className="p-6">
-                    {children[1]}
+                    {centerPanel}
                 </div>
             </div>
 
@@ -116,7 +116,7 @@ const ThreePanelLayout = ({ children }) => {
                         </button>
                     </div>
                     <div className="flex-1 overflow-y-auto">
-                        {children[2]}
+                        {rightPanel}
                     </div>
                 </div>
             )}

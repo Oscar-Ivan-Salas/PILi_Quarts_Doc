@@ -12,7 +12,7 @@ export function ChatPanel() {
         connectionStatus,
         sendMessage,
         clearHistory,
-    } = usePILI('demo-user-123')
+    } = usePILI({ userId: 'demo-user-123', useWebSocket: true })
 
     const [input, setInput] = useState('')
 
@@ -97,8 +97,8 @@ export function ChatPanel() {
                                     )}
                                     <div
                                         className={`max-w-[80%] rounded-lg px-4 py-2 ${message.role === 'user'
-                                                ? 'bg-brand-red text-white'
-                                                : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
+                                            ? 'bg-brand-red text-white'
+                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
                                             }`}
                                     >
                                         <p className="text-sm whitespace-pre-wrap">{message.content}</p>

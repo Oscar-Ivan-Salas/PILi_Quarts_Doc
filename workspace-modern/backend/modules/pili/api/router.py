@@ -50,7 +50,7 @@ def get_pili_brain() -> PILIBrain:
     if _pili_brain is None:
         logger.info("Initializing PILI Brain singleton")
         _gemini_service = GeminiService()
-        _pili_brain = PILIBrain(_gemini_service)
+        _pili_brain = PILIBrain()
     
     return _pili_brain
 

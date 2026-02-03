@@ -4,6 +4,7 @@ Enterprise-grade settings management
 Following python-patterns and clean-code skills
 """
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
 from typing import Optional
 from functools import lru_cache
 
@@ -22,7 +23,8 @@ class PILISettings(BaseSettings):
     )
     
     # Gemini AI Configuration
-    gemini_api_key: str = "dummy-key-for-testing"  # Default for testing
+    # Allow GOOGLE_API_KEY from standard .env
+    gemini_api_key: str = Field("dummy-key-for-testing", validation_alias="GOOGLE_API_KEY")
     gemini_model: str = "gemini-2.0-flash-exp"
     gemini_temperature: float = 0.7
     gemini_max_tokens: int = 8192
@@ -56,3 +58,5 @@ def get_settings() -> PILISettings:
     Using lru_cache ensures singleton pattern.
     """
     return PILISettings()
+
+settings = get_settings()

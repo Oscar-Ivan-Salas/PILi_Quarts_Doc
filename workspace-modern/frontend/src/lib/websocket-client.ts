@@ -5,10 +5,12 @@
  */
 
 import { io, Socket } from 'socket.io-client';
-import { WS_BASE_URL } from '../lib/api-client';
+// Hardcoded fallback because API_URL not exported from document.service
+const WS_URL = 'http://127.0.0.1:8003'; // Use IP to avoid localhost resolution issues
 
 export interface PILIMessage {
-    type: 'user' | 'assistant' | 'system' | 'typing' | 'error';
+    id: string;
+    role: 'user' | 'assistant' | 'system' | 'error';
     content: string;
     timestamp: string;
     metadata?: Record<string, unknown>;
@@ -49,11 +51,11 @@ export class PILIWebSocketClient {
     connect(): void {
         const token = localStorage.getItem('access_token');
 
-        this.socket = io(`${WS_BASE_URL}/ws/pili/${this.userId}`, {
+        this.socket = io(`${WS_URL}`, {
             auth: {
                 token,
             },
-            transports: ['websocket'],
+            transports: ['polling', 'websocket'], // Allow polling fallback
             reconnection: true,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
@@ -91,8 +93,28 @@ export class PILIWebSocketClient {
         });
 
         // Message events
-        this.socket.on('message', (data: PILIMessage) => {
-            this.callbacks.onMessage?.(data);
+        this.socket.on('message', (data: any) => {
+            // Map 'response' to 'content' for compatibility with modern backend
+            if (data.response && !data.content) {
+                data.content = data.response;
+            }
+
+            // Ensure ID exists
+            if (!data.id) {
+                data.id = crypto.randomUUID();
+            }
+
+            // Map 'type' to 'role'
+            if (data.type && !data.role) {
+                data.role = data.type;
+            }
+
+            // Ensure role is valid
+            if (!['user', 'assistant', 'system', 'error'].includes(data.role)) {
+                data.role = 'assistant'; // Default to assistant
+            }
+
+            this.callbacks.onMessage?.(data as PILIMessage);
         });
 
         this.socket.on('typing', (data: { is_typing: boolean }) => {

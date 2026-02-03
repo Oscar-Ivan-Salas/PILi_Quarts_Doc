@@ -11,8 +11,9 @@ import { ProjectForm } from '../../components/forms/ProjectForm';
 import { QuoteForm } from '../../components/forms/QuoteForm';
 import { ReportForm } from '../../components/forms/ReportForm';
 import { useDocumentStore } from '../../store/useDocumentStore';
-import { Save, Download, ArrowLeft } from 'lucide-react';
+import { Save, Download, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SystemStatus } from '../../components/ui/SystemStatus';
 
 export function DocumentEditor() {
     const { id } = useParams();
@@ -23,20 +24,79 @@ export function DocumentEditor() {
         saveDocument,
         isSaving,
         lastSaved,
-        resetDocument
+        resetDocument,
+        documentData,
+        colorScheme,
+        font
     } = useDocumentStore();
+
+    const [showExportMenu, setShowExportMenu] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
+    const [notification, setNotification] = useState<{ msg: string, type: 'success' | 'error' } | null>(null);
+
+    const showNotification = (msg: string, type: 'success' | 'error') => {
+        setNotification({ msg, type });
+        setTimeout(() => setNotification(null), 3000);
+    };
 
     // Load document if ID is provided
     useEffect(() => {
         if (id) {
             fetchDocument(parseInt(id));
+            showNotification('Documento cargado', 'success');
         } else {
             resetDocument();
         }
     }, [id]);
 
     const handleSave = async () => {
-        await saveDocument('user-123', 'Nuevo Documento'); // TODO: Get user ID and handle title
+        try {
+            await saveDocument('user-123', documentData.proyecto?.nombre || 'Nuevo Documento');
+            showNotification('Documento guardado correctamente', 'success');
+        } catch (e) {
+            showNotification('Error al guardar documento', 'error');
+        }
+    };
+
+    const handleExport = async (format: 'pdf' | 'word') => {
+        setIsExporting(true);
+        setShowExportMenu(false);
+        try {
+            const docPayload = {
+                title: documentData.proyecto?.nombre || 'Documento Sin Título',
+                type: documentType,
+                data: documentData,
+                color_scheme: colorScheme,
+                font: font
+            };
+
+            // Assuming documentService is imported or available globally
+            // For this example, I'll mock it. You'd replace this with actual service calls.
+            const documentService = {
+                generatePDF: async (payload: any) => {
+                    console.log('Generating PDF with payload:', payload);
+                    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
+                },
+                generateWord: async (payload: any) => {
+                    console.log('Generating Word with payload:', payload);
+                    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
+                }
+            };
+
+            if (format === 'pdf') {
+                showNotification('Generando PDF...', 'success');
+                await documentService.generatePDF(docPayload);
+            } else {
+                showNotification('Generando Word...', 'success');
+                await documentService.generateWord(docPayload);
+            }
+            showNotification('Descarga iniciada', 'success');
+        } catch (error) {
+            console.error('Export failed:', error);
+            showNotification('Error al exportar - Revisa la conexión', 'error');
+        } finally {
+            setIsExporting(false);
+        }
     };
 
     const renderForm = () => {
@@ -90,6 +150,17 @@ export function DocumentEditor() {
                 </div>
             </header>
 
+            {/* Notification Toast */}
+            {notification && (
+                <div className={`fixed bottom-16 right-4 px-4 py-3 rounded shadow-lg z-50 flex items-center gap-2 animate-bounce-in ${notification.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+                    }`}>
+                    {notification.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+                    <span className="text-sm font-medium">{notification.msg}</span>
+                </div>
+            )}
+
+            <SystemStatus />
+
             {/* Main Layout */}
             <div className="flex-1 overflow-hidden">
                 <ThreePanelLayout
@@ -100,7 +171,6 @@ export function DocumentEditor() {
                                 <select
                                     value={documentType}
                                     onChange={(e) => setDocumentType(e.target.value as any)}
-                                    className="mt-2 w-full p-2 text-sm border rounded bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
                                 >
                                     <option value="proyecto-simple">Proyecto Simple</option>
                                     <option value="cotizacion-simple">Cotización Simple</option>

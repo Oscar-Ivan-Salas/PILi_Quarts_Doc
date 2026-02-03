@@ -3,9 +3,9 @@
  * Handles communication with the backend for document operations
  */
 import axios from 'axios';
-import { DocumentType, DocumentData, ColorScheme } from '../store/useDocumentStore';
+import type { DocumentType, DocumentData, ColorScheme } from '../store/useDocumentStore';
 
-const API_URL = 'http://localhost:8001/api';
+const API_URL = 'http://127.0.0.1:8003/api'; // Use IP for reliability
 
 export interface DocumentResponse {
     id: number;

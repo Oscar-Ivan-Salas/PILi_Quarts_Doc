@@ -10,12 +10,13 @@ import io
 import os
 from datetime import datetime
 
-# Import generators (we will implement these next)
+# Import generators
 try:
     from weasyprint import HTML, CSS
     WEASYPRINT_AVAILABLE = True
-except ImportError:
+except (ImportError, OSError):
     WEASYPRINT_AVAILABLE = False
+    print("WeasyPrint not available (GTK3 missing?). Will try ReportLab.")
 
 try:
     from docx import Document
@@ -23,6 +24,14 @@ try:
     DOCX_AVAILABLE = True
 except ImportError:
     DOCX_AVAILABLE = False
+
+# Fallback PDF generator
+try:
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import A4
+    REPORTLAB_AVAILABLE = True
+except ImportError:
+    REPORTLAB_AVAILABLE = False
 
 from utils.template_generator import generate_html_template
 
@@ -38,26 +47,70 @@ class GenerateRequest(BaseModel):
 @router.post("/pdf")
 async def generate_pdf(request: GenerateRequest):
     """Generate PDF document from data"""
-    if not WEASYPRINT_AVAILABLE:
-        raise HTTPException(
-            status_code=500, 
-            detail="PDF generation library (WeasyPrint) not installed"
-        )
-        
     try:
-        # 1. Generate HTML content
-        html_content = generate_html_template(
-            request.type, 
-            request.data, 
-            request.color_scheme,
-            request.font
-        )
-        
-        # 2. Convert to PDF
         pdf_file = io.BytesIO()
-        HTML(string=html_content).write_pdf(pdf_file)
-        pdf_file.seek(0)
         
+        # Strategy 1: WeasyPrint (High Quality)
+        if WEASYPRINT_AVAILABLE:
+            try:
+                html_content = generate_html_template(
+                    request.type, 
+                    request.data, 
+                    request.color_scheme,
+                    request.font
+                )
+                HTML(string=html_content).write_pdf(pdf_file)
+                pdf_file.seek(0)
+            except Exception as wp_error:
+                print(f"WeasyPrint failed: {wp_error}. Falling back...")
+                if not REPORTLAB_AVAILABLE:
+                    raise wp_error
+                # Trigger fallback manually
+                raise OSError("WeasyPrint failed")
+                
+        # Strategy 2: ReportLab (Reliable Fallback)
+        elif REPORTLAB_AVAILABLE:
+            c = canvas.Canvas(pdf_file, pagesize=A4)
+            c.setFont("Helvetica-Bold", 16)
+            c.drawString(50, 800, request.title or "Documento Generado")
+            
+            c.setFont("Helvetica", 12)
+            y = 750
+            c.drawString(50, y, f"Tipo: {request.type}")
+            y -= 20
+            c.drawString(50, y, f"Fecha: {datetime.now().strftime('%d/%m/%Y')}")
+            y -= 40
+            
+            # Simple content dump
+            c.drawString(50, y, "Datos del Documento:")
+            y -= 25
+            
+            # Iterate safely through basic data
+            text_object = c.beginText(50, y)
+            text_object.setFont("Helvetica", 10)
+            
+            if request.data.get('cliente'):
+                text_object.textLine("CLIENTE:")
+                for k, v in request.data['cliente'].items():
+                    text_object.textLine(f" - {k}: {v}")
+                text_object.textLine(" ")
+
+            if request.data.get('proyecto'):
+                text_object.textLine("PROYECTO:")
+                for k, v in request.data['proyecto'].items():
+                    text_object.textLine(f" - {k}: {v}")
+            
+            c.drawText(text_object)
+            c.showPage()
+            c.save()
+            pdf_file.seek(0)
+            
+        else:
+             raise HTTPException(
+                status_code=500, 
+                detail="No PDF generation libraries available (install weasyprint or reportlab)"
+            )
+
         # 3. Return as downloadable file
         filename = f"{request.title.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.pdf"
         
