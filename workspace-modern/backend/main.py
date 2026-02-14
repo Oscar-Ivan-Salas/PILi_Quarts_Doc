@@ -23,7 +23,11 @@ origins = [
     "http://localhost:3010",
     "http://localhost:5173",
     "http://127.0.0.1:3010",
+    "http://localhost:3011",
+    "http://127.0.0.1:3011",
     "http://localhost:8000",
+    "http://localhost:3030", # Self-reference
+    "http://127.0.0.1:3030",
 ]
 
 app.add_middleware(
@@ -40,6 +44,9 @@ app.include_router(generation.router)
 
 from modules.pili.api import router as pili_router
 app.include_router(pili_router.router)
+# Include v2 Router for Document Generation
+from modules.pili.api.router import router as pili_v2_router
+app.include_router(pili_v2_router)
 
 # Mount Static Files (for avatars, logos, generated PDFs)
 static_path = os.path.join(os.path.dirname(__file__), "static")

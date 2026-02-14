@@ -50,6 +50,14 @@ export function ComplexProjectForm({ onStartChat, initialData = {}, tipoFlujo = 
         telefono: initialData.cliente?.telefono || '',
         email: initialData.cliente?.email || ''
     });
+
+    // N08 Identity: Emisor State
+    const [datosEmisor, setDatosEmisor] = useState({
+        nombre: initialData.emisor?.nombre || '',
+        ruc: initialData.emisor?.ruc || '',
+        direccion: initialData.emisor?.direccion || ''
+    });
+
     const [clienteSeleccionadoId, setClienteSeleccionadoId] = useState('');
     const [guardandoCliente, setGuardandoCliente] = useState(false);
 
@@ -95,6 +103,7 @@ export function ComplexProjectForm({ onStartChat, initialData = {}, tipoFlujo = 
     const handleSubmit = () => {
         onStartChat({
             cliente: datosCliente,
+            emisor: datosEmisor, // N08 Identity
             proyecto: {
                 nombre: nombreProyecto,
                 presupuesto,
@@ -119,9 +128,9 @@ export function ComplexProjectForm({ onStartChat, initialData = {}, tipoFlujo = 
             {/* 0. LOGO EMPRESA (Universal) */}
             <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 border-2 border-yellow-600 shadow-xl">
                 <h2 className="text-2xl font-bold mb-4 text-yellow-400 flex items-center gap-2">
-                    🎨 Logo Empresa (Aparecerá en el documento final)
+                    🎨 Logo Empresa y Datos del Emisor (Socio)
                 </h2>
-                <div className="flex gap-4 items-center">
+                <div className="flex gap-4 items-center mb-6">
                     <div className="flex-1">
                         <input ref={fileInputLogoRef} type="file" onChange={cargarLogo} className="hidden" accept="image/*" />
                         <button
@@ -136,6 +145,37 @@ export function ComplexProjectForm({ onStartChat, initialData = {}, tipoFlujo = 
                             <img src={logoBase64} alt="Logo" className="w-24 h-24 object-contain" />
                         </div>
                     )}
+                </div>
+
+                {/* Identity Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-yellow-400 font-semibold mb-2">Tu Nombre / Empresa *</label>
+                        <input
+                            value={datosEmisor.nombre}
+                            onChange={e => setDatosEmisor({ ...datosEmisor, nombre: e.target.value })}
+                            className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white placeholder-gray-600"
+                            placeholder="Ej: Soluciones Técnicas S.A.C."
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-yellow-400 font-semibold mb-2">Tu RUC *</label>
+                        <input
+                            value={datosEmisor.ruc}
+                            onChange={e => setDatosEmisor({ ...datosEmisor, ruc: e.target.value })}
+                            className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white placeholder-gray-600"
+                            placeholder="Ej: 20123456789"
+                        />
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className="block text-yellow-400 font-semibold mb-2">Tu Dirección</label>
+                        <input
+                            value={datosEmisor.direccion}
+                            onChange={e => setDatosEmisor({ ...datosEmisor, direccion: e.target.value })}
+                            className="w-full px-4 py-3 bg-gray-950 border border-yellow-700 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-white placeholder-gray-600"
+                            placeholder="Ej: Av. Las Begonias 123"
+                        />
+                    </div>
                 </div>
             </div>
 

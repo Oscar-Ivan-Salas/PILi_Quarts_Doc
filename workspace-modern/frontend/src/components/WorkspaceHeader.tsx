@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion'
-import { Home, Save, Moon, Sun, User, Palette } from 'lucide-react'
+import { Home, Save, Moon, Sun, User, Palette, Shield } from 'lucide-react'
 import { useWorkspaceStore } from '../store/useWorkspaceStore'
 
 export function WorkspaceHeader() {
-    const { theme, setTheme } = useWorkspaceStore()
+    const { theme, setTheme, setActiveSection } = useWorkspaceStore()
 
     const toggleTheme = () => {
         if (theme === 'dark') setTheme('light')
@@ -42,7 +42,9 @@ export function WorkspaceHeader() {
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
+                        onClick={() => setActiveSection('')}
                         className="btn-secondary flex items-center gap-2"
+                        title="Volver al inicio"
                     >
                         <Home className="w-4 h-4" />
                         <span className="hidden md:inline">Inicio</span>
@@ -55,6 +57,17 @@ export function WorkspaceHeader() {
                     >
                         <Save className="w-4 h-4" />
                         <span className="hidden md:inline">Guardar</span>
+                    </motion.button>
+
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setActiveSection('admin-dashboard')}
+                        className="btn-secondary flex items-center gap-2 border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors"
+                        title="Panel de Administración"
+                    >
+                        <Shield className="w-4 h-4" />
+                        <span className="hidden md:inline">Admin</span>
                     </motion.button>
 
                     <motion.button

@@ -5,7 +5,7 @@
 import axios from 'axios';
 import type { DocumentType, DocumentData, ColorScheme } from '../store/useDocumentStore';
 
-const API_URL = 'http://127.0.0.1:8003/api'; // Use IP for reliability
+const API_URL = 'http://127.0.0.1:8005/api'; // Use IP for reliability
 
 export interface DocumentResponse {
     id: number;

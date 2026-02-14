@@ -1,0 +1,47 @@
+{
+  "excel_layout": {
+    "sheet_name": "INFORME_LEVANTAMIENTO",
+    "static_cells": {
+      "B2": "INFORME LEVANTAMIENTO"
+    },
+    "dynamic_cells": {
+      "client_name": "C5"
+    },
+    "tables": [
+      {
+        "data_key": "items",
+        "start_row": 8,
+        "columns": {
+          "columns": {
+            "item": "B",
+            "ubicacion": "C",
+            "hallazgo": "D",
+            "riesgo_detectado": "E",
+            "nivel_riesgo": "F",
+            "norma_vulnerada": "G",
+            "accion_correctiva": "H",
+            "prioridad": "I"
+          }
+        }
+      }
+    ]
+  },
+  "word_layout": {
+    "title": "INFORME LEVANTAMIENTO",
+    "headers": [
+      "Item",
+      "Ubicaci\u00f3n",
+      "Hallazgo",
+      "Riesgo",
+      "Nivel",
+      "Norma",
+      "Acci\u00f3n",
+      "Prioridad"
+    ]
+  },
+  "styles": {
+    "colors": {
+      "primary": "#CC0000"
+    }
+  }
+}

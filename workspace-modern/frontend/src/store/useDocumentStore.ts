@@ -28,6 +28,16 @@ export interface DocumentData {
         email: string;
     };
 
+    // Emisor (Usuario/Socio) N08 Identity
+    emisor: {
+        nombre: string;
+        empresa: string;
+        ruc: string;
+        direccion: string;
+        logo: string;
+        firma: string;
+    };
+
     // Proyecto
     proyecto: {
         nombre: string;
@@ -141,6 +151,14 @@ const initialDocumentData: DocumentData = {
         direccion: '',
         telefono: '',
         email: '',
+    },
+    emisor: {
+        nombre: '',
+        empresa: '',
+        ruc: '',
+        direccion: '',
+        logo: '',
+        firma: '',
     },
     proyecto: {
         nombre: '',

@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto PMI - Tesla Electricidad</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            color: #1f2937;
+            line-height: 1.6;
+            background: #ffffff;
+        }
+
+        .container {
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            background: white;
+        }
+
+        /* Colores Tesla */
+        .color-primario { color: #0052A3; }
+        .bg-primario { background: linear-gradient(135deg, #0052A3 0%, #1E40AF 100%); }
+        .bg-claro { background-color: #EFF6FF; }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 4px solid #0052A3;
+        }
+
+        .logo {
+            width: 180px;
+            height: 80px;
+            background: linear-gradient(135deg, #0052A3 0%, #1E40AF 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .empresa-info {
+            text-align: right;
+            font-size: 11px;
+            color: #4b5563;
+        }
+
+        .empresa-nombre {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0052A3;
+            margin-bottom: 8px;
+        }
+
+        /* Título */
+        .titulo {
+            text-align: center;
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            border-left: 6px solid #0052A3;
+        }
+
+        .titulo h1 {
+            font-size: 30px;
+            color: #0052A3;
+            margin-bottom: 5px;
+        }
+
+        .titulo .subtitulo {
+            font-size: 14px;
+            color: #1E40AF;
+            font-style: italic;
+            margin: 8px 0;
+        }
+
+        /* Info grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            padding: 15px;
+            background: #F9FAFB;
+            border-left: 4px solid #3B82F6;
+            border-radius: 4px;
+        }
+
+        .info-label {
+            font-size: 11px;
+            color: #6B7280;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: #0052A3;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        /* Sección */
+        .seccion {
+            margin: 30px 0;
+        }
+
+        .seccion h2 {
+            font-size: 18px;
+            color: #0052A3;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #0052A3;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .seccion h2:before {
+            content: '';
+            width: 6px;
+            height: 24px;
+            background: #3B82F6;
+        }
+
+        /* KPIs */
+        .kpis-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .kpi-card {
+            padding: 20px;
+            background: white;
+            border: 2px solid #DBEAFE;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #6B7280;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            color: #0052A3;
+            font-weight: bold;
+        }
+
+        .kpi-desc {
+            font-size: 9px;
+            color: #9CA3AF;
+            margin-top: 5px;
+        }
+
+        /* Tabla */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #0052A3 0%, #1E40AF 100%);
+            color: white;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        td {
+            padding: 10px 12px;
+            font-size: 11px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        tr:nth-child(even) { background-color: #F9FAFB; }
+
+        /* Gantt */
+        .gantt-row {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 11px;
+        }
+
+        .gantt-label {
+            width: 200px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .gantt-bar-container {
+            flex: 1;
+            height: 30px;
+            background: #F3F4F6;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gantt-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #0052A3 0%, #3B82F6 100%);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* Matriz RACI */
+        .raci-grid {
+            margin: 20px 0;
+        }
+
+        .raci-grid table {
+            font-size: 10px;
+        }
+
+        .raci-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+            min-width: 25px;
+            text-align: center;
+        }
+
+        .raci-r { background: #DBEAFE; color: #1E40AF; }
+        .raci-a { background: #FEE2E2; color: #991B1B; }
+        .raci-c { background: #FEF3C7; color: #92400E; }
+        .raci-i { background: #D1FAE5; color: #065F46; }
+
+        /* Stakeholders */
+        .stakeholder-card {
+            display: flex;
+            padding: 15px;
+            background: #F9FAFB;
+            border-left: 4px solid #3B82F6;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .stakeholder-info {
+            flex: 1;
+        }
+
+        .stakeholder-nombre {
+            font-size: 14px;
+            color: #0052A3;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stakeholder-rol {
+            font-size: 11px;
+            color: #6B7280;
+        }
+
+        .stakeholder-interes {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .stakeholder-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .badge-alto { background: #FEE2E2; color: #991B1B; }
+        .badge-medio { background: #FEF3C7; color: #92400E; }
+        .badge-bajo { background: #D1FAE5; color: #065F46; }
+
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 3px solid #0052A3;
+            text-align: center;
+            font-size: 10px;
+            color: #6B7280;
+        }
+
+        .footer-empresa {
+            font-weight: bold;
+            color: #0052A3;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div>
+                <div class="logo">TESLA</div>
+                <p style="font-size: 10px; color: #6B7280;">Electricidad y Automatización</p>
+            </div>
+            <div class="empresa-info">
+                <div class="empresa-nombre">TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.</div>
+                <div>RUC: 20601138787</div>
+                <div>Jr. Las Ágatas Mz B Lote 09, Urb. San Carlos, SJL</div>
+                <div>Teléfono: 906 315 961 | Email: ingenieria.teslaelectricidad@gmail.com</div>
+            </div>
+        </div>
+
+        <!-- TÍTULO -->
+        <div class="titulo">
+            <h1>PROJECT CHARTER</h1>
+            <div class="subtitulo">Gestión de Proyectos según Metodología PMI</div>
+            <div style="font-size: 18px; color: #1E40AF; margin-top: 10px;">{{NOMBRE_PROYECTO}}</div>
+            <div style="font-size: 14px; color: #1E40AF; font-weight: 600; margin-top: 5px;">{{CODIGO_PROYECTO}}</div>
+        </div>
+
+        <!-- INFO CLAVE -->
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-label">Cliente</div>
+                <div class="info-value" style="font-size: 14px;">{{CLIENTE}}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Duración Total</div>
+                <div class="info-value">{{DURACION_TOTAL}} días</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Inicio</div>
+                <div class="info-value" style="font-size: 14px;">{{FECHA_INICIO}}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Fin Estimado</div>
+                <div class="info-value" style="font-size: 14px;">{{FECHA_FIN}}</div>
+            </div>
+        </div>
+
+        <!-- PRESUPUESTO Y KPIs -->
+        <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border-radius: 6px; margin: 20px 0;">
+            <div style="font-size: 12px; color: #6B7280; margin-bottom: 5px;">PRESUPUESTO TOTAL DEL PROYECTO</div>
+            <div style="font-size: 36px; color: #0052A3; font-weight: bold;">$ {{PRESUPUESTO}}</div>
+        </div>
+
+        <div class="seccion">
+            <h2>Indicadores de Desempeño (KPIs)</h2>
+            <div class="kpis-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">SPI</div>
+                    <div class="kpi-value">{{SPI}}</div>
+                    <div class="kpi-desc">Schedule Performance</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">CPI</div>
+                    <div class="kpi-value">{{CPI}}</div>
+                    <div class="kpi-desc">Cost Performance</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">EV</div>
+                    <div class="kpi-value" style="font-size: 20px;">${{EV_K}}K</div>
+                    <div class="kpi-desc">Earned Value</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">PV</div>
+                    <div class="kpi-value" style="font-size: 20px;">${{PV_K}}K</div>
+                    <div class="kpi-desc">Planned Value</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">AC</div>
+                    <div class="kpi-value" style="font-size: 20px;">${{AC_K}}K</div>
+                    <div class="kpi-desc">Actual Cost</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ALCANCE -->
+        <div class="seccion">
+            <h2>Alcance del Proyecto (WBS Level 1)</h2>
+            <div style="padding: 15px; background: #F9FAFB; border-left: 4px solid #3B82F6; font-size: 12px; line-height: 1.8;">
+                {{ALCANCE_PROYECTO}}
+            </div>
+        </div>
+
+        <!-- CRONOGRAMA GANTT -->
+        <div class="seccion">
+            <h2>Cronograma del Proyecto (Diagrama Gantt)</h2>
+            <div style="margin: 20px 0;">
+                <div class="gantt-row">
+                    <div class="gantt-label">1. Inicio y Planificación</div>
+                    <div class="gantt-bar-container">
+                        <div class="gantt-bar" style="width: 15%;">10 días</div>
+                    </div>
+                </div>
+                <div class="gantt-row">
+                    <div class="gantt-label">2. Gestión Stakeholders</div>
+                    <div class="gantt-bar-container">
+                        <div class="gantt-bar" style="width: 8%;">3 días</div>
+                    </div>
+                </div>
+                <div class="gantt-row">
+                    <div class="gantt-label">3. Ingeniería y Diseño</div>
+                    <div class="gantt-bar-container">
+                        <div class="gantt-bar" style="width: 25%;">{{DIAS_INGENIERIA}} días</div>
+                    </div>
+                </div>
+                <div class="gantt-row">
+                    <div class="gantt-label">4. Ejecución</div>
+                    <div class="gantt-bar-container">
+                        <div class="gantt-bar" style="width: 40%;">{{DIAS_EJECUCION}} días</div>
+                    </div>
+                </div>
+                <div class="gantt-row">
+                    <div class="gantt-label">5. Pruebas y Puesta en Marcha</div>
+                    <div class="gantt-bar-container">
+                        <div class="gantt-bar" style="width: 10%;">8 días</div>
+                    </div>
+                </div>
+                <div class="gantt-row">
+                    <div class="gantt-label">6. Cierre</div>
+                    <div class="gantt-bar-container">
+                        <div class="gantt-bar" style="width: 7%;">5 días</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STAKEHOLDERS -->
+        <div class="seccion">
+            <h2>Registro de Stakeholders</h2>
+            <div class="stakeholder-card">
+                <div class="stakeholder-info">
+                    <div class="stakeholder-nombre">{{CLIENTE}}</div>
+                    <div class="stakeholder-rol">Cliente / Patrocinador Principal</div>
+                </div>
+                <div class="stakeholder-interes">
+                    <div>
+                        <div style="font-size: 10px; color: #6B7280;">Poder:</div>
+                        <span class="stakeholder-badge badge-alto">Alto</span>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: #6B7280;">Interés:</div>
+                        <span class="stakeholder-badge badge-alto">Alto</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stakeholder-card">
+                <div class="stakeholder-info">
+                    <div class="stakeholder-nombre">Jefe de Proyecto</div>
+                    <div class="stakeholder-rol">Project Manager / Responsable de Ejecución</div>
+                </div>
+                <div class="stakeholder-interes">
+                    <div>
+                        <div style="font-size: 10px; color: #6B7280;">Poder:</div>
+                        <span class="stakeholder-badge badge-alto">Alto</span>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: #6B7280;">Interés:</div>
+                        <span class="stakeholder-badge badge-alto">Alto</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stakeholder-card">
+                <div class="stakeholder-info">
+                    <div class="stakeholder-nombre">Equipo Técnico</div>
+                    <div class="stakeholder-rol">Ingenieros y Técnicos Instaladores</div>
+                </div>
+                <div class="stakeholder-interes">
+                    <div>
+                        <div style="font-size: 10px; color: #6B7280;">Poder:</div>
+                        <span class="stakeholder-badge badge-medio">Medio</span>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: #6B7280;">Interés:</div>
+                        <span class="stakeholder-badge badge-alto">Alto</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MATRIZ RACI -->
+        <div class="seccion">
+            <h2>Matriz RACI (Responsabilidades)</h2>
+            <div class="raci-grid">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Actividad</th>
+                            <th>PM</th>
+                            <th>Ing. Residente</th>
+                            <th>Técnicos</th>
+                            <th>Inspector QA</th>
+                            <th>Cliente</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Planificación del Proyecto</td>
+                            <td><span class="raci-badge raci-a">A</span></td>
+                            <td><span class="raci-badge raci-r">R</span></td>
+                            <td><span class="raci-badge raci-i">I</span></td>
+                            <td><span class="raci-badge raci-c">C</span></td>
+                            <td><span class="raci-badge raci-c">C</span></td>
+                        </tr>
+                        <tr>
+                            <td>Diseño e Ingeniería</td>
+                            <td><span class="raci-badge raci-a">A</span></td>
+                            <td><span class="raci-badge raci-r">R</span></td>
+                            <td><span class="raci-badge raci-c">C</span></td>
+                            <td><span class="raci-badge raci-c">C</span></td>
+                            <td><span class="raci-badge raci-i">I</span></td>
+                        </tr>
+                        <tr>
+                            <td>Ejecución de Obra</td>
+                            <td><span class="raci-badge raci-a">A</span></td>
+                            <td><span class="raci-badge raci-a">A</span></td>
+                            <td><span class="raci-badge raci-r">R</span></td>
+                            <td><span class="raci-badge raci-c">C</span></td>
+                            <td><span class="raci-badge raci-i">I</span></td>
+                        </tr>
+                        <tr>
+                            <td>Control de Calidad</td>
+                            <td><span class="raci-badge raci-a">A</span></td>
+                            <td><span class="raci-badge raci-c">C</span></td>
+                            <td><span class="raci-badge raci-c">C</span></td>
+                            <td><span class="raci-badge raci-r">R</span></td>
+                            <td><span class="raci-badge raci-i">I</span></td>
+                        </tr>
+                        <tr>
+                            <td>Aprobación de Entregables</td>
+                            <td><span class="raci-badge raci-r">R</span></td>
+                            <td><span class="raci-badge raci-c">C</span></td>
+                            <td><span class="raci-badge raci-i">I</span></td>
+                            <td><span class="raci-badge raci-c">C</span></td>
+                            <td><span class="raci-badge raci-a">A</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="margin-top: 15px; padding: 10px; background: #F9FAFB; border-radius: 4px; font-size: 10px;">
+                    <strong>Leyenda:</strong>
+                    <span class="raci-badge raci-r">R</span> Responsable |
+                    <span class="raci-badge raci-a">A</span> Aprobador |
+                    <span class="raci-badge raci-c">C</span> Consultado |
+                    <span class="raci-badge raci-i">I</span> Informado
+                </div>
+            </div>
+        </div>
+
+        <!-- REGISTRO DE RIESGOS -->
+        <div class="seccion">
+            <h2>Registro de Riesgos (Top 5)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">ID</th>
+                        <th style="width: 30%;">Riesgo</th>
+                        <th style="width: 10%;">Probabilidad</th>
+                        <th style="width: 10%;">Impacto</th>
+                        <th style="width: 10%;">Severidad</th>
+                        <th style="width: 35%;">Plan de Mitigación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>R01</td>
+                        <td>Retrasos en entrega de equipos</td>
+                        <td><span class="badge badge-media">Media</span></td>
+                        <td><span class="badge badge-alta">Alto</span></td>
+                        <td style="font-weight: bold; color: #DC2626;">Alta</td>
+                        <td>Compra anticipada de equipos críticos</td>
+                    </tr>
+                    <tr>
+                        <td>R02</td>
+                        <td>Variación de precios de materiales</td>
+                        <td><span class="badge badge-media">Media</span></td>
+                        <td><span class="badge badge-media">Medio</span></td>
+                        <td style="font-weight: bold; color: #D97706;">Media</td>
+                        <td>Cláusulas de precio fijo en contratos</td>
+                    </tr>
+                    <tr>
+                        <td>R03</td>
+                        <td>Cambios en alcance del proyecto</td>
+                        <td><span class="badge badge-alta">Alta</span></td>
+                        <td><span class="badge badge-alta">Alto</span></td>
+                        <td style="font-weight: bold; color: #DC2626;">Alta</td>
+                        <td>Control de cambios riguroso con aprobaciones</td>
+                    </tr>
+                    <tr>
+                        <td>R04</td>
+                        <td>Interferencias con otros contratistas</td>
+                        <td><span class="badge badge-alta">Alta</span></td>
+                        <td><span class="badge badge-media">Medio</span></td>
+                        <td style="font-weight: bold; color: #D97706;">Media</td>
+                        <td>Coordinación semanal con todos los actores</td>
+                    </tr>
+                    <tr>
+                        <td>R05</td>
+                        <td>Fallas en equipos especializados</td>
+                        <td><span class="badge badge-baja">Baja</span></td>
+                        <td><span class="badge badge-alta">Alto</span></td>
+                        <td style="font-weight: bold; color: #D97706;">Media</td>
+                        <td>Garantías extendidas y equipos de respaldo</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ENTREGABLES -->
+        <div class="seccion">
+            <h2>Entregables Principales del Proyecto</h2>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0;">
+                <div style="padding: 10px; background: #F9FAFB; border-left: 3px solid #0052A3; font-size: 11px;">📋 Project Charter</div>
+                <div style="padding: 10px; background: #F9FAFB; border-left: 3px solid #0052A3; font-size: 11px;">📊 Plan de gestión</div>
+                <div style="padding: 10px; background: #F9FAFB; border-left: 3px solid #0052A3; font-size: 11px;">👥 Registro stakeholders</div>
+                <div style="padding: 10px; background: #F9FAFB; border-left: 3px solid #0052A3; font-size: 11px;">📝 WBS y diccionario</div>
+                <div style="padding: 10px; background: #F9FAFB; border-left: 3px solid #0052A3; font-size: 11px;">📅 Cronograma Gantt</div>
+                <div style="padding: 10px; background: #F9FAFB; border-left: 3px solid #0052A3; font-size: 11px;">📐 Planos instalación</div>
+                <div style="padding: 10px; background: #F9FAFB; border-left: 3px solid #0052A3; font-size: 11px;">📄 Especif. técnicas</div>
+                <div style="padding: 10px; background: #F9FAFB; border-left: 3px solid #0052A3; font-size: 11px;">✅ Plan de calidad</div>
+                <div style="padding: 10px; background: #F9FAFB; border-left: 3px solid #0052A3; font-size: 11px;">⚠️ Registro de riesgos</div>
+                <div style="padding: 10px; background: #F9FAFB; border-left: 3px solid #0052A3; font-size: 11px;">🔬 Protocolos FAT/SAT</div>
+                <div style="padding: 10px; background: #F9FAFB; border-left: 3px solid #0052A3; font-size: 11px;">🏗️ Planos as-built</div>
+                <div style="padding: 10px; background: #F9FAFB; border-left: 3px solid #0052A3; font-size: 11px;">📚 Lecciones aprendidas</div>
+                <div style="padding: 10px; background: #F9FAFB; border-left: 3px solid #0052A3; font-size: 11px;">🎯 Acta de cierre</div>
+            </div>
+        </div>
+
+        <!-- NORMATIVA -->
+        <div style="padding: 15px; background: #F9FAFB; border-left: 4px solid #0052A3; margin: 25px 0;">
+            <div style="font-size: 12px; color: #6B7280; margin-bottom: 5px;">NORMATIVA Y ESTÁNDARES APLICABLES</div>
+            <div style="font-size: 14px; color: #0052A3; font-weight: bold;">{{NORMATIVA_APLICABLE}}</div>
+            <div style="font-size: 11px; color: #6B7280; margin-top: 5px;">Gestión según PMBOK® Guide 7th Edition</div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="footer-empresa">TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.</div>
+            <div>RUC: 20601138787 | Tel: 906 315 961 | Email: ingenieria.teslaelectricidad@gmail.com</div>
+        </div>
+    </div>
+</body>
+</html>

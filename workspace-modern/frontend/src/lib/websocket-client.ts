@@ -6,7 +6,7 @@
 
 import { io, Socket } from 'socket.io-client';
 // Hardcoded fallback because API_URL not exported from document.service
-const WS_URL = 'http://127.0.0.1:8003'; // Use IP to avoid localhost resolution issues
+const WS_URL = 'http://127.0.0.1:8005'; // Use IP to avoid localhost resolution issues
 
 export interface PILIMessage {
     id: string;

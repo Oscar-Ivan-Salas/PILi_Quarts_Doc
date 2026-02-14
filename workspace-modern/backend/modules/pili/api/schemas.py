@@ -47,7 +47,7 @@ class ChatMessageResponse(BaseModel):
     """
     response: str = Field(..., description="AI generated response")
     extracted_data: Optional[Dict[str, Any]] = Field(None, description="Extracted structured data")
-    suggestions: List[str] = Field(default_factory=list, description="Contextual suggestions")
+    suggestions: List[Any] = Field(default_factory=list, description="Contextual suggestions")
     timestamp: datetime = Field(default_factory=datetime.utcnow, description="Response timestamp")
     
     class Config:
@@ -134,3 +134,27 @@ class ErrorResponse(BaseModel):
                 "timestamp": "2026-01-29T14:30:00Z"
             }
         }
+
+
+class GenerateDocumentRequest(BaseModel):
+    """
+    Request to generate a document from a project state.
+    """
+    user_id: UUID = Field(..., description="User ID requesting generation")
+    project_id: str = Field(..., description="Project ID to generate document for")
+    format: str = Field("docx", description="Output format (docx, pdf)")
+    options: Optional[Dict[str, Any]] = Field(None, description="Customization options")
+    data: Optional[Dict[str, Any]] = Field(None, description="Optional state data override")
+
+
+class GenerateDocumentResponse(BaseModel):
+    """
+    Response with generated document information.
+    """
+    success: bool
+    message: str
+    file_path: Optional[str] = None
+    download_url: Optional[str] = None
+    document_type: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+

@@ -27,6 +27,9 @@ from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime
 from pathlib import Path
 
+# Configure Logger immediately
+logger = logging.getLogger(__name__)
+
 # Imports de servicios existentes
 try:
     from modules.pili.legacy.pili_brain import PILIBrain, pili_brain
@@ -46,11 +49,18 @@ except ImportError as e:
     validate_gemini_key = lambda: False
 
 # Import condicional de Gemini
+# Import condicional de Gemini
 try:
-    from app.services.gemini_service import gemini_service
+    from modules.pili.core.gemini import GeminiService
+    # Instantiate it here or later? Integrator init does it.
+    # But wait, original code expected an INSTANCE `gemini_service` to be imported.
+    # We should instantiate or change how it's used.
+    # Let's import the class and instantiate it in __init__
+    gemini_class = GeminiService
     GEMINI_DISPONIBLE = True
 except ImportError:
     GEMINI_DISPONIBLE = False
+    gemini_class = None
     gemini_service = None
 
 # ✅ NUEVO: Import de especialistas locales
@@ -86,8 +96,6 @@ SERVICIOS_MIGRADOS = [
     "saneamiento"                # ✅ Migrado
 ]
 
-logger = logging.getLogger(__name__)
-
 
 class PILIIntegrator:
     """
@@ -108,7 +116,15 @@ class PILIIntegrator:
         self.word_generator = word_generator if SERVICIOS_DISPONIBLES else None
         self.pdf_generator = pdf_generator if SERVICIOS_DISPONIBLES else None
         # self.gemini_service = gemini_service if GEMINI_DISPONIBLE else None
-        self.gemini_service = None # GLOBAL KILL SWITCH solicitado por usuario
+        if GEMINI_DISPONIBLE and gemini_class:
+            try:
+                self.gemini_service = gemini_class()
+                logger.info("✅ Gemini Service instantiated successfully")
+            except Exception as e:
+                logger.error(f"❌ Failed to instantiate Gemini Service: {e}")
+                self.gemini_service = None
+        else:
+            self.gemini_service = None
 
         # Estado de servicios
         self.estado_servicios = {
@@ -138,6 +154,10 @@ class PILIIntegrator:
     # METODO PRINCIPAL: PROCESAR SOLICITUD COMPLETA
     # ==================================================================
 
+    # ==================================================================
+    # METODO PRINCIPAL: PROCESAR SOLICITUD COMPLETA
+    # ==================================================================
+
     async def procesar_solicitud_completa(
         self,
         mensaje: str,
@@ -147,31 +167,13 @@ class PILIIntegrator:
         formato_salida: str = "word",
         logo_base64: Optional[str] = None,
         opciones: Optional[Dict] = None,
-        datos_acumulados: Optional[Dict] = None,  # ✅ NUEVO: Datos de mensajes anteriores
-        conversation_state: Optional[Dict] = None,  # ✅ NUEVO: Estado de conversación
-        servicio_forzado: Optional[str] = None  # ✅ NUEVO: Forzar servicio específico (ej: itse)
+        datos_acumulados: Optional[Dict] = None,
+        conversation_state: Optional[Dict] = None,
+        servicio_forzado: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Procesa una solicitud completa del usuario.
-
-        Este es el METODO PRINCIPAL que maneja todo el flujo:
-        1. Analiza el mensaje y tipo de flujo
-        2. Genera respuesta conversacional
-        3. Detecta servicio y extrae datos
-        4. Genera JSON estructurado
-        5. Opcionalmente crea documento
-
-        Args:
-            mensaje: Mensaje del usuario
-            tipo_flujo: cotizacion-simple, proyecto-complejo, etc.
-            historial: Historial de conversacion
-            generar_documento: Si debe generar archivo
-            formato_salida: "word" o "pdf"
-            logo_base64: Logo en base64
-            opciones: Opciones adicionales
-
-        Returns:
-            Dict con respuesta, JSON, y opcionalmente ruta de documento
+        CONSOLIDATED METHOD
         """
         try:
             logger.info(f"Procesando solicitud: {tipo_flujo}")
@@ -184,6 +186,9 @@ class PILIIntegrator:
                 "tipo_flujo": tipo_flujo,
                 "modo": self._determinar_modo_operacion()
             }
+            
+            # ✅ TRACE LIST
+            trace_list = []
 
             # Paso 1: Detectar tipo de documento y complejidad
             tipo_documento, complejidad = self._parsear_tipo_flujo(tipo_flujo)
@@ -194,17 +199,20 @@ class PILIIntegrator:
             if servicio_forzado:
                 servicio = servicio_forzado
                 logger.info(f"🔒 Servicio forzado a: {servicio}")
+                trace_list.append(f"🔒 Servicio forzado manualmente a: {servicio}")
             else:
-                servicio = self.pili_brain.detectar_servicio(mensaje) if self.pili_brain else "electrico-residencial"
+                servicio = self.pili_brain.detectar_servicio(mensaje, trace_list) if self.pili_brain else "electrico-residencial"
             
             resultado["servicio_detectado"] = servicio
 
             # Paso 3: Generar respuesta conversacional
+            # Pasamos trace_list
             respuesta_chat = await self._generar_respuesta_chat(
-                mensaje, tipo_flujo, historial, servicio, datos_acumulados, conversation_state
+                mensaje, tipo_flujo, historial, servicio, datos_acumulados, conversation_state, trace_list
             )
             resultado["respuesta"] = respuesta_chat["texto"]
-            resultado["agente_pili"] = respuesta_chat["agente"]
+            resultado["agente"] = respuesta_chat["agente"]
+            resultado["thought_trace"] = trace_list
 
             # Paso 4: Generar JSON estructurado
             json_estructurado = self._generar_json_estructurado(
@@ -233,6 +241,14 @@ class PILIIntegrator:
             resultado["botones_sugeridos"] = self._obtener_botones_contextuales(
                 tipo_flujo, len(historial), generar_documento
             )
+            
+            # Integrar datos extra de respuesta_chat
+            if respuesta_chat.get("botones"):
+                 resultado["botones"] = respuesta_chat["botones"]
+            if respuesta_chat.get("datos_generados"):
+                 resultado["datos_generados"].update(respuesta_chat["datos_generados"])
+            if respuesta_chat.get("stage"):
+                 resultado["stage"] = respuesta_chat["stage"]
 
             logger.info(f"Solicitud procesada exitosamente: {tipo_flujo}")
             return resultado
@@ -243,88 +259,6 @@ class PILIIntegrator:
                 "success": False,
                 "error": str(e),
                 "timestamp": datetime.now().isoformat()
-            }
-
-    # ==================================================================
-    # METODO PRINCIPAL DE PROCESAMIENTO
-    # ==================================================================
-    
-    async def procesar_solicitud_completa(
-        self,
-        mensaje: str,
-        tipo_flujo: str,
-        historial: List[Dict] = None,
-        generar_documento: bool = False,
-        datos_acumulados: Optional[Dict] = None
-    ) -> Dict[str, Any]:
-        """
-        Procesa una solicitud completa con conversación inteligente
-        
-        Args:
-            mensaje: Mensaje del usuario
-            tipo_flujo: Tipo de flujo (cotizacion-simple, proyecto-complejo, etc.)
-            historial: Historial de conversación
-            generar_documento: Si debe generar documento final
-            datos_acumulados: Datos acumulados de conversaciones previas
-        
-        Returns:
-            Dict con success, respuesta, botones, datos_generados, etc.
-        """
-        try:
-            logger.info("Procesando solicitud: %s", tipo_flujo)
-            
-            # Detectar servicio
-            servicio = self.pili_brain.detectar_servicio(mensaje) if self.pili_brain else "electrico-residencial"
-            
-            # Determinar tipo de documento y complejidad
-            tipo_documento, complejidad = self._parsear_tipo_flujo(tipo_flujo)
-            
-            # Generar respuesta conversacional con fallback inteligente
-            respuesta_chat = await self._generar_respuesta_chat(
-                mensaje=mensaje,
-                tipo_flujo=tipo_flujo,
-                historial=historial or [],
-                servicio=servicio,
-                datos_acumulados=datos_acumulados
-            )
-            
-            # Preparar respuesta
-            resultado = {
-                "success": True,
-                "respuesta": respuesta_chat.get("texto", ""),
-                "agente": respuesta_chat.get("agente", "PILI"),
-                "modo": respuesta_chat.get("modo", "PILI_BRAIN"),
-                "servicio": servicio,
-                "tipo_documento": tipo_documento,
-                "complejidad": complejidad
-            }
-            
-            # ✅ CRÍTICO: Pasar botones si existen
-            if respuesta_chat.get("botones"):
-                resultado["botones"] = respuesta_chat["botones"]
-                logger.info(f"✅ Retornando {len(respuesta_chat['botones'])} botones al router")
-            
-            # Pasar datos generados si existen
-            if respuesta_chat.get("datos_generados"):
-                resultado["datos_generados"] = respuesta_chat["datos_generados"]
-            
-            # Pasar stage y state si existen (para especialistas locales)
-            if respuesta_chat.get("stage"):
-                resultado["stage"] = respuesta_chat["stage"]
-            if respuesta_chat.get("state"):
-                resultado["state"] = respuesta_chat["state"]
-            if respuesta_chat.get("progreso"):
-                resultado["progreso"] = respuesta_chat["progreso"]
-            
-            logger.info("Solicitud procesada exitosamente: %s", tipo_flujo)
-            return resultado
-            
-        except Exception as e:
-            logger.error(f"Error procesando solicitud: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "respuesta": "Lo siento, ocurrió un error procesando tu solicitud."
             }
 
     # ==================================================================
@@ -511,7 +445,8 @@ class PILIIntegrator:
         historial: List[Dict],
         servicio: str,
         datos_acumulados: Optional[Dict] = None,
-        conversation_state: Optional[Dict] = None  # ✅ NUEVO: Estado de conversación
+        conversation_state: Optional[Dict] = None,  # ✅ NUEVO: Estado de conversación
+        trace_list: List[str] = None
     ) -> Dict[str, str]:
         """
         Genera respuesta conversacional con sistema de fallback inteligente de 4 NIVELES
@@ -542,14 +477,20 @@ class PILIIntegrator:
             try:
                 logger.info(f"🤖 NIVEL 1: Intentando con Gemini para {servicio}")
                 
+                # Prepare context for Identity Injection (Skill 09)
+                contexto_full = {
+                    "tipo_servicio": tipo_flujo,
+                    "servicio_detectado": servicio,
+                    "agente_pili": agente,
+                    # Merge with datos_acumulados which should contain user_profile from router injection (future)
+                    # For now, we pass what we have
+                    ** (datos_acumulados or {}) 
+                }
+                
                 respuesta = await self.gemini_service.chat_conversacional(
                     mensaje=mensaje,
                     historial=historial,
-                    contexto={
-                        "tipo_servicio": tipo_flujo,
-                        "servicio_detectado": servicio,
-                        "agente_pili": agente
-                    }
+                    contexto=contexto_full
                 )
                 
                 if respuesta and respuesta.get("texto"):
@@ -665,7 +606,8 @@ class PILIIntegrator:
                 mensaje=mensaje,
                 servicio=servicio,
                 agente=agente,
-                datos_acumulados=datos_acumulados
+                datos_acumulados=datos_acumulados,
+                trace_list=trace_list
             )
         
         except Exception as e:
@@ -683,7 +625,8 @@ class PILIIntegrator:
         mensaje: str,
         servicio: str,
         agente: str,
-        datos_acumulados: Optional[Dict] = None  # ✅ NUEVO
+        datos_acumulados: Optional[Dict] = None,  # ✅ NUEVO
+        trace_list: List[str] = None
     ) -> Dict[str, str]:
         """Genera respuesta guiada por la plantilla del documento editable"""
         
@@ -695,7 +638,7 @@ class PILIIntegrator:
             return self._generar_respuesta_basica(mensaje, servicio, agente)
 
         # Extraer datos del mensaje actual
-        datos_nuevos = self.pili_brain.extraer_datos(mensaje, servicio) if self.pili_brain else {}
+        datos_nuevos = self.pili_brain.extraer_datos(mensaje, servicio, trace_list) if self.pili_brain else {}
         
         # ✅ COMBINAR con datos acumulados de mensajes anteriores
         datos = {**(datos_acumulados or {}), **datos_nuevos}

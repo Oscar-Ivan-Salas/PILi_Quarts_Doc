@@ -91,6 +91,9 @@ class PILIBrain:
                 
             if "stage" in resultado:
                  metadata["stage"] = resultado["stage"]
+                 
+            if "thought_trace" in resultado:
+                metadata["thought_trace"] = resultado["thought_trace"]
 
             return {
                 "response": response_text,

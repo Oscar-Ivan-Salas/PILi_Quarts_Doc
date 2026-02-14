@@ -76,6 +76,52 @@ export function QuoteForm() {
 
     return (
         <div className="space-y-6 pb-20">
+            {/* Sección Emisor (Usuario N08) */}
+            <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                    <User size={16} /> Datos del Emisor (Socio)
+                </h3>
+                <div className="grid gap-4 bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+                    <div className="space-y-2">
+                        <label className="text-xs font-medium text-gray-600">Nombre / Empresa</label>
+                        <input
+                            type="text"
+                            value={documentData.emisor?.nombre || ''}
+                            onChange={(e) => updateData({
+                                emisor: { ...documentData.emisor, nombre: e.target.value }
+                            })}
+                            className="w-full text-sm p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                            placeholder="Tu Nombre o Empresa"
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                            <label className="text-xs font-medium text-gray-600">RUC Emisor</label>
+                            <input
+                                type="text"
+                                value={documentData.emisor?.ruc || ''}
+                                onChange={(e) => updateData({
+                                    emisor: { ...documentData.emisor, ruc: e.target.value }
+                                })}
+                                className="w-full text-sm p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                                placeholder="20..."
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-medium text-gray-600">Dirección</label>
+                            <input
+                                type="text"
+                                value={documentData.emisor?.direccion || ''}
+                                onChange={(e) => updateData({
+                                    emisor: { ...documentData.emisor, direccion: e.target.value }
+                                })}
+                                className="w-full text-sm p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Sección Cliente */}
             <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">

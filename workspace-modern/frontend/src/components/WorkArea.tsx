@@ -8,14 +8,16 @@ import { ComplexProjectForm } from './ComplexProjectForm'
 // @ts-ignore
 import EditableCotizacionCompleja from './EditableCotizacionCompleja'
 import EditableCotizacionSimple from './EditableCotizacionSimple'
-import { SimpleServiceChat } from './pili/SimpleServiceChat'
-import { AnimatedAIChat } from './ui/AnimatedAIChat'
+// import { SimpleServiceChat } from './pili/SimpleServiceChat'
+// import { AnimatedAIChat } from './ui/AnimatedAIChat'
 import { DocumentPersonalizer, type DocumentConfig } from './pili/DocumentPersonalizer'
 import { ShaderAnimation } from './ui/ShaderAnimation'
+import { AdminDashboard } from './AdminDashboard'
 
 import { useState, useEffect } from 'react'
 import { useWorkspaceStore } from '../store/useWorkspaceStore'
-import { FolderOpen, ArrowLeft, Maximize2, Minimize2 } from 'lucide-react'
+import { ArrowLeft, Maximize2, Minimize2 } from 'lucide-react'
+import { piliApi } from '../services/pili-api'
 
 export function WorkArea() {
     const { activeSection } = useWorkspaceStore()
@@ -60,7 +62,7 @@ export function WorkArea() {
         // --- UNIVERSAL FLOW HANDLING ---
         // 'cotizacion-simple', 'cotizacion-compleja', 'proyecto-simple', 'proyecto-complejo', 'informe-simple'...
 
-        if (activeSection && activeSection !== 'dashboard') {
+        if (activeSection && activeSection !== 'dashboard' && activeSection !== 'admin-dashboard') {
 
             // Step 1: Configuration Form (The "Universal Start Form")
             if (step === 'form') {
@@ -115,12 +117,13 @@ export function WorkArea() {
                         <div className="flex-1 flex overflow-hidden relative">
 
                             {/* LEFT PANEL: Chat (Fixed Width) */}
-                            <div className={`
+                            {/* LEFT PANEL: Chat (REMOVED - Using Global Right Panel) */}
+                            {/* <div className={`
                                 ${isFullscreen ? 'hidden' : 'flex'} 
                                 w-full lg:w-[400px] flex-none border-r border-gray-800 bg-black flex-col z-20 shadow-2xl transition-all
                             `}>
                                 <AnimatedAIChat />
-                            </div>
+                            </div> */}
 
                             {/* CENTER PANEL: Live Preview (Flex Grow - Centered) */}
                             <div className="flex-1 bg-gray-800/50 relative overflow-hidden flex flex-col items-center">
@@ -242,50 +245,14 @@ export function WorkArea() {
 
                             <button
                                 onClick={async () => {
-                                    try {
-                                        const response = await fetch('http://localhost:8003/api/generate/excel', {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({
-                                                title: flowData.proyecto || 'Cotización',
-                                                type: activeSection,
-                                                data: flowData,
-                                                user_id: 'user-123'
-                                            })
-                                        });
-                                        if (!response.ok) throw new Error('Error downloading Excel');
-                                        const blob = await response.blob();
-                                        const url = window.URL.createObjectURL(blob);
-                                        const a = document.createElement('a');
-                                        a.href = url;
-                                        a.download = `Cotizacion_${flowData.cliente?.nombre || 'Cliente'}.xlsx`;
-                                        a.click();
-                                    } catch (e) { console.error(e); alert('Error al descargar Excel'); }
+                                    alert('Generación de Excel no implementada en Backend aún');
                                 }}
                                 className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-green-500/20 flex items-center gap-2">
                                 📊 Descargar Excel
                             </button>
                             <button
                                 onClick={async () => {
-                                    try {
-                                        const response = await fetch('http://localhost:8003/api/generate/pdf', {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({
-                                                title: flowData.proyecto || 'Cotización',
-                                                type: activeSection,
-                                                data: flowData,
-                                                user_id: 'user-123'
-                                            })
-                                        });
-                                        if (!response.ok) throw new Error('Error downloading PDF');
-                                        const blob = await response.blob();
-                                        const url = window.URL.createObjectURL(blob);
-                                        const a = document.createElement('a');
-                                        a.href = url;
-                                        a.download = `Cotizacion_${flowData.cliente?.nombre || 'Cliente'}.pdf`;
-                                        a.click();
-                                    } catch (e) { console.error(e); alert('Error al descargar PDF'); }
+                                    alert('Generación de PDF no implementada en Backend aún');
                                 }}
                                 className="px-6 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-red-500/20 flex items-center gap-2">
                                 📄 Descargar PDF
@@ -293,24 +260,77 @@ export function WorkArea() {
                             <button
                                 onClick={async () => {
                                     try {
-                                        const response = await fetch('http://localhost:8003/api/generate/word', {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({
-                                                title: flowData.proyecto || 'Cotización',
-                                                type: activeSection,
-                                                data: flowData,
-                                                user_id: 'user-123'
-                                            })
+                                        // Skill 02 & 09: Execution Hook with Identity
+                                        const response = await piliApi.generateDocument({
+                                            user_id: 'b2289941-d90c-4d48-b8c2-6e3fafe88944', // Seeded User
+                                            project_id: 'default-project-1',             // Seeded Project
+                                            format: 'docx',
+                                            options: {
+                                                esquemaColores: docConfig.esquemaColores,
+                                                logoBase64: docConfig.logoBase64,
+                                                ocultarIGV: docConfig.ocultarIGV
+                                            },
+                                            data: flowData // Send current state (Skill 03 - Active Canvas)
                                         });
-                                        if (!response.ok) throw new Error('Error downloading Word');
-                                        const blob = await response.blob();
-                                        const url = window.URL.createObjectURL(blob);
-                                        const a = document.createElement('a');
-                                        a.href = url;
-                                        a.download = `Cotizacion_${flowData.cliente?.nombre || 'Cliente'}.docx`;
-                                        a.click();
-                                    } catch (e) { console.error(e); alert('Error al descargar Word'); }
+
+                                        if (response.success && response.download_url) {
+                                            try {
+                                                // Fetch the file as a blob
+                                                const fileResponse = await fetch(response.download_url);
+                                                if (!fileResponse.ok) {
+                                                    throw new Error(`Failed to download: ${fileResponse.statusText}`);
+                                                }
+
+                                                const blob = await fileResponse.blob();
+
+                                                // Create download link with blob URL
+                                                const blobUrl = window.URL.createObjectURL(blob);
+                                                const link = document.createElement('a');
+                                                link.href = blobUrl;
+                                                link.download = response.download_url.split('/').pop() || 'documento.docx';
+
+                                                // Trigger download (browser will show save dialog)
+                                                document.body.appendChild(link);
+                                                link.click();
+
+                                                // Clean up - defer to avoid React error
+                                                setTimeout(() => {
+                                                    if (link.parentNode) {
+                                                        link.parentNode.removeChild(link);
+                                                    }
+                                                    window.URL.revokeObjectURL(blobUrl);
+                                                }, 100);
+
+                                                // Show success notification
+                                                const notification = document.createElement('div');
+                                                notification.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50 max-w-md';
+                                                notification.innerHTML = `
+                                                    <div class="flex items-start gap-3">
+                                                        <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                        </svg>
+                                                        <div>
+                                                            <p class="font-bold">✅ Documento Generado</p>
+                                                            <p class="text-sm mt-1">Descarga iniciada - Elige dónde guardar</p>
+                                                            <p class="text-xs mt-2 opacity-80">Archivo: ${link.download}</p>
+                                                        </div>
+                                                    </div>
+                                                `;
+                                                document.body.appendChild(notification);
+                                                setTimeout(() => notification.remove(), 5000);
+
+                                            } catch (downloadError: any) {
+                                                console.error('Download error:', downloadError);
+                                                alert(`Error descargando archivo: ${downloadError.message}\n\nUbicación del archivo: ${response.file_path}`);
+                                            }
+                                        } else {
+                                            alert('Error: ' + response.message);
+                                        }
+
+                                    } catch (e: any) {
+                                        console.error(e);
+                                        alert('Error generando documento: ' + e.message);
+                                    }
                                 }}
                                 className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-blue-500/20 flex items-center gap-2">
                                 📝 Descargar Word
@@ -321,7 +341,11 @@ export function WorkArea() {
             }
         }
 
-        // --- Default / Fallback (Dashboard View) ---
+        // --- Admin Dashboard ---
+        if (activeSection === 'admin-dashboard') {
+            return <AdminDashboard />
+        }
+
         // --- Default / Fallback (Dashboard View) ---
         return (
             <div className="relative h-full w-full flex flex-col items-center justify-center overflow-hidden rounded-xl border bg-black/60">
@@ -330,7 +354,7 @@ export function WorkArea() {
                     PILi_Quarts
                 </span>
                 <p className="absolute mt-24 text-gray-300 z-10 text-xl font-light tracking-widest">
-                    WORKSPACE AGENTIC SYSTEM
+                    ESPACIO DE TRABAJO INTELIGENTE
                 </p>
             </div>
         )

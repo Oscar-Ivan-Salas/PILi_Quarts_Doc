@@ -1,4 +1,4 @@
-"use client";
+
 
 import { useEffect, useRef, useCallback, useTransition } from "react";
 import { useState } from "react";
@@ -132,11 +132,12 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 Textarea.displayName = "Textarea"
 
 export function AnimatedAIChat() {
-    const { setActiveSection } = useWorkspaceStore();
+    const { setActiveSection, chatMessages, addChatMessage, activeSection } = useWorkspaceStore();
     const [value, setValue] = useState("");
     const [attachments, setAttachments] = useState<string[]>([]);
     const [isTyping, setIsTyping] = useState(false);
-    const [_isPending, startTransition] = useTransition();
+    const [conversationData, setConversationData] = useState<any>({}); // Persist conversation context
+    const [_isPending] = useTransition();
     const [activeSuggestion, setActiveSuggestion] = useState<number>(-1);
     const [showCommandPalette, setShowCommandPalette] = useState(false);
     const [_recentCommand, setRecentCommand] = useState<string | null>(null);
@@ -147,6 +148,26 @@ export function AnimatedAIChat() {
     });
     const [inputFocused, setInputFocused] = useState(false);
     const commandPaletteRef = useRef<HTMLDivElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    // Auto-scroll to bottom of chat
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [chatMessages]);
+
+    // Initial Greeting if empty
+    useEffect(() => {
+        if (chatMessages.length === 0) {
+            const timer = setTimeout(() => {
+                addChatMessage({
+                    role: 'assistant',
+                    content: "¡Hola! Soy PILi, tu asistente inteligente. 🧠\n\nEstoy conectada y lista para ayudarte. Puedes pedirme cotizaciones, gestionar proyectos o crear informes.",
+                    thought_trace: ["Conexión establecida con el núcleo.", "Sistemas de lenguaje cargados.", "Esperando input del usuario."]
+                });
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [chatMessages.length, addChatMessage]);
 
     const commandSuggestions: CommandSuggestion[] = [
         {
@@ -268,16 +289,64 @@ export function AnimatedAIChat() {
         }
     };
 
-    const handleSendMessage = () => {
-        if (value.trim()) {
-            startTransition(() => {
-                setIsTyping(true);
-                setTimeout(() => {
-                    setIsTyping(false);
-                    setValue("");
-                    adjustHeight(true);
-                }, 3000);
+    const handleSendMessage = async () => {
+        if (!value.trim()) return;
+
+        const userMsg = value.trim();
+        setValue("");
+        adjustHeight(true);
+
+        // 1. Add User Message to Global Store
+        addChatMessage({ role: 'user', content: userMsg });
+
+        // 2. Loading State
+        setIsTyping(true);
+
+        try {
+            // 3. Call Migrated Backend
+            const response = await fetch('http://localhost:8005/api/pili/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: 'user-default',
+                    message: userMsg,
+                    context: {
+                        service_id: activeSection,
+                        data: conversationData // Send accumulated data
+                    }
+                })
             });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error('PILI Error:', errorData);
+                throw new Error(errorData.detail?.message || 'Network response was not ok');
+            }
+
+            const data = await response.json();
+            const thoughtTrace = data.extracted_data?.thought_trace || [];
+
+            // Persist data for next turn
+            if (data.extracted_data?.generated_data) {
+                setConversationData((prev: any) => ({ ...prev, ...data.extracted_data.generated_data }));
+            }
+
+            // 4. Add AI Response to Global Store
+            addChatMessage({
+                role: 'assistant',
+                content: data.response,
+                suggestions: data.suggestions,
+                thought_trace: thoughtTrace
+            });
+
+        } catch (error: any) {
+            console.error('Error sending message:', error);
+            addChatMessage({
+                role: 'assistant',
+                content: `Error: ${error.message || 'Lo siento, tuve un problema al conectar con mi cerebro 🧠.'}`
+            });
+        } finally {
+            setIsTyping(false);
         }
     };
 
@@ -341,239 +410,343 @@ export function AnimatedAIChat() {
                 <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full mix-blend-normal filter blur-[128px] animate-pulse delay-700" />
                 <div className="absolute top-1/4 right-1/3 w-64 h-64 bg-fuchsia-500/10 rounded-full mix-blend-normal filter blur-[96px] animate-pulse delay-1000" />
             </div>
-            <div className="w-full max-w-2xl mx-auto relative">
+            <div className="w-full max-w-2xl mx-auto relative h-full flex flex-col p-4">
                 <motion.div
-                    className="relative z-10 space-y-12"
+                    className="relative z-10 flex flex-col h-full gap-6"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
                 >
-                    <div className="text-center space-y-3">
-                        <motion.div
-                            className="inline-block relative mb-4"
-                            initial={{ scale: 0, rotate: -20 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 260,
-                                damping: 20,
-                                delay: 0.1
-                            }}
-                        >
+                    {chatMessages.length === 0 && (
+                        <div className="text-center space-y-2">
                             <motion.div
-                                className="absolute -inset-4 bg-amber-500/20 rounded-full blur-xl"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.5, duration: 1 }}
-                            />
-                            <div className="relative bg-gradient-to-br from-amber-300 to-amber-600 p-4 rounded-full shadow-lg shadow-amber-500/20 ring-1 ring-amber-200/50">
-                                <Crown className="w-8 h-8 text-black/80" strokeWidth={1.5} />
-                            </div>
-                        </motion.div>
+                                className="inline-block relative mb-2"
+                                initial={{ scale: 0, rotate: -20 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                            >
+                                <motion.div
+                                    className="absolute -inset-4 bg-amber-500/20 rounded-full blur-xl"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.5, duration: 1 }}
+                                />
+                                <div className="relative bg-gradient-to-br from-amber-300 to-amber-600 p-2.5 rounded-full shadow-lg shadow-amber-500/20 ring-1 ring-amber-200/50">
+                                    <Crown className="w-5 h-5 text-black/80" strokeWidth={1.5} />
+                                </div>
+                            </motion.div>
 
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2, duration: 0.5 }}
-                            className="block"
-                        >
-                            <h1 className="text-3xl font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white/90 to-white/40 pb-1">
-                                ¿Cómo puedo ayudarte hoy?
-                            </h1>
                             <motion.div
-                                className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                                initial={{ width: 0, opacity: 0 }}
-                                animate={{ width: "100%", opacity: 1 }}
-                                transition={{ delay: 0.5, duration: 0.8 }}
-                            />
-                        </motion.div>
-                        <motion.p
-                            className="text-sm text-white/40"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.3 }}
-                        >
-                            Escribe un comando o haz una pregunta
-                        </motion.p>
-                    </div>
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="block"
+                            >
+                                <h1 className="text-lg font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white/90 to-white/40 pb-1">
+                                    ¿Cómo puedo ayudarte?
+                                </h1>
+                            </motion.div>
+                        </div>
+                    )}
 
                     <motion.div
-                        className="relative backdrop-blur-2xl bg-white/[0.02] rounded-2xl border border-white/[0.05] shadow-2xl"
+                        className="relative backdrop-blur-2xl bg-white/[0.02] rounded-2xl border border-white/[0.05] shadow-2xl overflow-hidden flex flex-col flex-1 h-full min-h-0" // Added flex-1, h-full, min-h-0
                         initial={{ scale: 0.98 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.1 }}
+                    // Removed hardcoded style={{ height: '600px' }}
                     >
-                        <AnimatePresence>
-                            {showCommandPalette && (
-                                <motion.div
-                                    ref={commandPaletteRef}
-                                    className="absolute left-4 right-4 bottom-full mb-2 backdrop-blur-xl bg-black/90 rounded-lg z-50 shadow-lg border border-white/10 overflow-hidden"
-                                    initial={{ opacity: 0, y: 5 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: 5 }}
-                                    transition={{ duration: 0.15 }}
-                                >
-                                    <div className="py-1 bg-black/95">
-                                        {commandSuggestions.map((suggestion, index) => (
-                                            <motion.div
-                                                key={suggestion.prefix}
-                                                className={cn(
-                                                    "flex items-center gap-2 px-3 py-2 text-xs transition-colors cursor-pointer",
-                                                    activeSuggestion === index
-                                                        ? "bg-white/10 text-white"
-                                                        : "text-white/70 hover:bg-white/5"
-                                                )}
-                                                onClick={() => selectCommandSuggestion(index)}
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                transition={{ delay: index * 0.03 }}
-                                            >
-                                                <div className="w-5 h-5 flex items-center justify-center text-white/60">
-                                                    {suggestion.icon}
+                        {/* MESSAGES AREA */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar scroll-smooth" style={{ maxHeight: '100%' }}>
+                            {chatMessages.length === 0 ? (
+                                <div className="h-full flex flex-col items-center justify-center text-white/20 text-sm">
+                                    <p>No hay mensajes aún.</p>
+                                </div>
+                            ) : (
+                                chatMessages.map((msg, i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className={cn(
+                                            "flex w-full",
+                                            msg.role === 'user' ? "justify-end" : "justify-start"
+                                        )}
+                                    >
+                                        <div className={cn(
+                                            "max-w-[85%] rounded-2xl p-3 text-sm",
+                                            msg.role === 'user'
+                                                ? "bg-violet-600 text-white rounded-tr-none"
+                                                : "bg-white/10 text-white/90 rounded-tl-none border border-white/5"
+                                        )}>
+                                            {/* THOUGHT TRACE (if available) */}
+                                            {msg.thought_trace && msg.thought_trace.length > 0 && (
+                                                <div className="mb-3 rounded-lg bg-black/20 border border-white/5 overflow-hidden">
+                                                    <details className="group">
+                                                        <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-white/5 transition-colors text-xs text-white/50 select-none">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+                                                            <span>Proceso de Pensamiento ({msg.thought_trace.length} pasos)</span>
+                                                        </summary>
+                                                        <div className="px-3 pb-3 pt-1 space-y-1">
+                                                            {msg.thought_trace.map((step, idx) => (
+                                                                <div key={idx} className="text-[10px] text-white/40 font-mono flex gap-2">
+                                                                    <span className="text-white/20 select-none">{idx + 1}.</span>
+                                                                    <span>{step}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </details>
                                                 </div>
-                                                <div className="font-medium">{suggestion.label}</div>
-                                                <div className="text-white/40 text-xs ml-1">
-                                                    {suggestion.prefix}
-                                                </div>
-                                            </motion.div>
-                                        ))}
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                                            )}
 
-                        <div className="p-4">
-                            <Textarea
-                                ref={textareaRef}
-                                value={value}
-                                onChange={(e) => {
-                                    setValue(e.target.value);
-                                    adjustHeight();
-                                }}
-                                onKeyDown={handleKeyDown}
-                                onFocus={() => setInputFocused(true)}
-                                onBlur={() => setInputFocused(false)}
-                                placeholder="Pregúntale a PILi..."
-                                containerClassName="w-full"
-                                className={cn(
-                                    "w-full px-4 py-3",
-                                    "resize-none",
-                                    "bg-transparent",
-                                    "border-none",
-                                    "text-white/90 text-sm",
-                                    "focus:outline-none",
-                                    "placeholder:text-white/20",
-                                    "min-h-[60px]"
-                                )}
-                                style={{
-                                    overflow: "hidden",
-                                }}
-                                showRing={false}
-                            />
+                                            <p className="whitespace-pre-wrap">{msg.content}</p>
+
+                                            {/* SUGGESTIONS CHIPS */}
+                                            {msg.suggestions && msg.suggestions.length > 0 && (
+                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                    {msg.suggestions.map((s, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={async () => {
+                                                                // Manually trigger send with suggestion payload
+                                                                addChatMessage({ role: 'user', content: s.label });
+                                                                setIsTyping(true);
+                                                                const payload = s.payload || s.label;
+                                                                if (!payload || typeof payload !== 'string' || !payload.trim()) {
+                                                                    console.error('Invalid payload:', payload);
+                                                                    return;
+                                                                }
+
+                                                                try {
+                                                                    const response = await fetch('http://localhost:8005/api/pili/chat', {
+                                                                        method: 'POST',
+                                                                        headers: { 'Content-Type': 'application/json' },
+                                                                        body: JSON.stringify({
+                                                                            user_id: 'user-default',
+                                                                            message: payload,
+                                                                            context: {
+                                                                                service_id: activeSection,
+                                                                                data: conversationData
+                                                                            }
+                                                                        })
+                                                                    });
+
+                                                                    if (!response.ok) {
+                                                                        const errorData = await response.json().catch(() => ({}));
+                                                                        console.error('PILI Error:', errorData);
+                                                                        throw new Error(errorData.detail?.message || 'Network response was not ok');
+                                                                    }
+
+                                                                    const data = await response.json();
+                                                                    const thoughtTrace = data.extracted_data?.thought_trace || [];
+
+                                                                    if (data.extracted_data?.generated_data) {
+                                                                        setConversationData((prev: any) => ({ ...prev, ...data.extracted_data.generated_data }));
+                                                                    }
+                                                                    addChatMessage({
+                                                                        role: 'assistant',
+                                                                        content: data.response,
+                                                                        suggestions: data.suggestions,
+                                                                        thought_trace: thoughtTrace
+                                                                    });
+                                                                } catch (error: any) {
+                                                                    console.error('Error sending suggestion:', error);
+                                                                    addChatMessage({
+                                                                        role: 'assistant',
+                                                                        content: `Error: ${error.message || 'Lo siento, tuve un problema al procesar esa opción.'}`
+                                                                    });
+                                                                } finally { setIsTyping(false); }
+                                                            }}
+                                                            className="text-xs bg-white/5 hover:bg-violet-500/20 border border-white/10 hover:border-violet-500/50 text-white/70 hover:text-white px-3 py-1.5 rounded-full transition-all"
+                                                        >
+                                                            {s.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                ))
+                            )}
+                            <div ref={messagesEndRef} />
                         </div>
 
-                        <AnimatePresence>
-                            {attachments.length > 0 && (
-                                <motion.div
-                                    className="px-4 pb-3 flex gap-2 flex-wrap"
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: "auto" }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                >
-                                    {attachments.map((file, index) => (
-                                        <motion.div
-                                            key={index}
-                                            className="flex items-center gap-2 text-xs bg-white/[0.03] py-1.5 px-3 rounded-lg text-white/70"
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0.9 }}
-                                        >
-                                            <span>{file}</span>
-                                            <button
-                                                onClick={() => removeAttachment(index)}
-                                                className="text-white/40 hover:text-white transition-colors"
-                                            >
-                                                <XIcon className="w-3 h-3" />
-                                            </button>
-                                        </motion.div>
-                                    ))}
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                        {/* INPUT AREA */}
+                        <div className="relative">
 
-                        <div className="p-4 border-t border-white/[0.05] flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                                <motion.button
-                                    type="button"
-                                    onClick={handleAttachFile}
-                                    whileTap={{ scale: 0.94 }}
-                                    className="p-2 text-white/40 hover:text-white/90 rounded-lg transition-colors relative group"
-                                >
-                                    <Paperclip className="w-4 h-4" />
-                                    <motion.span
-                                        className="absolute inset-0 bg-white/[0.05] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                                        layoutId="button-highlight"
-                                    />
-                                </motion.button>
-                                <motion.button
-                                    type="button"
-                                    data-command-button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setShowCommandPalette(prev => !prev);
+                            <AnimatePresence>
+                                {showCommandPalette && (
+                                    <motion.div
+                                        ref={commandPaletteRef}
+                                        className="absolute left-4 right-4 bottom-full mb-2 backdrop-blur-xl bg-black/90 rounded-lg z-50 shadow-lg border border-white/10 overflow-hidden"
+                                        initial={{ opacity: 0, y: 5 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 5 }}
+                                        transition={{ duration: 0.15 }}
+                                    >
+                                        <div className="py-1 bg-black/95">
+                                            {commandSuggestions.map((suggestion, index) => (
+                                                <motion.div
+                                                    key={suggestion.prefix}
+                                                    className={cn(
+                                                        "flex items-center gap-2 px-3 py-2 text-xs transition-colors cursor-pointer",
+                                                        activeSuggestion === index
+                                                            ? "bg-white/10 text-white"
+                                                            : "text-white/70 hover:bg-white/5"
+                                                    )}
+                                                    onClick={() => selectCommandSuggestion(index)}
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    transition={{ delay: index * 0.03 }}
+                                                >
+                                                    <div className="w-5 h-5 flex items-center justify-center text-white/60">
+                                                        {suggestion.icon}
+                                                    </div>
+                                                    <div className="font-medium">{suggestion.label}</div>
+                                                    <div className="text-white/40 text-xs ml-1">
+                                                        {suggestion.prefix}
+                                                    </div>
+                                                </motion.div>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <div className="p-4">
+                                <Textarea
+                                    ref={textareaRef}
+                                    value={value}
+                                    onChange={(e) => {
+                                        setValue(e.target.value);
+                                        adjustHeight();
                                     }}
-                                    whileTap={{ scale: 0.94 }}
+                                    onKeyDown={handleKeyDown}
+                                    onFocus={() => setInputFocused(true)}
+                                    onBlur={() => setInputFocused(false)}
+                                    placeholder="Pregúntale a PILi..."
+                                    containerClassName="w-full"
                                     className={cn(
-                                        "p-2 text-white/40 hover:text-white/90 rounded-lg transition-colors relative group",
-                                        showCommandPalette && "bg-white/10 text-white/90"
+                                        "w-full px-4 py-3",
+                                        "resize-none",
+                                        "bg-white/5", // Added visible background
+                                        "border border-white/10", // Added visible border
+                                        "text-white/90 text-sm",
+                                        "focus:outline-none focus:border-violet-500/50 focus:bg-white/10", // Enhanced focus state
+                                        "placeholder:text-white/20",
+                                        "min-h-[60px]",
+                                        "rounded-xl shadow-inner" // Added rounding and shadow
                                     )}
-                                >
-                                    <Command className="w-4 h-4" />
-                                    <motion.span
-                                        className="absolute inset-0 bg-white/[0.05] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                                        layoutId="button-highlight"
-                                    />
-                                </motion.button>
+                                    style={{
+                                        overflow: "hidden",
+                                    }}
+                                    showRing={false}
+                                />
                             </div>
 
-                            <motion.button
-                                type="button"
-                                onClick={handleSendMessage}
-                                whileHover={{ scale: 1.01 }}
-                                whileTap={{ scale: 0.98 }}
-                                disabled={isTyping || !value.trim()}
-                                className={cn(
-                                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                                    "flex items-center gap-2",
-                                    value.trim()
-                                        ? "bg-white text-[#0A0A0B] shadow-lg shadow-white/10"
-                                        : "bg-white/[0.05] text-white/40"
+                            <AnimatePresence>
+                                {attachments.length > 0 && (
+                                    <motion.div
+                                        className="px-4 pb-3 flex gap-2 flex-wrap"
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                    >
+                                        {attachments.map((file, index) => (
+                                            <motion.div
+                                                key={index}
+                                                className="flex items-center gap-2 text-xs bg-white/[0.03] py-1.5 px-3 rounded-lg text-white/70"
+                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.9 }}
+                                            >
+                                                <span>{file}</span>
+                                                <button
+                                                    onClick={() => removeAttachment(index)}
+                                                    className="text-white/40 hover:text-white transition-colors"
+                                                >
+                                                    <XIcon className="w-3 h-3" />
+                                                </button>
+                                            </motion.div>
+                                        ))}
+                                    </motion.div>
                                 )}
-                            >
-                                {isTyping ? (
-                                    <LoaderIcon className="w-4 h-4 animate-[spin_2s_linear_infinite]" />
-                                ) : (
-                                    <SendIcon className="w-4 h-4" />
-                                )}
-                                <span>Send</span>
-                            </motion.button>
+                            </AnimatePresence>
+
+                            <div className="p-4 border-t border-white/[0.05] flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                    <motion.button
+                                        type="button"
+                                        onClick={handleAttachFile}
+                                        whileTap={{ scale: 0.94 }}
+                                        className="p-2 text-white/40 hover:text-white/90 rounded-lg transition-colors relative group"
+                                    >
+                                        <Paperclip className="w-4 h-4" />
+                                        <motion.span
+                                            className="absolute inset-0 bg-white/[0.05] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                            layoutId="button-highlight"
+                                        />
+                                    </motion.button>
+                                    <motion.button
+                                        type="button"
+                                        data-command-button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowCommandPalette(prev => !prev);
+                                        }}
+                                        whileTap={{ scale: 0.94 }}
+                                        className={cn(
+                                            "p-2 text-white/40 hover:text-white/90 rounded-lg transition-colors relative group",
+                                            showCommandPalette && "bg-white/10 text-white/90"
+                                        )}
+                                    >
+                                        <Command className="w-4 h-4" />
+                                        <motion.span
+                                            className="absolute inset-0 bg-white/[0.05] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                            layoutId="button-highlight"
+                                        />
+                                    </motion.button>
+                                </div>
+
+                                <motion.button
+                                    type="button"
+                                    onClick={handleSendMessage}
+                                    whileHover={{ scale: 1.01 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    disabled={isTyping || !value.trim()}
+                                    className={cn(
+                                        "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                                        "flex items-center gap-2",
+                                        value.trim()
+                                            ? "bg-white text-[#0A0A0B] shadow-lg shadow-white/10"
+                                            : "bg-white/[0.05] text-white/40"
+                                    )}
+                                >
+                                    {isTyping ? (
+                                        <LoaderIcon className="w-4 h-4 animate-[spin_2s_linear_infinite]" />
+                                    ) : (
+                                        <SendIcon className="w-4 h-4" />
+                                    )}
+                                    <span>Enviar</span>
+                                </motion.button>
+                            </div>
                         </div>
                     </motion.div>
 
-                    <div className="flex flex-wrap items-center justify-center gap-2">
+                    <div className="flex flex-wrap items-center justify-center gap-1.5">
                         {commandSuggestions.map((suggestion, index) => (
                             <motion.button
                                 key={suggestion.prefix}
                                 onClick={() => selectCommandSuggestion(index)}
-                                className="flex items-center gap-2 px-3 py-2 bg-white/[0.02] hover:bg-white/[0.05] rounded-lg text-sm text-white/60 hover:text-white/90 transition-all relative group"
+                                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/[0.02] hover:bg-white/[0.05] rounded-md text-xs text-white/60 hover:text-white/90 transition-all relative group border border-white/5"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                             >
-                                {suggestion.icon}
+                                <span className="scale-75">{suggestion.icon}</span>
                                 <span>{suggestion.label}</span>
                                 <motion.div
-                                    className="absolute inset-0 border border-white/[0.05] rounded-lg"
+                                    className="absolute inset-0 border border-white/10 rounded-md"
                                     initial={false}
                                     animate={{
                                         opacity: [0, 1],
@@ -603,7 +776,7 @@ export function AnimatedAIChat() {
                                 <span className="text-xs font-medium text-white/90 mb-0.5">PILi</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-white/70">
-                                <span>Thinking</span>
+                                <span>Pensando</span>
                                 <TypingDots />
                             </div>
                         </div>

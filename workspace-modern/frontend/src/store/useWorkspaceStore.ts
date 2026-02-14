@@ -53,6 +53,11 @@ interface WorkspaceStore {
     fetchQuotes: () => Promise<void>
     createProject: (project: Omit<Project, 'id' | 'updatedAt'>) => Promise<void>
     createQuote: (quote: Omit<Quote, 'id' | 'createdAt'>) => Promise<void>
+
+    // Chat State
+    chatMessages: Array<{ role: 'user' | 'assistant', content: string, suggestions?: any[], thought_trace?: string[] }>
+    addChatMessage: (msg: { role: 'user' | 'assistant', content: string, suggestions?: any[], thought_trace?: string[] }) => void
+    clearChat: () => void
 }
 
 // Helper: Map Backend Document to Frontend Project
@@ -79,7 +84,7 @@ const mapDocToQuote = (doc: any): Quote => ({
 })
 
 const USER_ID = 'demo-user-123'
-const API_URL = 'http://localhost:8003/api/documents'
+const API_URL = 'http://localhost:8005/api/documents'
 
 export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
     // Initial UI State
@@ -164,5 +169,10 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
     createQuote: async (quoteData) => {
         // Implementation similar to createProject
         // For brevity, skipping logic until explicitly needed by user interaction
-    }
+    },
+
+    // Chat Implementation
+    chatMessages: [],
+    addChatMessage: (msg) => set((state) => ({ chatMessages: [...state.chatMessages, msg] })),
+    clearChat: () => set({ chatMessages: [] })
 }))

@@ -143,62 +143,98 @@ class PILIBrain:
     # 🔍 DETECCIÓN INTELIGENTE DE SERVICIOS
     # ──────────────────────────────────────────────────────────────
 
-    def detectar_servicio(self, mensaje: str) -> str:
+    def detectar_servicio(self, mensaje: str, trace_list: List[str] = None) -> str:
         """
         Detecta qué servicio necesita el usuario basándose en keywords
 
         Args:
             mensaje: Mensaje del usuario
+            trace_list: Lista opcional para guardar el razonamiento (pensamiento)
 
         Returns:
             Código del servicio detectado
         """
         mensaje_lower = mensaje.lower()
         scores = {}
+        
+        if trace_list is not None:
+             trace_list.append("🧠 Analizando mensaje para detectar servicio...")
 
         for codigo_servicio, info in self.servicios.items():
             score = 0
             keywords = info["keywords"]
 
             # Contar matches de keywords
+            found_keywords = []
             for keyword in keywords:
                 if keyword in mensaje_lower:
                     score += 10
+                    found_keywords.append(keyword)
 
             scores[codigo_servicio] = score
+            if trace_list is not None and score > 0:
+                 trace_list.append(f"🔍 Evaluando {codigo_servicio}: {score} puntos (Keywords: {', '.join(found_keywords)})")
 
         # Obtener servicio con mayor score
         if max(scores.values()) > 0:
             servicio_detectado = max(scores, key=scores.get)
             logger.info(f"🎯 Servicio detectado: {servicio_detectado} (score: {scores[servicio_detectado]})")
+            if trace_list is not None:
+                trace_list.append(f"✅ Servicio Identificado: {self.servicios[servicio_detectado]['nombre']} (Score: {scores[servicio_detectado]})")
             return servicio_detectado
         else:
             # Default: eléctrico residencial
+            if trace_list is not None:
+                trace_list.append("⚠️ No se detectaron keywords específicas, asumiendo Residencial por defecto.")
             return "electrico-residencial"
 
     # ──────────────────────────────────────────────────────────────
     # 📊 EXTRACCIÓN DE DATOS DEL MENSAJE
     # ──────────────────────────────────────────────────────────────
 
-    def extraer_datos(self, mensaje: str, servicio: str) -> Dict[str, Any]:
+    def extraer_datos(self, mensaje: str, servicio: str, trace_list: List[str] = None) -> Dict[str, Any]:
         """
         Extrae datos técnicos del mensaje del usuario
 
         Args:
             mensaje: Mensaje del usuario
             servicio: Servicio detectado
+            trace_list: Lista opcional para trace
 
         Returns:
             Diccionario con datos extraídos
         """
+        if trace_list is not None:
+             trace_list.append(f"📊 Iniciando extracción de datos para {servicio}...")
+
+        area = self._extraer_area(mensaje)
+        if area and trace_list is not None:
+             trace_list.append(f"   - Área detectada: {area} m²")
+
+        pisos = self._extraer_pisos(mensaje)
+        if pisos > 1 and trace_list is not None:
+             trace_list.append(f"   - Pisos detectados: {pisos}")
+
+        puntos = self._extraer_cantidad_general(mensaje)
+        if puntos and trace_list is not None:
+             trace_list.append(f"   - Cantidad puntos/elementos: {puntos}")
+
+        potencia = self._extraer_potencia(mensaje)
+        if potencia and trace_list is not None:
+             trace_list.append(f"   - Potencia detectada: {potencia} HP/kW")
+
         datos = {
-            "area_m2": self._extraer_area(mensaje),
-            "num_pisos": self._extraer_pisos(mensaje),
-            "cantidad_puntos": self._extraer_cantidad_general(mensaje),
-            "potencia_hp": self._extraer_potencia(mensaje),
+            "area_m2": area,
+            "num_pisos": pisos,
+            "cantidad_puntos": puntos,
+            "potencia_hp": potencia,
             "tipo_instalacion": self._extraer_tipo_instalacion(mensaje),
             "complejidad": self._determinar_complejidad(mensaje, servicio)
         }
+
+        if trace_list is not None:
+             trace_list.append(f"📝 Complejidad determinada: {datos['complejidad']}")
+             trace_list.append(f"🔍 Datos finales extraídos: {len([v for v in datos.values() if v])} campos encontrados")
 
         logger.info(f"📊 Datos extraídos: {datos}")
         return datos

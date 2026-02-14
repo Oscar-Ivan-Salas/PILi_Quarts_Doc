@@ -1,0 +1,39 @@
+{
+  "excel_layout": {
+    "sheet_name": "MEMORIA_DESCRIPTIVA",
+    "static_cells": {
+      "B2": "MEMORIA DESCRIPTIVA"
+    },
+    "dynamic_cells": {
+      "client_name": "C5"
+    },
+    "tables": [
+      {
+        "data_key": "items",
+        "start_row": 8,
+        "columns": {
+          "columns": {
+            "capitulo": "B",
+            "titulo": "C",
+            "contenido": "D",
+            "referencia_normativa": "E"
+          }
+        }
+      }
+    ]
+  },
+  "word_layout": {
+    "title": "MEMORIA DESCRIPTIVA",
+    "headers": [
+      "Cap",
+      "T\u00edtulo",
+      "Contenido",
+      "Ref.Norm"
+    ]
+  },
+  "styles": {
+    "colors": {
+      "primary": "#CC0000"
+    }
+  }
+}

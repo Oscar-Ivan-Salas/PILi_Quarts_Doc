@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "notebooklm": {
+            "command": "E:\\PILi_Quarts\\workspace-modern\\.agent\\mcp\\notebooklm\\venv\\Scripts\\notebooklm-mcp.exe",
+            "args": [
+                "--config",
+                "E:\\PILi_Quarts\\workspace-modern\\.agent\\mcp\\notebooklm\\config.yaml",
+                "server"
+            ],
+            "env": {}
+        }
+    }
+}

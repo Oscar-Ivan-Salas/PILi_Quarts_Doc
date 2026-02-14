@@ -153,6 +153,64 @@ class GeminiService:
         # TODO: Implement structured output
         raise NotImplementedError("Structured output not yet implemented")
     
+    async def chat_conversacional(
+        self,
+        mensaje: str,
+        historial: list[dict],
+        contexto: dict
+    ) -> dict:
+        """
+        Chat conversacional con inyección de identidad (Skill 09).
+        """
+        try:
+            # 1. Extract Identity Context
+            user_profile = contexto.get("user_profile", {})
+            company_name = user_profile.get("razon_social", "Tesla Electricidad S.A.C.") # Default fallback
+            user_name = user_profile.get("user_name", "Ingeniero")
+            client_name = contexto.get("client_name", "el Cliente")
+            
+            # 2. Construct System Prompt (Identity Injection)
+            system_instruction = f"""
+Actúa como PILi, la Ingeniera Senior de la empresa {company_name}.
+Tu objetivo es ayudar a {user_name} a cerrar una licitación para el cliente {client_name}.
+
+REGLAS DE OPERACIÓN:
+1. **Personalización**: Representas a {company_name}. Tu tono es profesional, técnico y persuasivo.
+2. **Contexto de Negocio**: No eres un chatbot general. Eres la herramienta que permite al Ejecutor competir en el mercado.
+3. **Mapeo Real-Time**: Extrae datos técnicos (áreas, puntos, potencias) del chat para el JSON.
+4. **Respuestas**: Sé concisa. Usa emojis técnicos (⚡, 🏗️, 📋).
+"""
+            
+            # 3. Build Chat Session
+            chat = self.model.start_chat(history=[])
+            
+            # Add system instruction somehow (Gemini 1.5 supports system instruction in model config, 
+            # but here we can just prepend it to the first message or use it as context)
+            # For simplicity and compatibility, we'll prepend it to the current message or history.
+            
+            full_prompt = f"{system_instruction}\n\nUsuario: {mensaje}"
+            
+            # 4. Generate Response
+            response_text = await self.generate_response(full_prompt)
+            
+            # 5. Extract JSON (if structured data is detected)
+            # Simple extraction heuristic for now
+            extracted_data = {} 
+            # (In a real implementation we would parse JSON markdown blocks)
+
+            return {
+                "texto": response_text,
+                "datos_extraidos": extracted_data,
+                "sugerencias": [] # We can generate suggestions via AI too
+            }
+
+        except Exception as e:
+            logger.error(f"Error in chat_conversacional: {e}")
+            return {
+                "texto": "Lo siento, tuve un problema conectando con mi cerebro principal. (Error de IA)",
+                "error": str(e)
+            }
+
     def get_metrics(self) -> dict:
         """
         Get service metrics.

@@ -1,0 +1,160 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🌐 CONFIGURACIÓN COMPLETA REDES - CABLEADO ESTRUCTURADO
+# ═══════════════════════════════════════════════════════════════════════════════
+
+service: redes
+name: "Redes de Datos"
+description: "Infraestructura de redes y cableado estructurado profesional"
+normativa: "TIA/EIA 568, ISO/IEC 11801"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📡 TIPOS DE CABLE
+# ═══════════════════════════════════════════════════════════════════════════════
+tipos_cable:
+  CAT5E:
+    nombre: "Cable UTP Cat5e"
+    velocidad: "1 Gbps"
+    distancia_max: "100m"
+    precio_metro: 0.80
+    aplicacion: "Redes básicas, internet"
+  
+  CAT6:
+    nombre: "Cable UTP Cat6"
+    velocidad: "10 Gbps (55m)"
+    distancia_max: "100m"
+    precio_metro: 1.20
+    aplicacion: "Redes empresariales"
+  
+  CAT6A:
+    nombre: "Cable UTP Cat6a"
+    velocidad: "10 Gbps (100m)"
+    distancia_max: "100m"
+    precio_metro: 1.80
+    aplicacion: "Redes de alto rendimiento"
+  
+  FIBRA:
+    nombre: "Fibra Óptica Monomodo"
+    velocidad: "100 Gbps"
+    distancia_max: "10km+"
+    precio_metro: 2.50
+    aplicacion: "Backbone, larga distancia"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 💰 PRECIOS DE COMPONENTES
+# ═══════════════════════════════════════════════════════════════════════════════
+precios_componentes:
+  punto_red_completo: 45.00
+  faceplate_doble: 12.00
+  jack_rj45_cat6: 8.00
+  patch_cord_1m: 8.00
+  patch_cord_3m: 12.00
+  access_point_ac: 280.00
+  access_point_ax: 450.00
+  switch_8p_gigabit: 180.00
+  switch_24p_gigabit: 450.00
+  switch_48p_gigabit: 850.00
+  rack_6u: 350.00
+  rack_12u: 550.00
+  rack_24u: 850.00
+  patch_panel_24p: 85.00
+  patch_panel_48p: 150.00
+  organizador_cables: 35.00
+  bandeja_rack: 45.00
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📝 MENSAJES PROFESIONALES
+# ═══════════════════════════════════════════════════════════════════════════════
+mensajes:
+  presentacion: |
+    ¡Hola! 👋 Soy **Pili**, tu especialista en Redes de Datos de **Tesla Electricidad**.
+    
+    🎯 Te ayudo con:
+    ✅ Cableado estructurado
+    ✅ Redes Cat 6 y fibra óptica
+    ✅ Certificación de red
+    ✅ Garantía de 10 años
+    
+    **Selecciona el tipo de red:**
+  
+  confirm_tipo: |
+    Perfecto, red **{tipo_cable}**.
+    
+    ⚡ **Velocidad:** {velocidad}
+    📏 **Distancia máx:** {distancia_max}
+    📋 **Aplicación:** {aplicacion}
+    
+    🌐 **¿Cuántos puntos de red necesitas?**
+    
+    _Escribe el número (ejemplo: 24)_
+  
+  cotizacion: |
+    📊 **COTIZACIÓN CABLEADO ESTRUCTURADO**
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **📋 DATOS DEL PROYECTO:**
+    
+    🌐 Tipo: {tipo_cable}
+    📡 Puntos: {puntos}
+    ⚡ Velocidad: {velocidad}
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **💰 ITEMS CALCULADOS:**
+    
+    {items_detalle}
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **📈 TOTALES:**
+    
+    Subtotal: S/ {subtotal:.2f}
+    IGV (18%): S/ {igv:.2f}
+    **TOTAL: S/ {total:.2f}**
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    
+    ✅ Incluye: Materiales + Instalación + Certificación
+    ⏱️ Tiempo: 12-15 días hábiles
+    📋 Normativa: TIA/EIA 568
+    🎁 Garantía: 10 años en cableado
+    
+    ¿Deseas generar el documento?
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔄 FLUJO DE CONVERSACIÓN
+# ═══════════════════════════════════════════════════════════════════════════════
+documents:
+  cotizacion-simple:
+    etapas:
+      - id: tipo_cable
+        type: buttons
+        message_template: presentacion
+        next: puntos
+        progress: "1/3"
+        opciones:
+          - text: "🌐 Cat 5e"
+            value: "CAT5E"
+          - text: "🌐 Cat 6"
+            value: "CAT6"
+          - text: "🌐 Cat 6a"
+            value: "CAT6A"
+          - text: "🌐 Fibra Óptica"
+            value: "FIBRA"
+      
+      - id: puntos
+        type: input_number
+        message_template: confirm_tipo
+        next: quotation
+        progress: "2/3"
+        validacion:
+          min: 1
+          max: 200
+          type: int
+      
+      - id: quotation
+        type: generate_quote
+        message_template: cotizacion
+        calculator: calculate_redes_quote
+        progress: "3/3"
+        actions:
+          - text: "📄 Generar Cotización"
+            value: "GENERAR"
+          - text: "🔄 Nueva consulta"
+            value: "RESTART"

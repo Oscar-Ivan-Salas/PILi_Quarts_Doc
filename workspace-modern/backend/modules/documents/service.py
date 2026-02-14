@@ -1,223 +1,53 @@
-"""
-Document Generator Module - Main Service
-Enterprise-grade document generation orchestrator
-Following clean-code, python-patterns, and architecture skills
-"""
-from typing import Dict, Any, Optional, Literal
-from io import BytesIO
 import logging
-from enum import Enum
+import time
+from typing import Dict, Any, List
 
-from .pdf_generator import PDFGenerator
-from .word_generator import WordGenerator
-from .excel_generator import ExcelGenerator
+# --- INTERNAL MODULES (The Nodes) ---
+from modules.N02_Pili_Logic.index import logic_node
+from modules.N04_Binary_Factory.index import binary_factory
+from modules.N06_Integrator.index import integrator_node # We reuse N06 logic or wrap it?
+# The user said: "1. Implementación del Orquestador (N06 Modificado) Carpeta: backend/modules/documents/"
+# So this IS the new home for N06 logic, or at least the Service Layer.
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("UnifiedDocumentService")
 
-
-class DocumentFormat(str, Enum):
-    """
-    Supported document formats.
-    
-    Following python-patterns: Enum for type safety
-    """
-    PDF = "pdf"
-    WORD = "docx"
-    EXCEL = "xlsx"
-
-
-class DocumentType(str, Enum):
-    """
-    Supported document types.
-    
-    Following architecture: Clear type definitions
-    """
-    COTIZACION = "cotizacion"
-    INFORME = "informe"
-    PRESUPUESTO = "presupuesto"
-    CONTRATO = "contrato"
-    PLANO = "plano"
-
-
-class DocumentGeneratorService:
-    """
-    Main document generation service.
-    
-    Orchestrates different generators based on format and type.
-    
-    Following architecture:
-    - Facade pattern for complex subsystems
-    - Dependency injection
-    - Single Responsibility
-    
-    Following python-patterns:
-    - Type hints for clarity
-    - Async support (future)
-    """
-    
-    def __init__(self):
-        """Initialize document generators"""
-        self.pdf_generator = PDFGenerator()
-        self.word_generator = WordGenerator()
-        self.excel_generator = ExcelGenerator()
-        
-        logger.info("Document Generator Service initialized")
-    
-    def generate(
-        self,
-        document_type: DocumentType,
-        format: DocumentFormat,
-        data: Dict[str, Any],
-        output_path: Optional[str] = None
-    ) -> BytesIO:
+class DocumentService:
+    def generate_document(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Generate document based on type and format.
-        
-        Following clean-code: Clear method signature
-        Following architecture: Strategy pattern
-        
-        Args:
-            document_type: Type of document (cotizacion, informe, etc.)
-            format: Output format (pdf, docx, xlsx)
-            data: Document data
-            output_path: Optional file path to save
-        
-        Returns:
-            BytesIO buffer with generated document
-        
-        Raises:
-            ValueError: If invalid combination of type and format
-            NotImplementedError: If generator not implemented
+        Unified Entry Point for Document Generation.
+        Orchestrates N02 -> Logic -> N04.
         """
-        logger.info(f"Generating {document_type.value} in {format.value} format")
-        
-        # Validate combination
-        if not self._is_valid_combination(document_type, format):
-            raise ValueError(
-                f"Invalid combination: {document_type.value} cannot be generated as {format.value}"
-            )
-        
-        # Route to appropriate generator
+        start_time = time.time()
         try:
-            if format == DocumentFormat.PDF:
-                return self._generate_pdf(document_type, data, output_path)
-            elif format == DocumentFormat.WORD:
-                return self._generate_word(document_type, data, output_path)
-            elif format == DocumentFormat.EXCEL:
-                return self._generate_excel(document_type, data, output_path)
+            # 1. Validation & Usage of N06 Integrator Logic
+            # The N06 Integrator fully implements the dispatch logic.
+            # So this Service is just a wrapper or interface for the API Router?
+            # Yes. "El Frontend solo ve un endpoint limpio: /api/documents/generate."
+            
+            logger.info(f"📄 Document Generation Requested: {request_data.get('service_request', {}).get('service_key')}")
+            
+            # Delegate to N06 Integrator (The Brain)
+            response = integrator_node.dispatch(request_data)
+            
+            if response.get("success"):
+                logger.info("✅ Generation Success")
+                return response
             else:
-                raise ValueError(f"Unsupported format: {format}")
-                
+                 logger.error(f"❌ Generation Failed: {response.get('error')}")
+                 return response
+                 
         except Exception as e:
-            logger.error(f"Error generating document: {str(e)}", exc_info=True)
-            raise
-    
-    def _is_valid_combination(
-        self,
-        document_type: DocumentType,
-        format: DocumentFormat
-    ) -> bool:
+            logger.error(f"Service Error: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
+
+    def get_available_templates(self, service_key: str) -> List[Dict[str, Any]]:
         """
-        Validate document type and format combination.
-        
-        Following clean-code: Validation logic separation
+        Helper to list templates for a service (for Frontend dropdown).
         """
-        # Excel only for cotizacion and presupuesto
-        if format == DocumentFormat.EXCEL:
-            return document_type in [DocumentType.COTIZACION, DocumentType.PRESUPUESTO]
-        
-        # PDF and Word support all types
-        return True
-    
-    def _generate_pdf(
-        self,
-        document_type: DocumentType,
-        data: Dict[str, Any],
-        output_path: Optional[str]
-    ) -> BytesIO:
-        """
-        Generate PDF document.
-        
-        Following python-patterns: Method delegation
-        """
-        if document_type == DocumentType.COTIZACION:
-            return self.pdf_generator.generate_cotizacion(data, output_path)
-        elif document_type == DocumentType.INFORME:
-            return self.pdf_generator.generate_informe(data, output_path)
-        else:
-            raise NotImplementedError(f"PDF generation for {document_type.value} not implemented")
-    
-    def _generate_word(
-        self,
-        document_type: DocumentType,
-        data: Dict[str, Any],
-        output_path: Optional[str]
-    ) -> BytesIO:
-        """Generate Word document"""
-        if document_type == DocumentType.COTIZACION:
-            return self.word_generator.generate_cotizacion(data, output_path)
-        elif document_type == DocumentType.INFORME:
-            return self.word_generator.generate_informe(data, output_path)
-        else:
-            raise NotImplementedError(f"Word generation for {document_type.value} not implemented")
-    
-    def _generate_excel(
-        self,
-        document_type: DocumentType,
-        data: Dict[str, Any],
-        output_path: Optional[str]
-    ) -> BytesIO:
-        """Generate Excel document"""
-        if document_type == DocumentType.COTIZACION:
-            return self.excel_generator.generate_cotizacion(data, output_path)
-        elif document_type == DocumentType.PRESUPUESTO:
-            return self.excel_generator.generate_presupuesto(data, output_path)
-        else:
-            raise NotImplementedError(f"Excel generation for {document_type.value} not implemented")
-    
-    async def generate_async(
-        self,
-        document_type: DocumentType,
-        format: DocumentFormat,
-        data: Dict[str, Any],
-        output_path: Optional[str] = None
-    ) -> BytesIO:
-        """
-        Async version of generate method.
-        
-        Following python-patterns: Async for I/O operations
-        
-        Currently wraps sync method, but can be optimized
-        for async I/O in the future.
-        """
-        import asyncio
-        return await asyncio.to_thread(
-            self.generate,
-            document_type,
-            format,
-            data,
-            output_path
-        )
-    
-    def get_supported_formats(self, document_type: DocumentType) -> list[DocumentFormat]:
-        """
-        Get supported formats for a document type.
-        
-        Following clean-code: Expose useful information
-        """
-        if document_type in [DocumentType.COTIZACION, DocumentType.PRESUPUESTO]:
-            return [DocumentFormat.PDF, DocumentFormat.WORD, DocumentFormat.EXCEL]
-        else:
-            return [DocumentFormat.PDF, DocumentFormat.WORD]
-    
-    def get_stats(self) -> Dict[str, Any]:
-        """Get service statistics"""
-        return {
-            "supported_types": [t.value for t in DocumentType],
-            "supported_formats": [f.value for f in DocumentFormat],
-            "generators": {
-                "pdf": "ReportLab",
-                "word": "python-docx",
-                "excel": "openpyxl"
-            }
-        }
+        # Call N02 to get templates?
+        # N02 logic_node.process_intention returns templates in logic_result.
+        # But we need a simpler call.
+        # For now, return hardcoded or seed based.
+        return [] # Implement if needed
+
+document_service = DocumentService()

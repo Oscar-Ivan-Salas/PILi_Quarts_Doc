@@ -4,8 +4,9 @@
  * Following clean-code and frontend-design principles
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const WS_BASE_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000';
+// Use relative URL in development to leverage Vite proxy, absolute in production
+const API_BASE_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_URL || 'http://localhost:8005');
+const WS_BASE_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8005';
 
 /**
  * API Client class

@@ -123,7 +123,13 @@ export function SimpleServiceChat({
     };
 
     // State
-    const [conversacion, setConversacion] = useState([{
+    const [conversacion, setConversacion] = useState<Array<{
+        sender: string;
+        text: string;
+        buttons: { text: string; value: string }[];
+        timestamp: string;
+        thought_trace?: string[]; // Add optional property
+    }>>([{
         sender: 'bot',
         text: getInitialMessage(),
         buttons: config.initialButtons,
@@ -158,12 +164,13 @@ export function SimpleServiceChat({
         }
     }, []);
 
-    const addBotMessage = (text: string, buttons: any[] = []) => {
+    const addBotMessage = (text: string, buttons: any[] = [], thought_trace: string[] = []) => {
         const newMessage = {
             sender: 'bot',
             text,
             buttons,
-            timestamp: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })
+            timestamp: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }),
+            thought_trace
         };
         setConversacion(prev => [...prev, newMessage]);
         if (buttons && onBotonesUpdate) onBotonesUpdate(buttons);
@@ -185,7 +192,7 @@ export function SimpleServiceChat({
 
         try {
             // Use MODERN Endpoint
-            const response = await fetch('http://localhost:8003/api/pili/chat', {
+            const response = await fetch('http://localhost:8005/api/pili/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -213,12 +220,14 @@ export function SimpleServiceChat({
                     sender: 'bot',
                     text: data.response,
                     buttons: data.suggestions?.map((s: any) => ({ text: s.label, value: s.payload })) || [],
-                    timestamp: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })
+                    timestamp: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }),
+                    thought_trace: data.extracted_data?.thought_trace || []
                 }]);
             } else {
                 addBotMessage(
                     data.response,
-                    data.suggestions?.map((s: any) => ({ text: s.label, value: s.payload }))
+                    data.suggestions?.map((s: any) => ({ text: s.label, value: s.payload })),
+                    data.extracted_data?.thought_trace || []
                 );
             }
 
@@ -284,8 +293,8 @@ export function SimpleServiceChat({
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/40">
-                {conversacion.map((msg, idx) => (
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/40 custom-scrollbar scroll-smooth">
+                {conversacion.map((msg: any, idx) => (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -297,6 +306,27 @@ export function SimpleServiceChat({
                                 ? 'bg-gradient-to-br from-yellow-500 to-yellow-600 text-black'
                                 : 'bg-white/10 backdrop-blur-md text-white border border-white/20'
                                 }`}>
+
+                                {/* THOUGHT TRACE (if available) - Added for PILI Brain debugging */}
+                                {msg.thought_trace && msg.thought_trace.length > 0 && (
+                                    <div className="mb-3 rounded-lg bg-black/20 border border-white/5 overflow-hidden text-left">
+                                        <details className="group">
+                                            <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-white/5 transition-colors text-[10px] text-white/50 select-none uppercase tracking-wider font-bold">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                                                <span>Proceso de Pensamiento ({msg.thought_trace.length})</span>
+                                            </summary>
+                                            <div className="px-3 pb-3 pt-1 space-y-1">
+                                                {msg.thought_trace.map((step: string, stepIdx: number) => (
+                                                    <div key={stepIdx} className="text-[10px] text-white/40 font-mono flex gap-2">
+                                                        <span className="text-white/20 select-none">{stepIdx + 1}.</span>
+                                                        <span>{step}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </details>
+                                    </div>
+                                )}
+
                                 <div className="prose prose-sm prose-invert max-w-none"
                                     dangerouslySetInnerHTML={{
                                         __html: (msg.text || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br />')
@@ -307,7 +337,7 @@ export function SimpleServiceChat({
                             {/* Buttons */}
                             {msg.buttons && msg.buttons.length > 0 && (
                                 <div className="mt-3 flex flex-wrap gap-2">
-                                    {msg.buttons.map((btn, i) => (
+                                    {msg.buttons.map((btn: any, i: number) => (
                                         <button
                                             key={i}
                                             onClick={() => handleButtonClick(btn.value)}
