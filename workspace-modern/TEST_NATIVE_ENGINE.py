@@ -42,7 +42,7 @@ def test_native_engine():
         ]
     }
     
-    ruta_salida = Path("storage/generados/COT_NATIVE_V2_FINAL.docx")
+    ruta_salida = Path("storage/generados/COT_NATIVE_V3_LAYOUT.docx")
     ruta_salida.parent.mkdir(parents=True, exist_ok=True)
     
     print(f"📄 Generando documento: {ruta_salida}...")

@@ -16,9 +16,9 @@ app.add_middleware(
 app.include_router(pili.router)
 app.include_router(generation.router)
 app.include_router(pili_v2_router)
-# Include Document Router (Missing in app/main.py)
-from routers import documents
-app.include_router(documents.router)
+# Include Document Router (Removed - see modules/documents)
+# from routers import documents
+# app.include_router(documents.router)
 # Include Admin Dashboard Router
 from modules.pili.api.admin_router import router as admin_router
 app.include_router(admin_router)

@@ -5,16 +5,6 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
-from pathlib import Path
-import logging
-
-# Importar generadores directamente
-# from app.services.generators.cotizacion_simple_generator import generar_cotizacion_simple
-# from app.services.generators.cotizacion_compleja_generator import generar_cotizacion_compleja
-# from app.services.generators.proyecto_simple_generator import generar_proyecto_simple
-# from app.services.generators.proyecto_complejo_pmi_generator import generar_proyecto_complejo_pmi
-# from app.services.generators.informe_tecnico_generator import generar_informe_tecnico
-# from app.services.generators.informe_ejecutivo_apa_generator import generar_informe_ejecutivo_apa
 
 # from app.services.pdf_generator import PDFGenerator
 # from app.services.excel_generator_complete import ExcelGeneratorComplete

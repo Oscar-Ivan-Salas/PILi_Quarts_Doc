@@ -580,12 +580,39 @@ class CotizacionComplejaGenerator(BaseDocumentGenerator):
         logger = logging.getLogger(__name__)
         logger.info("🚀 INICIANDO GENERACIÓN COTIZACIÓN (MODO NATIVO DE ALTA FIDELIDAD)...")
         
+        # 1. PRE-CÁLCULO DE SUBTOTAL (Para no romper el orden visual)
+        subtotal = 0
+        try:
+            items = self.datos.get('items', [])
+            capitulos = self.datos.get('capitulos', [])
+            
+            # Sumar items sueltos
+            for item in items:
+                cant = float(item.get('cantidad', 0))
+                precio = float(item.get('precio_unitario', 0))
+                subtotal += cant * precio
+            
+            # Sumar items de capítulos
+            for cap in capitulos:
+                for item in cap.get('items', []):
+                    cant = float(item.get('cantidad', 0))
+                    precio = float(item.get('precio_unitario', 0))
+                    subtotal += cant * precio
+                    
+            logger.info(f"💰 Subtotal Pre-calculado: {subtotal}")
+        except Exception as e:
+            logger.error(f"❌ Error calculando subtotal: {e}")
+            subtotal = 0
+
+        # 2. DEFINICIÓN DE ORDEN VISUAL ESTRICTO
+        # Cada método añade contenido al documento EN ORDEN.
         methods = [
             (self._agregar_header_basico, "Header Básico"),
             (self._agregar_titulo, "Título"),
             (self._agregar_info_general, "Info General"),
             (self._agregar_alcance, "Alcance"),
-            (self._agregar_capitulos_safe, "Capítulos"), 
+            (self._agregar_capitulos, "Capítulos"),  # Ahora sí se llama en orden
+            (lambda: self._agregar_totales(subtotal), "Totales"), # Pasamos el subtotal pre-calculado
             (self._agregar_cronograma, "Cronograma"),
             (self._agregar_garantias, "Garantías"),
             (self._agregar_condiciones_pago, "Condiciones Pago"),
@@ -593,25 +620,8 @@ class CotizacionComplejaGenerator(BaseDocumentGenerator):
             (self._agregar_footer_basico, "Footer")
         ]
 
-        subtotal = 0
-        
-        # Special handling for capitulos because it returns subtotal
-        try:
-             logger.info("👉 Ejecutando: Capítulos")
-             subtotal = self._agregar_capitulos()
-        except Exception as e:
-             logger.error(f"❌ ERROR EN CAPÍTULOS: {e}", exc_info=True)
-             p_error = self.doc.add_paragraph(f"[ERROR EN CAPÍTULOS: {e}]")
-             p_error.runs[0].font.color.rgb = RGBColor(255,0,0)
-
-        # Special handling for totales because it needs subtotal
-        try:
-             self._agregar_totales(subtotal)
-        except Exception as e:
-             logger.error(f"❌ ERROR EN TOTALES: {e}", exc_info=True)
-
+        # 3. EJECUCIÓN SECUENCIAL
         for method, name in methods:
-            if "Capítulos" in name: continue # Ya ejecutado
             try:
                 logger.info(f"👉 Ejecutando: {name}")
                 method()
@@ -629,9 +639,7 @@ class CotizacionComplejaGenerator(BaseDocumentGenerator):
         except Exception as e:
             logger.error(f"❌ ERROR FINAL GUARDANDO ARCHIVO: {e}", exc_info=True)
             raise e
-        
-    def _agregar_capitulos_safe(self):
-        pass # Placeholder for loop, ignored
+
 
 
 def generar_cotizacion_compleja(datos, ruta_salida, opciones=None):

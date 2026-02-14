@@ -342,6 +342,8 @@ class PDFGenerator:
         
         return elements
     
+        return buffer
+
     def generate_informe(
         self,
         data: Dict[str, Any],
@@ -349,10 +351,8 @@ class PDFGenerator:
     ) -> BytesIO:
         """
         Generate technical report PDF.
-        
-        Following python-patterns: Reusable pattern
         """
-        logger.info("Generating technical report PDF")
+        logger.info("Generating generic report PDF")
         
         buffer = BytesIO()
         doc = SimpleDocTemplate(
@@ -367,18 +367,142 @@ class PDFGenerator:
         story = []
         
         # Title
-        story.append(Paragraph(data.get('titulo', 'INFORME TÉCNICO'), self.styles['CustomTitle']))
+        story.append(Paragraph(data.get('titulo', 'INFORME'), self.styles['CustomTitle']))
         story.append(Spacer(1, 0.3*inch))
         
         # Sections
         for section in data.get('secciones', []):
-            story.append(Paragraph(section['titulo'], self.styles['SectionHeader']))
-            story.append(Paragraph(section['contenido'], self.styles['CustomBody']))
+            story.append(Paragraph(section.get('titulo', ''), self.styles['SectionHeader']))
+            story.append(Paragraph(section.get('contenido', ''), self.styles['CustomBody']))
             story.append(Spacer(1, 0.2*inch))
         
         # Build
         doc.build(story)
         buffer.seek(0)
         
-        logger.info("Technical report PDF generated successfully")
+        logger.info("Generic report PDF generated successfully")
+        return buffer
+
+    def generate_proyecto_simple(self, data: Dict[str, Any], output_path: Optional[str] = None) -> BytesIO:
+        """Generate Simple Project PDF description"""
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(
+             buffer if not output_path else output_path,
+             pagesize=self.page_size,
+             rightMargin=1*inch, leftMargin=1*inch,
+             topMargin=1*inch, bottomMargin=1*inch
+        )
+        story = []
+        
+        # Header
+        story.append(Paragraph("FICHA DE PROYECTO", self.styles['CustomTitle']))
+        story.append(Spacer(1, 0.2*inch))
+        
+        # Details Table
+        details = [
+            ["Código:", data.get('codigo', 'N/A')],
+            ["Proyecto:", data.get('nombre', 'N/A')],
+            ["Cliente:", data.get('cliente', {}).get('nombre', 'N/A')],
+            ["Estado:", data.get('estado', 'En Ejecución')],
+            ["Duración:", data.get('duracion_total', 'N/A')]
+        ]
+        
+        table = Table(details, colWidths=[2*inch, 4*inch])
+        table.setStyle(TableStyle([
+            ('FONTNAME', (0,0), (0,-1), 'Helvetica-Bold'),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#d1d5db')),
+            ('BACKGROUND', (0,0), (0,-1), colors.HexColor('#f3f4f6')),
+            ('PADDING', (0,0), (-1,-1), 6),
+        ]))
+        story.append(table)
+        
+        doc.build(story)
+        buffer.seek(0)
+        return buffer
+
+    def generate_proyecto_complejo(self, data: Dict[str, Any], output_path: Optional[str] = None) -> BytesIO:
+        """Generate Complex PMI Project PDF"""
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(
+             buffer if not output_path else output_path,
+             pagesize=self.page_size
+        )
+        story = []
+        
+        story.append(Paragraph("PROJECT CHARTER", self.styles['CustomTitle']))
+        story.append(Paragraph("Estándar PMI - Gestión Profesional", self.styles['CustomSubtitle']))
+        story.append(Spacer(1, 0.3*inch))
+        
+        # KPIs
+        story.append(Paragraph("KPIs Principales", self.styles['SectionHeader']))
+        
+        kpi_data = [
+            ["KPI", "Valor", "Estado"],
+            ["SPI (Cronograma)", str(data.get('spi', 1.0)), "🟢"],
+            ["CPI (Costos)", str(data.get('cpi', 1.0)), "🟢"],
+            ["EV (Valor Ganado)", f"${data.get('ev', 0):,.2f}", "-"],
+        ]
+        
+        kpi_table = Table(kpi_data, colWidths=[2.5*inch, 2*inch, 1*inch])
+        kpi_table.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1e40af')),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+            ('ALIGN', (1,1), (-1,-1), 'RIGHT'),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+            ('PADDING', (0,0), (-1,-1), 6),
+        ]))
+        story.append(kpi_table)
+        
+        # Scope
+        story.append(Paragraph("Alcance del Proyecto", self.styles['SectionHeader']))
+        story.append(Paragraph(data.get('alcance', 'Descripción del alcance...'), self.styles['CustomBody']))
+        
+        doc.build(story)
+        buffer.seek(0)
+        return buffer
+
+    def generate_informe_tecnico(self, data: Dict[str, Any], output_path: Optional[str] = None) -> BytesIO:
+        """Alias for generic generate_informe but with specific title handling if needed"""
+        if 'titulo' not in data:
+            data['titulo'] = "INFORME TÉCNICO"
+        return self.generate_informe(data, output_path)
+
+    def generate_informe_ejecutivo(self, data: Dict[str, Any], output_path: Optional[str] = None) -> BytesIO:
+        """Generate Executive Report PDF"""
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(
+             buffer if not output_path else output_path,
+             pagesize=self.page_size
+        )
+        story = []
+        
+        story.append(Paragraph(data.get('titulo', 'INFORME EJECUTIVO'), self.styles['CustomTitle']))
+        
+        # Financial Dashboard
+        story.append(Paragraph("Tablero Financiero", self.styles['SectionHeader']))
+        
+        metrics = [
+            ["ROI", f"{data.get('roi', 0)}%"],
+            ["Payback", f"{data.get('payback', 0)} m"],
+            ["TIR", f"{data.get('tir', 0)}%"],
+            ["Ahorro", f"${data.get('ahorro_anual', 0):,.2f}"]
+        ]
+        
+        # Checkered Layout for Metrics
+        t = Table(metrics, colWidths=[2*inch, 2*inch])
+        t.setStyle(TableStyle([
+            ('FONTSIZE', (0,0), (-1,-1), 12),
+            ('TEXTCOLOR', (1,0), (1,-1), colors.HexColor('#15803d')), # Green for money
+            ('ALIGN', (1,0), (1,-1), 'RIGHT'),
+            ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#3b82f6')),
+            ('INNERGRID', (0,0), (-1,-1), 0.25, colors.HexColor('#bfdbfe')),
+            ('PADDING', (0,0), (-1,-1), 10),
+        ]))
+        story.append(t)
+        
+        story.append(Paragraph("Resumen Ejecutivo", self.styles['SectionHeader']))
+        story.append(Paragraph(data.get('resumen', ''), self.styles['CustomBody']))
+        
+        doc.build(story)
+        buffer.seek(0)
         return buffer

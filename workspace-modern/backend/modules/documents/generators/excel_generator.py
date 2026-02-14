@@ -251,3 +251,137 @@ class ExcelGenerator:
         
         logger.info("Budget Excel workbook generated successfully")
         return buffer
+
+    def generate_proyecto_simple(self, data: Dict[str, Any], output_path: Optional[str] = None) -> BytesIO:
+        """Generate Simple Project Excel"""
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Proyecto Simple"
+        
+        # Header
+        ws.merge_cells('A1:B1')
+        ws['A1'] = "FICHA DE PROYECTO"
+        ws['A1'].font = self.title_font
+        ws['A1'].alignment = Alignment(horizontal='center')
+        
+        # Details
+        fields = [
+            ("Código", data.get('codigo', 'N/A')),
+            ("Nombre", data.get('nombre', 'N/A')),
+            ("Cliente", data.get('cliente', {}).get('nombre', 'N/A')),
+            ("Duración", data.get('duracion_total', 'N/A')),
+            ("Presupuesto", f"${data.get('presupuesto', 0):,.2f}"),
+            ("Estado", data.get('estado', 'En Ejecución'))
+        ]
+        
+        for i, (label, value) in enumerate(fields, 3):
+            ws[f'A{i}'] = label
+            ws[f'A{i}'].font = Font(bold=True)
+            ws[f'B{i}'] = value
+
+        # Save
+        buffer = BytesIO()
+        wb.save(buffer if not output_path else output_path)
+        buffer.seek(0)
+        return buffer
+
+    def generate_proyecto_complejo(self, data: Dict[str, Any], output_path: Optional[str] = None) -> BytesIO:
+        """Generate Complex PMI Project Excel"""
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Project Charter"
+        
+        # Header
+        ws.merge_cells('A1:D1')
+        ws['A1'] = "PROJECT CHARTER (PMI)"
+        ws['A1'].font = self.title_font
+        ws['A1'].alignment = Alignment(horizontal='center')
+        
+        # KPI Section
+        ws['A3'] = "KPIs del Proyecto"
+        ws['A3'].font = Font(bold=True, size=12, color="3B82F6")
+        
+        kpis = [
+            ("SPI (Cronograma)", data.get('spi', 1.0)),
+            ("CPI (Costos)", data.get('cpi', 1.0)),
+            ("Valor Ganado (EV)", f"${data.get('ev', 0):,.2f}"),
+            ("Valor Planificado (PV)", f"${data.get('pv', 0):,.2f}")
+        ]
+        
+        for i, (label, value) in enumerate(kpis, 4):
+            ws[f'A{i}'] = label
+            ws[f'B{i}'] = value
+            
+        # Resources Table
+        row = 10
+        ws[f'A{row}'] = "Recursos Asignados"
+        ws[f'A{row}'].font = Font(bold=True, size=12, color="3B82F6")
+        row += 1
+        
+        headers = ["Recurso", "Rol", "Asignación %", "Costo/Hora"]
+        for col, h in enumerate(headers, 1):
+            cell = ws.cell(row=row, column=col, value=h)
+            cell.font = self.header_font
+            cell.fill = self.header_fill
+            cell.alignment = Alignment(horizontal='center')
+        
+        buffer = BytesIO()
+        wb.save(buffer if not output_path else output_path)
+        buffer.seek(0)
+        return buffer
+
+    def generate_informe_tecnico(self, data: Dict[str, Any], output_path: Optional[str] = None) -> BytesIO:
+        """Generate Technical Report Excel"""
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Informe Técnico"
+        
+        ws['A1'] = data.get('titulo', 'INFORME TÉCNICO')
+        ws['A1'].font = self.title_font
+        
+        # Sections as rows
+        row = 3
+        for section in data.get('secciones', []):
+            ws[f'A{row}'] = section.get('titulo', 'Sección')
+            ws[f'A{row}'].font = Font(bold=True, size=12)
+            row += 1
+            ws[f'A{row}'] = section.get('contenido', '')
+            ws[f'A{row}'].alignment = Alignment(wrap_text=True)
+            row += 2
+            
+        buffer = BytesIO()
+        wb.save(buffer if not output_path else output_path)
+        buffer.seek(0)
+        return buffer
+
+    def generate_informe_ejecutivo(self, data: Dict[str, Any], output_path: Optional[str] = None) -> BytesIO:
+        """Generate Executive Report Excel"""
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Resumen Ejecutivo"
+        
+        ws['A1'] = data.get('titulo', 'INFORME EJECUTIVO')
+        ws['A1'].font = self.title_font
+        
+        # Financial Summary
+        row = 3
+        ws[f'A{row}'] = "Resumen Financiero"
+        ws[f'A{row}'].font = Font(bold=True, size=12, color="3B82F6")
+        row += 1
+        
+        financials = [
+            ("ROI Esperado", f"{data.get('roi', 0)}%"),
+            ("TIR", f"{data.get('tir', 0)}%"),
+            ("Payback", f"{data.get('payback', 0)} meses"),
+            ("Ahorro Anual", f"${data.get('ahorro_anual', 0):,.2f}")
+        ]
+        
+        for label, value in financials:
+            ws[f'A{row}'] = label
+            ws[f'B{row}'] = value
+            row += 1
+            
+        buffer = BytesIO()
+        wb.save(buffer if not output_path else output_path)
+        buffer.seek(0)
+        return buffer
