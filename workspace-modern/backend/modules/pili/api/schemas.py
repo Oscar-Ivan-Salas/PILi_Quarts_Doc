@@ -15,7 +15,7 @@ class ChatMessageRequest(BaseModel):
     
     Following api-patterns: Clear request validation
     """
-    user_id: UUID = Field(..., description="Unique user identifier")
+    user_id: str = Field(..., description="Unique user identifier")
     message: str = Field(..., min_length=1, max_length=5000, description="User message")
     context: Optional[Dict[str, Any]] = Field(None, description="Additional context")
     

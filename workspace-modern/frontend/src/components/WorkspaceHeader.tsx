@@ -8,6 +8,7 @@ export function WorkspaceHeader() {
     const toggleTheme = () => {
         if (theme === 'dark') setTheme('light')
         else if (theme === 'light') setTheme('magenta')
+        else if (theme === 'magenta') setTheme('tesla')
         else setTheme('dark')
     }
 
@@ -15,17 +16,18 @@ export function WorkspaceHeader() {
         <motion.header
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="border-b-2 border-brand-red bg-white dark:bg-gray-900 transition-colors duration-300"
+            className="border-b-2 border-brand-red tesla:border-yellow-600 bg-white dark:bg-gray-900 tesla:bg-black/80 transition-colors duration-300"
         >
             <div className="flex items-center justify-between px-6 py-4">
                 {/* Logo y Título */}
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 bg-gradient-to-br from-brand-red to-brand-yellow rounded-lg flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-brand-red/20">
+                        <div className="w-10 h-10 bg-gradient-to-br from-brand-red to-brand-yellow tesla:from-yellow-600 tesla:to-yellow-400 rounded-lg flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-brand-red/20">
                             P
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                            <h1 className="text-xl font-bold text-gray-900 dark:text-white 
+                                          tesla:bg-clip-text tesla:text-transparent tesla:bg-gradient-to-r tesla:from-yellow-400 tesla:via-yellow-300 tesla:to-yellow-500">
                                 PILi_Quarts
                             </h1>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -66,6 +68,8 @@ export function WorkspaceHeader() {
                             <Moon className="w-5 h-5 text-blue-400" />
                         ) : theme === 'light' ? (
                             <Sun className="w-5 h-5 text-yellow-500" />
+                        ) : theme === 'tesla' ? (
+                            <Palette className="w-5 h-5 text-amber-500" />
                         ) : (
                             <Palette className="w-5 h-5 text-purple-500" />
                         )}

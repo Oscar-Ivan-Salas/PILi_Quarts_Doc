@@ -13,7 +13,7 @@
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
-  /* Light Theme (Default) */
+  /* Light Theme */
   html.light {
     @apply bg-white text-gray-900;
   }
@@ -28,6 +28,15 @@
     background: linear-gradient(135deg, #1a0a1f 0%, #2d1b3d 50%, #1a0a1f 100%);
     @apply text-purple-100;
   }
+
+  /* ✅ LEGACY TESLA THEME (EXACTO DEL FRONTEND) */
+  html.tesla {
+    /* min-h-screen bg-gradient-to-br from-gray-950 via-red-950 to-black */
+    /* Tailwind Colors: gray-950 (#030712), red-950 (#450a0a), black (#000000) */
+    background: linear-gradient(135deg, #030712 0%, #450a0a 50%, #000000 100%);
+    color: #cbd5e1;
+    /* slate-300 */
+  }
 }
 
 @layer components {
@@ -39,28 +48,51 @@
     @apply px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors;
   }
 
-  /* Magenta theme overrides */
+  /* Magenta overrides */
   html.magenta .btn-secondary {
     @apply bg-purple-900 text-purple-100 hover:bg-purple-800;
   }
 
-  html.magenta .border-gray-200 {
+  html.magenta .border-gray-200,
+  html.magenta .border-gray-700 {
     @apply border-purple-700;
   }
 
-  html.magenta .bg-gray-50 {
-    @apply bg-purple-950;
-  }
-
+  html.magenta .bg-gray-50,
   html.magenta .bg-gray-900 {
     @apply bg-purple-950;
   }
 
-  html.magenta .text-gray-900 {
-    @apply text-purple-100;
+  /* ✅ TESLA (Legacy) Overrides */
+
+  /* Párrafos y textos secundarios */
+  html.tesla p,
+  html.tesla span,
+  html.tesla label {
+    @apply text-gray-300;
   }
 
-  html.magenta .text-gray-500 {
-    @apply text-purple-300;
+  /* Títulos con Gradiente Dorado (bg-clip-text) */
+  html.tesla .text-tesla-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 font-bold;
+  }
+
+  /* Inputs estilo Legacy */
+  html.tesla input,
+  html.tesla select,
+  html.tesla textarea {
+    @apply bg-gray-950 border border-yellow-700 text-white focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500;
+  }
+
+  /* Botones estilo Legacy */
+  html.tesla .btn-primary {
+    background: linear-gradient(to right, #CA8A04, #EAB308);
+    /* yellow-600 -> yellow-500 approx */
+    @apply text-black font-bold border-2 border-yellow-400 hover:scale-105 transition-transform shadow-lg;
+  }
+
+  /* Cards estilo Legacy */
+  html.tesla .card-tesla {
+    @apply bg-gradient-to-r from-red-950 via-red-900 to-black border-2 border-yellow-600 shadow-2xl backdrop-blur-md bg-opacity-90;
   }
 }

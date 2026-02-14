@@ -20,15 +20,6 @@ interface NavSection {
 
 const navSections: NavSection[] = [
     {
-        id: 'proyectos',
-        label: 'Proyectos',
-        icon: FolderOpen,
-        subsections: [
-            { id: 'proyecto-simple', label: 'Simple', badge: 3 },
-            { id: 'proyecto-complejo', label: 'Complejo', badge: 1 },
-        ],
-    },
-    {
         id: 'cotizaciones',
         label: 'Cotizaciones',
         icon: FileText,
@@ -38,12 +29,21 @@ const navSections: NavSection[] = [
         ],
     },
     {
+        id: 'proyectos',
+        label: 'Proyectos',
+        icon: FolderOpen,
+        subsections: [
+            { id: 'proyecto-simple', label: 'Simple', badge: 3 },
+            { id: 'proyecto-complejo', label: 'Complejo', badge: 1 },
+        ],
+    },
+    {
         id: 'informes',
         label: 'Informes',
         icon: BarChart3,
         subsections: [
-            { id: 'informe-tecnico', label: 'Técnico' },
-            { id: 'informe-ejecutivo', label: 'Ejecutivo' },
+            { id: 'informe-simple', label: 'Simple' },
+            { id: 'informe-complejo', label: 'Complejo' },
         ],
     },
 ]
@@ -64,7 +64,7 @@ export function NavigationPanel() {
         <motion.nav
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            className="w-64 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 p-4 overflow-y-auto"
+            className="w-full h-full bg-gray-50 dark:bg-gray-900 p-4 overflow-y-auto"
         >
             <div className="space-y-2">
                 {navSections.map((section) => {
@@ -78,8 +78,8 @@ export function NavigationPanel() {
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => toggleSection(section.id)}
                                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${activeSection === section.id
-                                        ? 'bg-brand-red text-white'
-                                        : 'hover:bg-gray-200 dark:hover:bg-gray-800'
+                                    ? 'bg-brand-red text-white'
+                                    : 'hover:bg-gray-200 dark:hover:bg-gray-800'
                                     }`}
                             >
                                 <div className="flex items-center gap-2">
@@ -109,8 +109,8 @@ export function NavigationPanel() {
                                                 whileTap={{ scale: 0.98 }}
                                                 onClick={() => setActiveSection(subsection.id)}
                                                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${activeSection === subsection.id
-                                                        ? 'bg-brand-yellow text-gray-900'
-                                                        : 'hover:bg-gray-200 dark:hover:bg-gray-800'
+                                                    ? 'bg-brand-yellow text-gray-900'
+                                                    : 'hover:bg-gray-200 dark:hover:bg-gray-800'
                                                     }`}
                                             >
                                                 <span>{subsection.label}</span>

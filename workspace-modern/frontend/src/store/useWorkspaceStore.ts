@@ -30,7 +30,7 @@ export interface Report {
     description: string
 }
 
-type Theme = 'light' | 'dark' | 'magenta'
+type Theme = 'light' | 'dark' | 'magenta' | 'tesla'
 
 interface WorkspaceStore {
     // UI State
@@ -83,7 +83,7 @@ const API_URL = 'http://localhost:8003/api/documents'
 
 export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
     // Initial UI State
-    activeSection: 'inicio', // Set to start at empty/dashboard
+    activeSection: 'dashboard', // Set to start at empty/dashboard
     setActiveSection: (section) => set({ activeSection: section }),
 
     theme: 'dark', // Default Dark Mode

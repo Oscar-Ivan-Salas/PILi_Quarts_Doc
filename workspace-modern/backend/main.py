@@ -2,7 +2,8 @@
 Main Application Entry Point - Updates
 Includes new SQLite database initialization and document router
 """
-from fastapi import FastAPI
+# Force reload - Checkpoint
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
@@ -36,6 +37,9 @@ app.add_middleware(
 # Include Routers
 app.include_router(documents.router)
 app.include_router(generation.router)
+
+from modules.pili.api import router as pili_router
+app.include_router(pili_router.router)
 
 # Mount Static Files (for avatars, logos, generated PDFs)
 static_path = os.path.join(os.path.dirname(__file__), "static")
