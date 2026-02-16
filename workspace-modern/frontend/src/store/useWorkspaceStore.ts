@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { apiClient } from '@/lib/api-client'
 
 // Interfaces
 export interface Project {
@@ -108,9 +109,8 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
     fetchProjects: async () => {
         set({ isLoading: true })
         try {
-            const res = await fetch(`${API_URL}?user_id=${USER_ID}&type=proyecto`)
-            if (!res.ok) throw new Error('Failed to fetch projects')
-            const docs = await res.json()
+            // Use apiClient to leverage relative path /api and configured base URL
+            const docs = await apiClient.get<any[]>(`/api/documents/?user_id=${USER_ID}&type=proyecto`)
             set({ projects: docs.map(mapDocToProject) })
         } catch (err: any) {
             console.error(err)
@@ -123,9 +123,7 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
     fetchQuotes: async () => {
         set({ isLoading: true })
         try {
-            const res = await fetch(`${API_URL}?user_id=${USER_ID}&type=cotizacion`)
-            if (!res.ok) throw new Error('Failed to fetch quotes')
-            const docs = await res.json()
+            const docs = await apiClient.get<any[]>(`/api/documents/?user_id=${USER_ID}&type=cotizacion`)
             set({ quotes: docs.map(mapDocToQuote) })
         } catch (err: any) {
             console.error(err)
@@ -166,7 +164,7 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
         }
     },
 
-    createQuote: async (quoteData) => {
+    createQuote: async (_quoteData) => {
         // Implementation similar to createProject
         // For brevity, skipping logic until explicitly needed by user interaction
     },

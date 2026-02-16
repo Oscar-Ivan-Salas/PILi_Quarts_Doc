@@ -2,7 +2,7 @@
 Main Application Entry Point - Updates
 Includes new SQLite database initialization and document router
 """
-# Force reload - Checkpoint
+# Force reload - Checkpoint 10471
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles

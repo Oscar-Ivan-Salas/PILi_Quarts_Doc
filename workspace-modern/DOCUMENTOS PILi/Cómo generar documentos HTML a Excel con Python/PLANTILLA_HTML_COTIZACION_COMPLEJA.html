@@ -1,0 +1,181 @@
+                </ul>
+            </div>
+        </div>
+
+        <!-- TABLA DE ITEMS -->
+        <div class="tabla-section">
+            <h2>Detalle de la Cotización</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">ITEM</th>
+                        <th style="width: 42%;">DESCRIPCIÓN</th>
+                        <th style="width: 10%;">CANT.</th>
+                        <th style="width: 10%;">UNIDAD</th>
+                        <th style="width: 15%;">P. UNIT.</th>
+                        <th style="width: 15%;">TOTAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- ITEMS DINÁMICOS -->
+                    <tr>
+                        <td>01</td>
+                        <td>Tablero eléctrico monofásico 12 circuitos</td>
+                        <td class="text-right">1.00</td>
+                        <td class="text-right">und</td>
+                        <td class="text-right">$ 450.00</td>
+                        <td class="text-right">$ 450.00</td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td>Circuitos eléctricos (cable THW + tubería PVC)</td>
+                        <td class="text-right">6.00</td>
+                        <td class="text-right">cto</td>
+                        <td class="text-right">$ 120.00</td>
+                        <td class="text-right">$ 720.00</td>
+                    </tr>
+                    <tr>
+                        <td>03</td>
+                        <td>Puntos de iluminación LED</td>
+                        <td class="text-right">10.00</td>
+                        <td class="text-right">pto</td>
+                        <td class="text-right">$ 45.00</td>
+                        <td class="text-right">$ 450.00</td>
+                    </tr>
+                    <tr>
+                        <td>04</td>
+                        <td>Tomacorrientes dobles con toma tierra</td>
+                        <td class="text-right">7.00</td>
+                        <td class="text-right">pto</td>
+                        <td class="text-right">$ 35.00</td>
+                        <td class="text-right">$ 245.00</td>
+                    </tr>
+                    <tr>
+                        <td>05</td>
+                        <td>Sistema de puesta a tierra</td>
+                        <td class="text-right">1.00</td>
+                        <td class="text-right">glb</td>
+                        <td class="text-right">$ 850.00</td>
+                        <td class="text-right">$ 850.00</td>
+                    </tr>
+                    <tr>
+                        <td>06</td>
+                        <td>Tablero de medición y protección</td>
+                        <td class="text-right">1.00</td>
+                        <td class="text-right">und</td>
+                        <td class="text-right">$ 380.00</td>
+                        <td class="text-right">$ 380.00</td>
+                    </tr>
+                    <tr>
+                        <td>07</td>
+                        <td>Interruptores termo-magnéticos</td>
+                        <td class="text-right">6.00</td>
+                        <td class="text-right">und</td>
+                        <td class="text-right">$ 45.00</td>
+                        <td class="text-right">$ 270.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TOTALES -->
+        <div class="totales-section">
+            <div class="totales-box">
+                <div class="totales-row">
+                    <span class="totales-label">SUBTOTAL:</span>
+                    <span class="totales-valor">$ {{SUBTOTAL}}</span>
+                </div>
+                <div class="totales-row">
+                    <span class="totales-label">IGV (18%):</span>
+                    <span class="totales-valor">$ {{IGV}}</span>
+                </div>
+                <div class="totales-row">
+                    <span class="totales-label">TOTAL:</span>
+                    <span class="totales-valor">$ {{TOTAL}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CRONOGRAMA ESTIMADO -->
+        <div class="seccion-completa" style="margin-top: 30px;">
+            <h2>Cronograma Estimado</h2>
+            <div class="cronograma-box">
+                <div class="fase-box">
+                    <div class="fase-numero">1</div>
+                    <div class="fase-nombre">Ingeniería</div>
+                    <div class="fase-duracion">{{DIAS_INGENIERIA}} días</div>
+                </div>
+                <div class="fase-box">
+                    <div class="fase-numero">2</div>
+                    <div class="fase-nombre">Adquisiciones</div>
+                    <div class="fase-duracion">{{DIAS_ADQUISICIONES}} días</div>
+                </div>
+                <div class="fase-box">
+                    <div class="fase-numero">3</div>
+                    <div class="fase-nombre">Instalación</div>
+                    <div class="fase-duracion">{{DIAS_INSTALACION}} días</div>
+                </div>
+                <div class="fase-box">
+                    <div class="fase-numero">4</div>
+                    <div class="fase-nombre">Pruebas</div>
+                    <div class="fase-duracion">{{DIAS_PRUEBAS}} días</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GARANTÍAS -->
+        <div class="seccion-completa">
+            <h2>Garantías Incluidas</h2>
+            <div class="garantias-grid">
+                <div class="garantia-card">
+                    <div class="garantia-icon">🛠️</div>
+                    <div class="garantia-texto">12 meses en mano de obra</div>
+                </div>
+                <div class="garantia-card">
+                    <div class="garantia-icon">⚙️</div>
+                    <div class="garantia-texto">Garantía de fabricante en equipos</div>
+                </div>
+                <div class="garantia-card">
+                    <div class="garantia-icon">💬</div>
+                    <div class="garantia-texto">Soporte técnico por 6 meses</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONDICIONES DE PAGO -->
+        <div class="seccion-completa">
+            <h2>Condiciones de Pago</h2>
+            <ul class="lista-styled">
+                <li>50% de adelanto a la firma del contrato</li>
+                <li>30% al 50% de avance de obra</li>
+                <li>20% contra entrega y conformidad</li>
+            </ul>
+        </div>
+
+        <!-- OBSERVACIONES -->
+        <div class="seccion-completa">
+            <h2>Observaciones Técnicas</h2>
+            <ul class="lista-styled">
+                <li>Trabajos ejecutados según {{NORMATIVA_APLICABLE}}</li>
+                <li>Materiales de primera calidad con certificación internacional</li>
+                <li>Mano de obra especializada y certificada</li>
+                <li>Incluye transporte de materiales</li>
+                <li>Pruebas y puesta en marcha incluidas</li>
+                <li>Capacitación al personal del cliente</li>
+                <li>Documentación técnica completa (planos as-built, protocolos, certificados)</li>
+                <li>Precios en dólares americanos (USD)</li>
+                <li>Cotización válida por {{VIGENCIA}}</li>
+            </ul>
+        </div>
+
+        <!-- PIE DE PÁGINA -->
+        <div class="footer">
+            <div class="footer-empresa">TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.</div>
+            <div class="footer-contacto">RUC: 20601138787 | Teléfono: 906 315 961</div>
+            <div class="footer-contacto">Email: ingenieria.teslaelectricidad@gmail.com</div>
+            <div class="footer-contacto">Jr. Las Ágatas Mz B Lote 09, Urb. San Carlos, SJL</div>
+        </div>
+    </div>
+</body>
+</html>

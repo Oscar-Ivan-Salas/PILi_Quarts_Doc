@@ -231,6 +231,8 @@ class InformeEjecutivoAPAGenerator(BaseDocumentGenerator):
     
     def generar(self, ruta_salida):
         """Genera el documento completo"""
+        self._configurar_margenes_apa() # ✅ APA MARGINS
+        
         self._agregar_header_basico()
         self._agregar_titulo()
         self._agregar_info_general()
@@ -241,6 +243,8 @@ class InformeEjecutivoAPAGenerator(BaseDocumentGenerator):
         self._agregar_discusion()
         self._agregar_conclusiones()
         self._agregar_referencias()
+        
+        self._agregar_firma_ingenieria() # ✅ SIGNATURES
         self._agregar_footer_basico()
         
         self.doc.save(str(ruta_salida))

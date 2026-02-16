@@ -57,6 +57,7 @@ def create_document(doc: DocumentCreate, db: Session = Depends(get_db)):
     return db_doc
 
 @router.get("/", response_model=List[DocumentResponse])
+@router.get("", response_model=List[DocumentResponse])
 def get_documents(user_id: str, type: Optional[str] = None, db: Session = Depends(get_db), skip: int = 0, limit: int = 100):
     """Get all documents for a user, optionally filtered by type"""
     query = db.query(Document).filter(Document.user_id == user_id)

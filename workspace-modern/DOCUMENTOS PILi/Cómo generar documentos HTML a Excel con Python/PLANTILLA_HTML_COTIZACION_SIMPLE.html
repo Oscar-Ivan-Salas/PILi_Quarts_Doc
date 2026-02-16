@@ -1,0 +1,110 @@
+            <p style="font-size: 12px; color: #374151;">{{DESCRIPCION_PROYECTO}}</p>
+        </div>
+
+        <!-- TABLA DE ITEMS -->
+        <div class="tabla-section">
+            <h2>Detalle de la Cotización</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">ITEM</th>
+                        <th style="width: 42%;">DESCRIPCIÓN</th>
+                        <th style="width: 10%;">CANT.</th>
+                        <th style="width: 10%;">UNIDAD</th>
+                        <th style="width: 15%;">P. UNIT.</th>
+                        <th style="width: 15%;">TOTAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- ITEM 1 -->
+                    <tr>
+                        <td>01</td>
+                        <td>Tablero eléctrico monofásico 12 circuitos</td>
+                        <td class="text-right">1.00</td>
+                        <td class="text-right">und</td>
+                        <td class="text-right">$ 450.00</td>
+                        <td class="text-right">$ 450.00</td>
+                    </tr>
+                    <!-- ITEM 2 -->
+                    <tr>
+                        <td>02</td>
+                        <td>Circuitos eléctricos (cable THW + tubería PVC)</td>
+                        <td class="text-right">6.00</td>
+                        <td class="text-right">cto</td>
+                        <td class="text-right">$ 120.00</td>
+                        <td class="text-right">$ 720.00</td>
+                    </tr>
+                    <!-- ITEM 3 -->
+                    <tr>
+                        <td>03</td>
+                        <td>Puntos de iluminación LED</td>
+                        <td class="text-right">10.00</td>
+                        <td class="text-right">pto</td>
+                        <td class="text-right">$ 45.00</td>
+                        <td class="text-right">$ 450.00</td>
+                    </tr>
+                    <!-- ITEM 4 -->
+                    <tr>
+                        <td>04</td>
+                        <td>Tomacorrientes dobles con toma tierra</td>
+                        <td class="text-right">7.00</td>
+                        <td class="text-right">pto</td>
+                        <td class="text-right">$ 35.00</td>
+                        <td class="text-right">$ 245.00</td>
+                    </tr>
+                    <!-- ITEM 5 -->
+                    <tr>
+                        <td>05</td>
+                        <td>Sistema de puesta a tierra</td>
+                        <td class="text-right">1.00</td>
+                        <td class="text-right">glb</td>
+                        <td class="text-right">$ 850.00</td>
+                        <td class="text-right">$ 850.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TOTALES -->
+        <div class="totales-section">
+            <div class="totales-box">
+                <div class="totales-row">
+                    <span class="totales-label">SUBTOTAL:</span>
+                    <span class="totales-valor">$ {{SUBTOTAL}}</span>
+                </div>
+                <div class="totales-row">
+                    <span class="totales-label">IGV (18%):</span>
+                    <span class="totales-valor">$ {{IGV}}</span>
+                </div>
+                <div class="totales-row">
+                    <span class="totales-label">TOTAL:</span>
+                    <span class="totales-valor">$ {{TOTAL}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- OBSERVACIONES -->
+        <div class="observaciones">
+            <h3>Observaciones Técnicas</h3>
+            <ul>
+                <li>Trabajos ejecutados según {{NORMATIVA_APLICABLE}}</li>
+                <li>Materiales de primera calidad con certificación</li>
+                <li>Mano de obra especializada</li>
+                <li>Garantía de 12 meses en mano de obra</li>
+                <li>Precios en dólares americanos (USD)</li>
+                <li>Forma de pago: 50% adelanto, 50% contra entrega</li>
+                <li>Cotización válida por {{VIGENCIA}}</li>
+            </ul>
+        </div>
+
+        <!-- PIE DE PÁGINA -->
+        <div class="footer">
+            <div class="footer-empresa">TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.</div>
+            <div class="footer-contacto">RUC: 20601138787 | Teléfono: 906 315 961</div>
+            <div class="footer-contacto">Email: ingenieria.teslaelectricidad@gmail.com</div>
+            <div class="footer-contacto">Jr. Las Ágatas Mz B Lote 09, Urb. San Carlos, SJL</div>
+        </div>
+    </div>
+</body>
+</html>

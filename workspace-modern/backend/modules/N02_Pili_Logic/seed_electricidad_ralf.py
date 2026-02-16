@@ -36,25 +36,114 @@ def seed_ralf():
         else:
             print(f"   ℹ️ Servicio Existente: {service.display_name}")
 
-        # 2. Template Config (The Hypothesys)
-        # Service 1 (Electricidad) + Doc 2 (Cotizacion Compleja) -> Template "ELECTRICIDAD_COT_COMPLEJA"
-        doc_type = 2
-        template_ref = "ELECTRICIDAD_COT_COMPLEJA"
+        # 1.5. Missing Services (Hypothesis Test Requirements)
+        missing_services = [
+            {"key": "subestacion-hv", "name": "Subestaciones HV", "norm": "IEC 61936"},
+            {"key": "mantenimiento-preventivo", "name": "Mantenimiento Preventivo", "norm": "NFPA 70B"},
+            {"key": "montaje-electromecanico", "name": "Montaje Electromecánico", "norm": "CNE Utilización"},
+            {"key": "auditoria-calidad", "name": "Auditoría de Calidad", "norm": "ISO 9001"},
+            {"key": "consultoria-energetica", "name": "Consultoría Energética", "norm": "ISO 50001"}
+        ]
         
-        config = session.query(PiliTemplateConfig).filter_by(service_id=service.id, document_type_id=doc_type).first()
-        if not config:
-            config = PiliTemplateConfig(
-                service_id=service.id,
-                document_type_id=doc_type,
-                template_ref=template_ref,
-                logic_class="ElectricidadLogic",
-                css_ref="style.css"
-            )
-            session.add(config)
-            print(f"   ✅ Regla de Negocio Agregada: {template_ref} -> ID {doc_type}")
-        else:
-            config.template_ref = template_ref
-            print(f"   ℹ️ Regla Actualizada: {template_ref}")
+        for m_svc in missing_services:
+            svc_key = m_svc["key"]
+            svc = session.query(PiliService).filter_by(service_key=svc_key).first()
+            if not svc:
+                svc = PiliService(
+                    service_key=svc_key,
+                    display_name=m_svc["name"],
+                    normativa_referencia=m_svc["norm"],
+                    descripcion="Servicio Especializado Tesla"
+                )
+                session.add(svc)
+                session.flush() # Ensure ID exists
+                print(f"   ✅ Servicio Adicional Creado: {svc.display_name}")
+            
+            # Link to Template Configs (Reuse Electricidad Logic for these new services)
+            # We map specific document types to specific templates for these services
+            ralf_mappings = [
+                {"id": 1, "ref": "ELECTRICIDAD_COTIZACION_SIMPLE", "cls": "ElectricidadLogic"},
+                {"id": 2, "ref": "ELECTRICIDAD_COTIZACION_COMPLEJA", "cls": "ElectricidadLogic"},
+                {"id": 3, "ref": "ELECTRICIDAD_PROYECTO_SIMPLE", "cls": "ElectricidadLogic"},
+                {"id": 4, "ref": "ELECTRICIDAD_PROYECTO_COMPLEJO", "cls": "ElectricidadLogic"},
+                {"id": 5, "ref": "ELECTRICIDAD_INFORME_TECNICO", "cls": "ElectricidadLogic"},
+                {"id": 6, "ref": "ELECTRICIDAD_INFORME_EJECUTIVO", "cls": "ElectricidadLogic"}
+            ]
+            
+            for mapping in ralf_mappings:
+                doc_type = mapping["id"]
+                template_ref = mapping["ref"]
+                
+                config = session.query(PiliTemplateConfig).filter_by(service_id=svc.id, document_type_id=doc_type).first()
+                if not config:
+                    config = PiliTemplateConfig(
+                        service_id=svc.id,
+                        document_type_id=doc_type,
+                        template_ref=template_ref,
+                        logic_class=mapping["cls"],
+                        css_ref="style.css"
+                    )
+                    session.add(config)
+                    print(f"      + Config: {template_ref} -> {svc.display_name}")
+            
+            # Link to Template Configs (Reuse Electricidad Logic)
+            ralf_mappings = [
+                {"id": 1, "ref": "ELECTRICIDAD_COTIZACION_SIMPLE", "cls": "ElectricidadLogic"},
+                {"id": 2, "ref": "ELECTRICIDAD_COT_COMPLEJA", "cls": "ElectricidadLogic"},
+                {"id": 3, "ref": "ELECTRICIDAD_PROYECTO_SIMPLE", "cls": "ElectricidadLogic"},
+                {"id": 4, "ref": "ELECTRICIDAD_PROYECTO_COMPLEJO", "cls": "ElectricidadLogic"},
+                {"id": 5, "ref": "ELECTRICIDAD_INFORME_TECNICO", "cls": "ElectricidadLogic"},
+                {"id": 6, "ref": "ELECTRICIDAD_INFORME_EJECUTIVO", "cls": "ElectricidadLogic"}
+            ]
+            
+            # Need to commit service first to get ID?
+            session.flush() # Get ID
+            
+            for mapping in ralf_mappings:
+                doc_type = mapping["id"]
+                template_ref = mapping["ref"]
+                config = session.query(PiliTemplateConfig).filter_by(service_id=svc.id, document_type_id=doc_type).first()
+                if not config:
+                    config = PiliTemplateConfig(
+                        service_id=svc.id,
+                        document_type_id=doc_type,
+                        template_ref=template_ref,
+                        logic_class=mapping["cls"],
+                        css_ref="style.css"
+                    )
+                    session.add(config)
+
+
+        # 2. Template Config (The Hypothesys)
+        # Service 1 (Electricidad) -> Map all 6 Documents
+        
+        ralf_mappings = [
+            {"id": 1, "ref": "ELECTRICIDAD_COTIZACION_SIMPLE", "cls": "ElectricidadLogic"},
+            {"id": 2, "ref": "ELECTRICIDAD_COT_COMPLEJA", "cls": "ElectricidadLogic"},
+            {"id": 3, "ref": "ELECTRICIDAD_PROYECTO_SIMPLE", "cls": "ElectricidadLogic"},
+            {"id": 4, "ref": "ELECTRICIDAD_PROYECTO_COMPLEJO", "cls": "ElectricidadLogic"},
+            {"id": 5, "ref": "ELECTRICIDAD_INFORME_TECNICO", "cls": "ElectricidadLogic"},
+            {"id": 6, "ref": "ELECTRICIDAD_INFORME_EJECUTIVO", "cls": "ElectricidadLogic"}
+        ]
+        
+        for mapping in ralf_mappings:
+            doc_type = mapping["id"]
+            template_ref = mapping["ref"]
+            
+            config = session.query(PiliTemplateConfig).filter_by(service_id=service.id, document_type_id=doc_type).first()
+            if not config:
+                config = PiliTemplateConfig(
+                    service_id=service.id,
+                    document_type_id=doc_type,
+                    template_ref=template_ref,
+                    logic_class=mapping["cls"],
+                    css_ref="style.css"
+                )
+                session.add(config)
+                print(f"   ✅ Regla Agregada: {template_ref} -> ID {doc_type}")
+            else:
+                config.template_ref = template_ref
+                print(f"   ℹ️ Regla Actualizada: {template_ref}")
             
         # 3. Items (Data for the test)
         items_data = [

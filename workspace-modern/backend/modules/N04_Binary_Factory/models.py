@@ -7,7 +7,7 @@ from typing import List, Optional, Dict, Any, Union
 
 class Header(BaseModel):
     user_id: str
-    service_id: int = Field(..., ge=1, le=10, description="Service ID 1-10")
+    service_id: int = Field(..., ge=1, le=100, description="Service ID 1-100")
     document_type: Union[int, str] = Field(..., description="Document Type ID (1-6) or Template Name")
 
 class Branding(BaseModel):

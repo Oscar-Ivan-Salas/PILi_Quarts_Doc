@@ -176,29 +176,77 @@ class BaseDocumentGenerator:
     
     def _agregar_footer_basico(self):
         """Agrega pie de página básico"""
+        section = self.doc.sections[0]
+        footer = section.footer
+        paragraph = footer.paragraphs[0]
+        paragraph.clear()
+        
+        # Border top for footer
+        # p = footer.add_paragraph()
+        # p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        
+        text = "TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C. | RUC: 20601138787 | Tel: 906 315 961"
+        run = paragraph.add_run(text)
+        run.font.size = Pt(8)
+        run.font.color.rgb = RGBColor(107, 114, 128)
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        
+        # Page Number (Simple simulation)
+        # paragraph.add_run(" | Pág. ")
+        # In python-docx, page numbers are complex xml fields. Skipping for now to avoid corruption.
+
+    def _agregar_firma_ingenieria(self):
+        """Agrega bloque de firmas de ingeniería"""
+        self.doc.add_paragraph()
+        self.doc.add_paragraph()
         self.doc.add_paragraph()
         
-        p_footer = self.doc.add_paragraph()
-        p_footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p_footer.add_run('TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.')
-        run.font.size = Pt(10)
-        run.font.bold = True
-        run.font.color.rgb = self.COLOR_PRIMARIO
+        table = self.doc.add_table(rows=1, cols=2)
+        table.autofit = False
+        table.allow_autofit = False
         
-        contacto = [
-            'RUC: 20601138787 | Teléfono: 906 315 961',
-            'Email: ingenieria.teslaelectricidad@gmail.com',
-            'Jr. Las Ágatas Mz B Lote 09, Urb. San Carlos, SJL'
-        ]
+        # Firma 1: Elaborado por
+        cell_1 = table.rows[0].cells[0]
+        cell_1.width = Inches(3.0)
+        p1 = cell_1.paragraphs[0]
+        p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run_line1 = p1.add_run('___________________________\n')
+        run_line1.font.bold = True
+        run_name1 = p1.add_run('ELABORADO POR\n')
+        run_name1.font.size = Pt(8)
+        run_name1.font.bold = True
+        p1.add_run('Ingeniero Residente\nCIP: XXXXXX').font.size = Pt(8)
         
-        for linea in contacto:
-            p = self.doc.add_paragraph(linea)
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.runs[0].font.size = Pt(8)
-            p.runs[0].font.color.rgb = RGBColor(107, 114, 128)
-    
+        # Firma 2: Revisado por (Oscar Salas)
+        cell_2 = table.rows[0].cells[1]
+        cell_2.width = Inches(3.0)
+        p2 = cell_2.paragraphs[0]
+        p2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run_line2 = p2.add_run('___________________________\n')
+        run_line2.font.bold = True
+        run_name2 = p2.add_run('REVISADO POR\n')
+        run_name2.font.size = Pt(8)
+        run_name2.font.bold = True
+        run_sign = p2.add_run('ING. OSCAR IVAN SALAS\n')
+        run_sign.font.size = Pt(9)
+        run_sign.font.bold = True
+        run_sign.font.color.rgb = self.COLOR_PRIMARIO
+        p2.add_run('Jefe de Proyectos\nCIP: 254890').font.size = Pt(8)
+
+        self.doc.add_paragraph()
+
+    def _configurar_margenes_apa(self):
+        """Configura márgenes APA (1 pulgada = 2.54 cm)"""
+        sections = self.doc.sections
+        for section in sections:
+            section.top_margin = Inches(1.0)
+            section.bottom_margin = Inches(1.0)
+            section.left_margin = Inches(1.0)
+            section.right_margin = Inches(1.0)
+
     def generar(self, ruta_salida):
         """
         Método abstracto - debe ser implementado por clases hijas
         """
         raise NotImplementedError("Subclases deben implementar generar()")
+

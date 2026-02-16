@@ -6,8 +6,8 @@ from pathlib import Path
 from pydantic import ValidationError
 from .models import BinaryFactoryInput
 from .excel_generator import generate_excel_document  # Assuming this exists or will be refactored
-# from .word_generator import generate_word_document # Future
-# from .pdf_generator import generate_pdf_document # Future
+# from .word_generator import generate_word_document # Dynamic Import
+# from .pdf_generator import generate_pdf_document # Dynamic Import
 
 logger = logging.getLogger("N04_Binary_Factory")
 
@@ -32,22 +32,14 @@ class BinaryFactory:
 
             logger.info(f"🏭 Processing Request: DocType {header.document_type} | Service {header.service_id} | Format {output_format}")
 
-            # 3. Despacho (Factory Pattern)
+            # 3. Despacho (Factory Pattern) - FORCE V10 ENGINE RECALL
+            # Bypass _generate_universal_* methods to enforce Strict Naming and V10 Layouts
             if output_format == "XLSX":
-                if isinstance(header.document_type, str):
-                    return self._generate_universal_excel(header.document_type, branding, payload, header)
-                else:
-                    return self._generate_excel(header, branding, payload)
+                return self._generate_excel(header, branding, payload)
             elif output_format == "DOCX":
-                 if isinstance(header.document_type, str):
-                    return self._generate_universal_word(header.document_type, branding, payload, header)
-                 else:
-                    return self._generate_word(header, branding, payload)
+                return self._generate_word(header, branding, payload)
             elif output_format == "PDF":
-                 if isinstance(header.document_type, str):
-                    return self._generate_universal_pdf(header.document_type, branding, payload, header)
-                 else:
-                    return self._generate_pdf(header, branding, payload)
+                return self._generate_pdf(header, branding, payload)
             
             return {"success": False, "error": "Unsupported format"}
 
@@ -413,12 +405,8 @@ class BinaryFactory:
             
             return result
             
-        except Exception as e:
-            logger.error(f"Excel Generation Failed: {e}", exc_info=True)
-            return {"success": False, "error": str(e)}
-
     def _generate_word(self, header, branding, payload):
-        """Delegates to HTML-to-Word Generator Strategy"""
+        """Delegates to HTML-to-Word Generator Strategy (The 'Black Box' - HTML Fidelity)"""
         try:
             from .html_to_word_generator import html_to_word_generator
             
@@ -440,7 +428,7 @@ class BinaryFactory:
             
             mode = doc_type_map.get(header.document_type)
             if not mode:
-                # If checking string contained inside?
+                # String check fallback
                 str_type = str(header.document_type)
                 if "COTIZACION_SIMPLE" in str_type: mode = "cotizacion_simple"
                 elif "COT_COMPLEJA" in str_type or "COTIZACION_COMPLEJA" in str_type: mode = "cotizacion_compleja"
@@ -451,8 +439,8 @@ class BinaryFactory:
                 else:
                     return {"success": False, "error": f"No HTML template mapping for {header.document_type}"}
 
-            # Prepare Input Data (Flatten payload + Header + Branding)
-            # The HTML generator expects a flat dict with specific keys or structured 'items'
+            # Prepare Input Data for HTML Injection
+            # Flatten payload for Jinja2/BeautifulSoup
             input_data = {
                 "numero": f"DOC-{header.user_id}-{header.service_id}",
                 "cliente": payload.client_info,
@@ -463,32 +451,57 @@ class BinaryFactory:
                 "subtotal": payload.totals.get("subtotal", 0),
                 "igv": payload.totals.get("igv", 0),
                 "total": payload.totals.get("total", 0),
-                "branding_color": branding.color_hex
+                "branding_color": branding.color_hex,
+                "technical_notes": payload.technical_notes,
+                "user_id": header.user_id
             }
             
-            # Dispatch
-            if mode == "cotizacion_simple":
-                path = html_to_word_generator.generar_cotizacion_simple(input_data)
-            elif mode == "cotizacion_compleja":
-                path = html_to_word_generator.generar_cotizacion_compleja(input_data)
-            elif mode == "proyecto_simple":
-                path = html_to_word_generator.generar_proyecto_simple(input_data)
-            elif mode == "proyecto_complejo":
-                path = html_to_word_generator.generar_proyecto_complejo(input_data)
-            elif mode == "informe_tecnico":
-                path = html_to_word_generator.generar_informe_tecnico(input_data)
-            elif mode == "informe_ejecutivo":
-                path = html_to_word_generator.generar_informe_ejecutivo(input_data)
+            # STRICT NAMING CONVENTION: INFORME_TECNICO_0001_TESLA.DOCX
+            type_map = {
+                "1": "COTIZACION_SIMPLE", "2": "COTIZACION_COMPLEJA",
+                "3": "PROYECTO_SIMPLE", "4": "PROYECTO_COMPLEJO",
+                "5": "INFORME_TECNICO", "6": "INFORME_EJECUTIVO",
+                "ELECTRICIDAD_COTIZACION_SIMPLE": "COTIZACION_SIMPLE",
+                "ELECTRICIDAD_COT_COMPLEJA": "COTIZACION_COMPLEJA",
+                "ELECTRICIDAD_PROYECTO_SIMPLE": "PROYECTO_SIMPLE",
+                "ELECTRICIDAD_PROYECTO_COMPLEJO": "PROYECTO_COMPLEJO",
+                "ELECTRICIDAD_INFORME_TECNICO": "INFORME_TECNICO",
+                "ELECTRICIDAD_INFORME_EJECUTIVO": "INFORME_EJECUTIVO"
+            }
+            doc_label = type_map.get(str(header.document_type), f"DOC_{header.document_type}")
+            svc_id_fmt = str(header.service_id).zfill(4)
+            final_name = f"{doc_label}_{svc_id_fmt}_TESLA.docx"
             
-            # Read back file to verify and return B64
+            import tempfile
+            from pathlib import Path
+            tmp_dir = Path(tempfile.gettempdir())
+            output_path = tmp_dir / final_name
+            
+            # Dispatch to HTML-to-Word (The Logic User Built)
+            if mode == "cotizacion_simple":
+                path = html_to_word_generator.generar_cotizacion_simple(input_data, ruta_salida=output_path)
+            elif mode == "cotizacion_compleja":
+                path = html_to_word_generator.generar_cotizacion_compleja(input_data, ruta_salida=output_path)
+            elif mode == "proyecto_simple":
+                path = html_to_word_generator.generar_proyecto_simple(input_data, ruta_salida=output_path)
+            elif mode == "proyecto_complejo":
+                path = html_to_word_generator.generar_proyecto_complejo(input_data, ruta_salida=output_path)
+            elif mode == "informe_tecnico":
+                path = html_to_word_generator.generar_informe_tecnico(input_data, ruta_salida=output_path)
+            elif mode == "informe_ejecutivo":
+                path = html_to_word_generator.generar_informe_ejecutivo(input_data, ruta_salida=output_path)
+            else:
+                 path = html_to_word_generator.generar_cotizacion_simple(input_data, ruta_salida=output_path)
+
+            # Read back file
             with open(path, "rb") as f:
                 b64_data = base64.b64encode(f.read()).decode('utf-8')
                 
             return {
                 "success": True, 
-                "filename": path.name,
+                "filename": final_name,
                 "file_b64": b64_data,
-                "engine": "HTML-to-Word Pro v2.0"
+                "engine": "HTML-to-Word (Restored)"
             }
 
         except Exception as e:
@@ -496,8 +509,67 @@ class BinaryFactory:
             return {"success": False, "error": str(e)}
 
     def _generate_pdf(self, header, branding, payload):
-        # reuse html to word then word to pdf? or stick to not implemented
-        return {"success": False, "error": "PDF Generation Not Implemented Yet"}
+        """Delegates to Playwright PDF Strategy (The HTML Mirror)"""
+        try:
+            # We must use the HTML -> PDF generator (Playwright) as originally intended
+            # This logic captures the exact HTML look.
+            from .generators.html_to_pdf_generator import generate_pdf_playwright
+            
+            input_data = {
+                "numero": f"DOC-{header.user_id}-{header.service_id}",
+                "cliente": payload.client_info.get("nombre", "Cliente"),
+                "fecha": payload.client_info.get("fecha", ""),
+                "items": payload.items,
+                "subtotal": payload.totals.get("subtotal", 0),
+                "igv": payload.totals.get("igv", 0),
+                "total": payload.totals.get("total", 0),
+                "branding": {
+                    "logo_b64": branding.logo_b64,
+                    "color": branding.color_hex
+                },
+                "document_type": header.document_type,
+                "technical_notes": payload.technical_notes,
+                "client_info": payload.client_info # Pass full info
+            }
+            
+            # STRICT NAMING CONVENTION
+            type_map = {
+                "1": "COTIZACION_SIMPLE", "2": "COTIZACION_COMPLEJA",
+                "3": "PROYECTO_SIMPLE", "4": "PROYECTO_COMPLEJO",
+                "5": "INFORME_TECNICO", "6": "INFORME_EJECUTIVO",
+                "ELECTRICIDAD_COTIZACION_SIMPLE": "COTIZACION_SIMPLE",
+                "ELECTRICIDAD_COT_COMPLEJA": "COTIZACION_COMPLEJA",
+                "ELECTRICIDAD_PROYECTO_SIMPLE": "PROYECTO_SIMPLE",
+                "ELECTRICIDAD_PROYECTO_COMPLEJO": "PROYECTO_COMPLEJO",
+                "ELECTRICIDAD_INFORME_TECNICO": "INFORME_TECNICO",
+                "ELECTRICIDAD_INFORME_EJECUTIVO": "INFORME_EJECUTIVO"
+            }
+            doc_label = type_map.get(str(header.document_type), f"DOC_{header.document_type}")
+            svc_id_fmt = str(header.service_id).zfill(4)
+            final_name = f"{doc_label}_{svc_id_fmt}_TESLA.pdf"
+            
+            import tempfile
+            from pathlib import Path
+            tmp_dir = Path(tempfile.gettempdir())
+            output_path = tmp_dir / final_name
+            
+            # Execute Generator
+            path = generate_pdf_playwright(input_data, output_path)
+            
+            # Read and return B64
+            with open(path, "rb") as f:
+                b64_data = base64.b64encode(f.read()).decode('utf-8')
+                
+            return {
+                "success": True, 
+                "filename": final_name,
+                "file_b64": b64_data,
+                "engine": "Playwright V10 (HTML Mirror)"
+            }
+
+        except Exception as e:
+            logger.error(f"Playwright PDF Generation Failed: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
 
 # Singleton Instance
 binary_factory = BinaryFactory()

@@ -66,6 +66,21 @@ class IntegratorNode:
             
             logger.info(f"🔄 N06 Dispatch Initiated: {service_key} -> DocType {doc_type_id}")
 
+            # 🌟 V10 MIRROR PROTOCOL INTERCEPTOR 🌟
+            if request.get("action") == "generate_matrix_v10":
+                logger.info("⚡ V10 Matrix Protocol Activated.")
+                # The payload has 'data': {user_id, client_id, project_id}
+                # We need to construct a FULL N04 Payload.
+                # Simplification: We will use N02 with a dummy service request if needed, 
+                # OR if 'data' contains enough info, we use it.
+                # Since N02 Enrichment is powerful, we should use it.
+                # We force service_key="ELECTRICIDAD" if not provided.
+                if not service_key: 
+                    service_key = request.get("service", "ELECTRICIDAD")
+                
+                # Proceed to N02 enrichment as normal, but enforce N04 Dispatch flags
+                pass
+
             # 2. Enrichment (N02 Call)
             t0 = time.time()
             n02_response = logic_node.process_intention({

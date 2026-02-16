@@ -199,6 +199,7 @@ class InformeTecnicoGenerator(BaseDocumentGenerator):
         self._agregar_resultados()
         self._agregar_conclusiones()
         self._agregar_recomendaciones()
+        self._agregar_firma_ingenieria() # ✅ ADDED SIGNATURE BLOCK
         self._agregar_footer_basico()
         
         self.doc.save(str(ruta_salida))

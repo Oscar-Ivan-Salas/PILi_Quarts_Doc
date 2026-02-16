@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotización Compleja - Ing. Carlos Tovar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+            padding: 40px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 82, 163, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0052A3 0%, #1E40AF 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header .agente {
+            font-size: 15px;
+            opacity: 0.95;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .titulo-seccion {
+            color: #0052A3;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 30px 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 4px solid #3B82F6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-basica {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .campo label {
+            font-weight: 700;
+            color: #1E40AF;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .campo-valor {
+            padding: 10px 0;
+            border-bottom: 2px solid #bfdbfe;
+            font-size: 16px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+            box-shadow: 0 6px 16px rgba(0, 82, 163, 0.12);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .items-table thead th {
+            background: linear-gradient(135deg, #0052A3 0%, #1E40AF 100%);
+            color: white;
+            padding: 18px 14px;
+            text-align: left;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .items-table tbody tr:nth-child(even) {
+            background: #f0f9ff;
+        }
+
+        .items-table tbody td {
+            padding: 14px;
+            border-bottom: 1px solid #dbeafe;
+            color: #334155;
+        }
+
+        .items-table .cantidad,
+        .items-table .precio,
+        .items-table .total,
+        .items-table .dias {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .total-item {
+            color: #0052A3;
+            font-weight: 700;
+        }
+
+        .seccion-avanzada {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border: 2px solid #bfdbfe;
+        }
+
+        .cronograma-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .fase-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #bfdbfe;
+        }
+
+        .fase-item h4 {
+            color: #1E40AF;
+            font-weight: 800;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .fase-dias {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .garantias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .garantia-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #bfdbfe;
+        }
+
+        .garantia-item h4 {
+            color: #1E40AF;
+            font-weight: 800;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .garantia-item p {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .totales {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 25px;
+            border: 3px solid #3B82F6;
+            margin-left: auto;
+            width: 450px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .total-row.igv {
+            border-top: 2px solid #93c5fd;
+            margin-top: 10px;
+            padding-top: 15px;
+        }
+
+        .total-row.final {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 24px;
+            font-weight: 900;
+            color: #0052A3;
+            border: 3px solid #1E40AF;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+            font-size: 13px;
+            border-top: 3px solid #e2e8f0;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ TESLA ELECTRICIDAD Y AUTOMATIZACIÓN</h1>
+            <p class="agente">🤖 Generado por Ing. Carlos Tovar - Cotización Compleja</p>
+        </div>
+        <div class="content">
+            <h2 class="titulo-seccion">📋 COTIZACIÓN DE PROYECTO</h2>
+            <div class="info-basica">
+                <div class="campo"><label>👤 Cliente</label>
+                    <div class="campo-valor">Minera Chinalco S.A.</div>
+                </div>
+                <div class="campo"><label>📁 Proyecto</label>
+                    <div class="campo-valor">Mantenimiento de Subestación 220kV</div>
+                </div>
+                <div class="campo"><label>📅 Fecha</label>
+                    <div class="campo-valor">14/02/2026</div>
+                </div>
+                <div class="campo"><label>🔢 Código</label>
+                    <div class="campo-valor">COT-2025-001</div>
+                </div>
+            </div>
+
+            <h2 class="titulo-seccion">📦 Detalle de Items</h2>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">📋 Descripción</th>
+                        <th style="width: 12%">🔢 Cant</th>
+                        <th style="width: 10%">📏 Und</th>
+                        <th style="width: 15%">💰 Precio</th>
+                        <th style="width: 10%">⏱️ Días</th>
+                        <th style="width: 13%">💵 Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td>Tablero Eléctrico Auto-Soportado</td>
+                        <td class="cantidad">1</td>
+                        <td>UND</td>
+                        <td class="precio">S/ 8500.00</td>
+                        <td class="dias">10</td>
+                        <td class="total total-item">S/ 8500.00</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Cable N2XOH 3x50mm2 + 1x25mm2</td>
+                        <td class="cantidad">150</td>
+                        <td>MTS</td>
+                        <td class="precio">S/ 45.00</td>
+                        <td class="dias">2</td>
+                        <td class="total total-item">S/ 6750.00</td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+
+            <h2 class="titulo-seccion">💼 Condiciones Comerciales</h2>
+            <div class="seccion-avanzada">
+                <div class="info-basica">
+                    <div class="campo"><label>💳 Términos de Pago</label>
+                        <div class="campo-valor">30 días</div>
+                    </div>
+                    <div class="campo"><label>📅 Vigencia Oferta</label>
+                        <div class="campo-valor">15 días</div>
+                    </div>
+                </div>
+                <div class="campo" style="margin-top: 15px;"><label>📝 Condiciones Adicionales</label>
+                    <div class="campo-valor" style="border:none; background: #fff; padding: 15px; border-radius: 8px;">
+                        Incluye transporte y viáticos. No incluye IGV.</div>
+                </div>
+            </div>
+
+            
+            <h2 class="titulo-seccion">📅 Cronograma de Ejecución</h2>
+            <div class="seccion-avanzada">
+                <div class="cronograma-grid">
+                    
+                    <div class="fase-item">
+                        <h4>Ingeniería de Detalle</h4>
+                        <!-- Handle simple string or dict -->
+                        <div class="fase-dias">10 días</div>
+                    </div>
+                    
+                    <div class="fase-item">
+                        <h4>Procura de Equipos</h4>
+                        <!-- Handle simple string or dict -->
+                        <div class="fase-dias">20 días</div>
+                    </div>
+                    
+                    <div class="fase-item">
+                        <h4>Montaje Electromecánico</h4>
+                        <!-- Handle simple string or dict -->
+                        <div class="fase-dias">15 días</div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+
+            <h2 class="titulo-seccion">🛡️ Garantías</h2>
+            <div class="seccion-avanzada">
+                <div class="garantias-grid">
+                    <div class="garantia-item">
+                        <h4>🔧 Garantía de Materiales</h4>
+                        <p>12 meses contra defectos de fabricación.</p>
+                    </div>
+                    <div class="garantia-item">
+                        <h4>👷 Garantía de Mano de Obra</h4>
+                        <p>6 meses contra defectos de ejecución.</p>
+                    </div>
+                    <div class="garantia-item">
+                        <h4>📞 Soporte Técnico</h4>
+                        <p>Soporte técnico telefónico y visitas.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="totales">
+                <div class="total-row"><span>💰 Subtotal:</span><span>S/ 10000.00</span></div>
+                <div class="total-row igv"><span>📋 IGV (18%):</span><span>S/ 1800.00</span></div>
+                <div class="total-row final"><span>🏆 TOTAL:</span><span>S/ 11800.00</span></div>
+            </div>
+
+            <div class="footer">
+                <strong>Tesla Electricidad y Automatización S.A.C.</strong><br>
+                RUC: 20601138787 | Huancayo, Junín, Perú<br>
+                Documento generado por Ing. Carlos Tovar v3.0 | 14/02/2026
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
