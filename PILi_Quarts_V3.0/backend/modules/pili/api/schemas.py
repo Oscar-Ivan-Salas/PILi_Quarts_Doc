@@ -4,7 +4,7 @@ Enterprise-grade request/response validation
 Following api-patterns and clean-code skills
 """
 from pydantic import BaseModel, Field, validator
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, List, Any, Union
 from datetime import datetime
 from uuid import UUID
 

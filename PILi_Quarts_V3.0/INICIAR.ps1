@@ -3,12 +3,12 @@
 
 ## ✅ PASO 1: BACKEND (Terminal 1)
 
-cd e:\PILi_Quarts\workspace-modern\backend
+Set-Location "e:\PILi_Quarts\PILi_Quarts_V3.0\backend"
 uvicorn app.main:app --host 0.0.0.0 --port 8005 --reload
 
 ## ✅ PASO 2: FRONTEND (Terminal 2)
 
-cd e:\PILi_Quarts\workspace-modern\frontend
+Set-Location "e:\PILi_Quarts\PILi_Quarts_V3.0\frontend"
 npm run dev
 
 ## 🔍 VERIFICACIÓN
@@ -29,9 +29,9 @@ Get-Process -Id (Get-NetTCPConnection -LocalPort 3010, 8005 -ErrorAction Silentl
 ## 🧹 LIMPIAR CACHÉ (Si hay problemas)
 
 # Frontend
-cd e:\PILi_Quarts\workspace-modern\frontend
+Set-Location "e:\PILi_Quarts\PILi_Quarts_V3.0\frontend"
 Remove-Item -Recurse -Force node_modules\.vite -ErrorAction SilentlyContinue
 
 # Backend
-cd e:\PILi_Quarts\workspace-modern\backend
+Set-Location "e:\PILi_Quarts\PILi_Quarts_V3.0\backend"
 Get-ChildItem -Path . -Filter __pycache__ -Recurse -Directory -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force

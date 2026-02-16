@@ -515,6 +515,46 @@ class BinaryFactory:
             # This logic captures the exact HTML look.
             from .generators.html_to_pdf_generator import generate_pdf_playwright
             
+            # STRICT NAMING CONVENTION
+            type_map = {
+                "1": "ELECTRICIDAD_COTIZACION_SIMPLE", "2": "ELECTRICIDAD_COT_COMPLEJA",
+                "3": "ELECTRICIDAD_PROYECTO_SIMPLE", "4": "ELECTRICIDAD_PROYECTO_COMPLEJO",
+                "5": "ELECTRICIDAD_INFORME_TECNICO", "6": "ELECTRICIDAD_INFORME_EJECUTIVO",
+                "ELECTRICIDAD_COTIZACION_SIMPLE": "ELECTRICIDAD_COTIZACION_SIMPLE",
+                "ELECTRICIDAD_COT_COMPLEJA": "ELECTRICIDAD_COT_COMPLEJA",
+                "ELECTRICIDAD_PROYECTO_SIMPLE": "ELECTRICIDAD_PROYECTO_SIMPLE",
+                "ELECTRICIDAD_PROYECTO_COMPLEJO": "ELECTRICIDAD_PROYECTO_COMPLEJO",
+                "ELECTRICIDAD_INFORME_TECNICO": "ELECTRICIDAD_INFORME_TECNICO",
+                "ELECTRICIDAD_INFORME_EJECUTIVO": "ELECTRICIDAD_INFORME_EJECUTIVO"
+            }
+            
+            # Determine Template Folder Name
+            doc_type_str = str(header.document_type)
+            template_folder = type_map.get(doc_type_str)
+            
+            if not template_folder:
+                 # Fallback logic for keys like "COTIZACION_SIMPLE" (without prefix)
+                 if "COTIZACION_SIMPLE" in doc_type_str: template_folder = "ELECTRICIDAD_COTIZACION_SIMPLE"
+                 elif "COT_COMPLEJA" in doc_type_str: template_folder = "ELECTRICIDAD_COT_COMPLEJA"
+                 elif "PROYECTO_SIMPLE" in doc_type_str: template_folder = "ELECTRICIDAD_PROYECTO_SIMPLE"
+                 elif "PROYECTO_COMPLEJO" in doc_type_str: template_folder = "ELECTRICIDAD_PROYECTO_COMPLEJO"
+                 elif "INFORME_TECNICO" in doc_type_str: template_folder = "ELECTRICIDAD_INFORME_TECNICO"
+                 elif "INFORME_EJECUTIVO" in doc_type_str: template_folder = "ELECTRICIDAD_INFORME_EJECUTIVO"
+                 else:
+                     template_folder = "ELECTRICIDAD_COTIZACION_SIMPLE" # Ultimate Fallback
+
+            # Resolve Layout Path
+            # modules/N04_Binary_Factory/templates/{FOLDER}/html/layout.html
+            base_templates_dir = Path(__file__).parent / "templates"
+            template_path = base_templates_dir / template_folder / "html" / "layout.html"
+            
+            if not template_path.exists():
+                logger.warning(f"Template not found: {template_path}. Trying generic fallback.")
+                # Try simple quote as fallback if specific one missing
+                template_path = base_templates_dir / "ELECTRICIDAD_COTIZACION_SIMPLE" / "html" / "layout.html"
+
+            logger.info(f"📄 PDF Generation using Template: {template_path}")
+
             input_data = {
                 "numero": f"DOC-{header.user_id}-{header.service_id}",
                 "cliente": payload.client_info.get("nombre", "Cliente"),
@@ -529,32 +569,20 @@ class BinaryFactory:
                 },
                 "document_type": header.document_type,
                 "technical_notes": payload.technical_notes,
-                "client_info": payload.client_info # Pass full info
+                "client_info": payload.client_info, # Pass full info
+                "totals": payload.totals # Ensure totals dict is passed correctly
             }
             
-            # STRICT NAMING CONVENTION
-            type_map = {
-                "1": "COTIZACION_SIMPLE", "2": "COTIZACION_COMPLEJA",
-                "3": "PROYECTO_SIMPLE", "4": "PROYECTO_COMPLEJO",
-                "5": "INFORME_TECNICO", "6": "INFORME_EJECUTIVO",
-                "ELECTRICIDAD_COTIZACION_SIMPLE": "COTIZACION_SIMPLE",
-                "ELECTRICIDAD_COT_COMPLEJA": "COTIZACION_COMPLEJA",
-                "ELECTRICIDAD_PROYECTO_SIMPLE": "PROYECTO_SIMPLE",
-                "ELECTRICIDAD_PROYECTO_COMPLEJO": "PROYECTO_COMPLEJO",
-                "ELECTRICIDAD_INFORME_TECNICO": "INFORME_TECNICO",
-                "ELECTRICIDAD_INFORME_EJECUTIVO": "INFORME_EJECUTIVO"
-            }
-            doc_label = type_map.get(str(header.document_type), f"DOC_{header.document_type}")
+            doc_label = template_folder.replace("ELECTRICIDAD_", "")
             svc_id_fmt = str(header.service_id).zfill(4)
             final_name = f"{doc_label}_{svc_id_fmt}_TESLA.pdf"
             
             import tempfile
-            from pathlib import Path
             tmp_dir = Path(tempfile.gettempdir())
             output_path = tmp_dir / final_name
             
-            # Execute Generator
-            path = generate_pdf_playwright(input_data, output_path)
+            # Execute Generator with Explicit Template Path
+            path = generate_pdf_playwright(input_data, str(output_path), template_path=str(template_path))
             
             # Read and return B64
             with open(path, "rb") as f:

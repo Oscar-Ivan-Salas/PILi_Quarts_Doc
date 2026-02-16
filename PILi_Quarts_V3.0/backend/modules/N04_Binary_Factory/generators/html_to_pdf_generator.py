@@ -18,9 +18,11 @@ def generate_pdf_playwright(data: dict, output_path: str, template_path: str = N
     try:
         # 1. Resolve Template Path
         if not template_path:
-            # Fallback to the specific template requested by User
-            base_doc_path = Path(r"e:\PILi_Quarts\workspace-modern\DOCUMENTOS PILi\Cómo generar documentos HTML a Excel con Python")
-            template_path = base_doc_path / "PLANTILLA_HTML_COTIZACION_COMPLEJA.html"
+            # Fallback to default template (Relative Path)
+            # generators/ -> N04_Binary_Factory/ -> templates/
+            base_factory_path = Path(__file__).parent.parent
+            template_path = base_factory_path / "templates" / "ELECTRICIDAD_COTIZACION_SIMPLE" / "html" / "layout.html"
+            logger.warning(f"⚠️ No template path provided. Using default fallback: {template_path}")
             
         if not os.path.exists(template_path):
             raise FileNotFoundError(f"HTML Template not found: {template_path}")
