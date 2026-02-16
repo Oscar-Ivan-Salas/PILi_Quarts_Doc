@@ -140,8 +140,8 @@ class GenerateDocumentRequest(BaseModel):
     """
     Request to generate a document from a project state.
     """
-    user_id: UUID = Field(..., description="User ID requesting generation")
-    project_id: str = Field(..., description="Project ID to generate document for")
+    user_id: Union[str, int, UUID] = Field(..., description="User ID requesting generation")
+    project_id: Union[str, int, UUID] = Field(..., description="Project ID to generate document for")
     format: str = Field("docx", description="Output format (docx, pdf)")
     options: Optional[Dict[str, Any]] = Field(None, description="Customization options")
     data: Optional[Dict[str, Any]] = Field(None, description="Optional state data override")

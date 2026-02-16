@@ -4,7 +4,12 @@ API Router para Generación Unificada de Documentos
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
+import logging
+from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, Depends
+from database.sqlite_config import get_db
+from database.models_sqlite import Document
 
 # from app.services.pdf_generator import PDFGenerator
 # from app.services.excel_generator_complete import ExcelGeneratorComplete
@@ -152,6 +157,23 @@ async def get_supported_formats(document_type: str):
         "formats": ["html", "docx", "pdf", "xlsx"]
     }
 
+
+@router.get("/", response_model=List[Any])
+@router.get("", response_model=List[Any])
+async def get_documents(
+    user_id: str,
+    type: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Get all documents for a user.
+    Restored from legacy router.
+    """
+    from database.models_sqlite import Document
+    query = db.query(Document).filter(Document.user_id == user_id)
+    if type:
+        query = query.filter(Document.type.contains(type))
+    return query.all()
 
 @router.get("/types")
 async def get_document_types():
