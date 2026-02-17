@@ -3,88 +3,142 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  :root {
+    --tesla-blue: #0052A3;
+    --tesla-blue-glow: rgba(0, 82, 163, 0.4);
+    --quarts-gold: #D4AF37;
+    --obsidian: #030712;
+    --studio-surface: #0a0a0f;
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-background: rgba(3, 7, 18, 0.6);
   }
 
   body {
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    @apply bg-[#030712] text-white overflow-hidden;
+    @apply bg-[#030712] text-white overflow-hidden selection:bg-[#0052A3] selection:text-white;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 
-  /* Magnificent Dark Theme - Studio v4.0 */
-  html.dark {
-    @apply bg-[#030712] text-white;
-    --color-tesla-blue: #0052A3;
-    --color-tesla-blue-glow: rgba(0, 82, 163, 0.4);
-    --color-quarts-gold: #D4AF37;
-    --studio-surface: #0a0a0f;
-    --studio-border: rgba(255, 255, 255, 0.05);
-  }
-
-  /* Glassmorphism Ultra-High-End */
-  .studio-glass {
-    @apply backdrop-blur-[40px] bg-[#030712]/60 border-white/5;
-  }
-
-  .floating-a4 {
-    box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.9),
-      0 0 1px 1px rgba(255, 255, 255, 0.03);
-    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .floating-a4:hover {
-    transform: translateY(-8px) scale(1.01) rotateX(1deg);
-    box-shadow: 0 60px 120px -30px rgba(0, 0, 0, 1);
+  /* Cinematic Stage Lighting */
+  body::before {
+    content: "";
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 120%;
+    height: 120%;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(0, 82, 163, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
   }
 }
 
 @layer components {
 
-  /* Custom Scrollbar Studio */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+  /* High-End Glassmorphism */
+  .studio-glass {
+    @apply backdrop-blur-[40px] border-white/5;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+    box-shadow:
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.05),
+      0 10px 30px -10px rgba(0, 0, 0, 0.5);
   }
 
-  .custom-scrollbar::-webkit-scrollbar-track {
+  /* 3D Floating Canvas */
+  .floating-a4-container {
+    perspective: 2500px;
+    padding: 100px;
+  }
+
+  .floating-a4 {
+    transform-style: preserve-3d;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow:
+      0 30px 60px -12px rgba(0, 0, 0, 0.8),
+      0 18px 36px -18px rgba(0, 0, 0, 0.9),
+      0 -12px 36px -8px rgba(255, 255, 255, 0.02);
+  }
+
+  .floating-a4::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 40%);
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: -1;
+  }
+
+  /* Cinematic Scanlines */
+  .scanlines {
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+  }
+
+  /* Tech Buttons */
+  .btn-tech {
+    @apply relative px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all overflow-hidden border border-white/10 rounded;
     background: rgba(255, 255, 255, 0.02);
   }
 
+  .btn-tech:hover {
+    @apply border-[#0052A3]/50 text-white;
+    background: rgba(0, 82, 163, 0.1);
+    box-shadow: 0 0 20px rgba(0, 82, 163, 0.2);
+  }
+
+  .btn-tech::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    transition: 0.5s;
+  }
+
+  .btn-tech:hover::before {
+    left: 100%;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #0052A3;
   }
+}
 
-  /* PILI CORE PULSE */
-  .pili-core-pulse {
-    animation: core-pulse 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+/* Animations */
+@keyframes tech-pulse {
+  0% {
+    opacity: 0.3;
   }
 
-  @keyframes core-pulse {
+  50% {
+    opacity: 0.6;
+  }
 
-    0%,
-    100% {
-      transform: scale(1);
-      opacity: 0.8;
-      box-shadow: 0 0 20px rgba(0, 82, 163, 0.2);
-    }
-
-    50% {
-      transform: scale(1.05);
-      opacity: 1;
-      box-shadow: 0 0 40px rgba(0, 82, 163, 0.4);
-    }
+  100% {
+    opacity: 0.3;
   }
 }
 
-/* perspective helper */
-.perspective-2000 {
-  perspective: 2000px;
+.animate-tech-pulse {
+  animation: tech-pulse 2s infinite ease-in-out;
 }

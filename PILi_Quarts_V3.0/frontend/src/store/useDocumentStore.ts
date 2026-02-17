@@ -107,12 +107,26 @@ export interface DocumentData {
     // Additional data (conclusions, recommendations for reports)
     titulo?: string;
     codigo?: string;
+    // Report-specific analytics
     resumen_ejecutivo?: string;
     introduccion?: string;
     analisis_tecnico?: string;
     resultados?: string;
-    conclusiones?: string;
+    conclusiones?: string | string[];
     recomendaciones?: string[];
+    kpis_financieros?: {
+        roi: string;
+        payback: string;
+        tir: string;
+        ahorro_anual: string;
+        ahorro_energetico: string;
+    };
+    kpis_pmi?: {
+        spi: number;
+        cpi: number;
+        progreso_fisico: number;
+        progreso_financiero: number;
+    };
 }
 
 interface DocumentStore {

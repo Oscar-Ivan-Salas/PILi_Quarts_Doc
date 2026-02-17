@@ -66,9 +66,9 @@ export function ChatPanel() {
                 )}
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    className="p-1.5 bg-white/5 hover:bg-white/10 backdrop-blur-sm rounded-lg transition-all"
                 >
-                    <MessageSquare className="w-5 h-5" />
+                    <MessageSquare className="w-4 h-4" />
                 </button>
             </div>
 
@@ -150,19 +150,19 @@ export function ChatPanel() {
                             <button
                                 onClick={handleSend}
                                 disabled={!input.trim() || isLoading || connectionStatus !== 'connected'}
-                                className="px-4 py-2 bg-brand-red text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                                className="px-3 py-2 bg-green-600/90 hover:bg-green-500 backdrop-blur-sm text-white rounded-lg transition-all disabled:opacity-50 flex items-center gap-2"
                             >
                                 {isLoading ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    <Loader2 className="w-4 h-4 animate-spin" />
                                 ) : (
-                                    <Send className="w-5 h-5" />
+                                    <Send className="w-4 h-4" />
                                 )}
                             </button>
                         </div>
                         {messages.length > 0 && (
                             <button
                                 onClick={clearHistory}
-                                className="mt-2 text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                                className="mt-2 text-xs text-gray-500 hover:text-gray-300 transition-colors"
                             >
                                 Limpiar historial
                             </button>

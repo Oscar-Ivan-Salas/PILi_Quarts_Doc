@@ -4,27 +4,35 @@ import { motion } from 'framer-motion'
 import CotizacionEditor from './CotizacionEditor'
 // @ts-ignore
 import CotizacionesView from './workspace/CotizacionesView'
+import ProjectsView from './workspace/ProjectsView'
+import ReportsView from './workspace/ReportsView'
 import { ComplexProjectForm } from './ComplexProjectForm'
-// @ts-ignore
-import EditableCotizacionCompleja from './EditableCotizacionCompleja'
-import EditableCotizacionSimple from './EditableCotizacionSimple'
-// import { SimpleServiceChat } from './pili/SimpleServiceChat'
-// import { AnimatedAIChat } from './ui/AnimatedAIChat'
-import { DocumentPersonalizer, type DocumentConfig } from './pili/DocumentPersonalizer'
+// Eliminados componentes antiguos redundantes
+import { type DocumentConfig } from './pili/DocumentPersonalizer'
+import { FocusPersonalizer } from './pili/FocusPersonalizer'
 import { ShaderAnimation } from './ui/ShaderAnimation'
 import { AdminDashboard } from './AdminDashboard'
+import { QuoteSimple } from './documents/QuoteSimple'
+import { QuoteComplex } from './documents/QuoteComplex'
+import { ProjectSimple } from './documents/ProjectSimple'
+import { ProjectComplex } from './documents/ProjectComplex'
+import { ReportTechnical } from './documents/ReportTechnical'
+import { ReportExecutive } from './documents/ReportExecutive'
 
 import { useState, useEffect } from 'react'
 import { useWorkspaceStore } from '../store/useWorkspaceStore'
-import { ArrowLeft, Maximize2, Minimize2 } from 'lucide-react'
+import { ArrowLeft, Maximize2, Minimize2, Palette, FileText, BarChart3, CheckCircle } from 'lucide-react'
 import { piliApi } from '../services/pili-api'
+import { useDocumentStore } from '../store/useDocumentStore'
 
 export function WorkArea() {
-    const { activeSection } = useWorkspaceStore()
+    const { activeSection, setActiveSection } = useWorkspaceStore()
+    const { setDocumentType, loadDocument, setLogo } = useDocumentStore()
     // UI State for FLOWS
     const [step, setStep] = useState<'form' | 'chat' | 'editor'>('form')
     const [flowData, setFlowData] = useState<any>(null)
     const [isFullscreen, setIsFullscreen] = useState(false)
+    const [isDesigning, setIsDesigning] = useState(false) // Focus Mode State
 
     // Lifted Configuration State (Shared between Personalizer & Preview)
     const [docConfig, setDocConfig] = useState<DocumentConfig>({
@@ -45,8 +53,18 @@ export function WorkArea() {
 
     const handleStartFlow = (data: any) => {
         console.log('Starting Flow with:', data)
-        setFlowData({ ...data, config: docConfig }) // Init with default config
-        setStep('chat') // Start at CHAT (Step 2)
+
+        // Sync with Global Document Store
+        setDocumentType(activeSection as any)
+        loadDocument(data)
+
+        if (data.config?.logo) {
+            setLogo(data.config.logo)
+            setDocConfig(prev => ({ ...prev, logoBase64: data.config.logo }))
+        }
+
+        setFlowData({ ...data, config: docConfig })
+        setStep('chat')
     }
 
     const updateConfig = (newConfig: Partial<DocumentConfig>) => {
@@ -66,10 +84,19 @@ export function WorkArea() {
 
             // Step 1: Configuration Form (The "Universal Start Form")
             if (step === 'form') {
+                // Section Landing Pages (before form)
+                if (activeSection === 'cotizaciones') {
+                    return <CotizacionesView onServiceSelect={(id: string) => setActiveSection(id as any)} />;
+                }
+                if (activeSection === 'proyectos') {
+                    return <ProjectsView onServiceSelect={(id: string) => setActiveSection(id as any)} />;
+                }
+                if (activeSection === 'informes') {
+                    return <ReportsView onServiceSelect={(id: string) => setActiveSection(id as any)} />;
+                }
+
                 return (
                     <div className="relative h-full w-full">
-
-
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full overflow-auto relative z-10">
                             <ComplexProjectForm
                                 onStartChat={handleStartFlow}
@@ -84,36 +111,79 @@ export function WorkArea() {
             // Step 2: PILI Chat Interaction + Live Preview + Personalizer (3-Column Layout)
             if (step === 'chat') {
                 return (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full flex flex-col overflow-hidden">
-                        {/* Header for Chat Step */}
-                        <div className="flex-none p-4 bg-gray-900/80 border-b border-gray-800 flex justify-between items-center backdrop-blur-md z-10">
-                            <div className="flex items-center gap-3">
-                                <button onClick={() => setStep('form')} className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-colors">
-                                    <ArrowLeft className="w-5 h-5" />
-                                </button>
-                                <div>
-                                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                                        <span className="bg-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">Paso 2</span>
-                                        Co-Creación con IA
-                                    </h2>
-                                    <p className="text-xs text-gray-400">PILI te ayudará a completar los detalles</p>
-                                </div>
-                            </div>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => setIsFullscreen(!isFullscreen)}
-                                    className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 transition-colors hidden lg:block"
-                                    title="Alternar Vista Completa"
-                                >
-                                    {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                                </button>
-                                <button onClick={() => setStep('editor')} className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg hover:shadow-green-500/20">
-                                    Finalizar Edición →
-                                </button>
-                            </div>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full flex flex-col overflow-hidden relative">
+                        {/* Botones esquina inferior izquierda */}
+                        <div className="absolute bottom-6 left-6 z-20 flex gap-2">
+                            <button onClick={() => setStep('form')} className="p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-xl transition-all shadow-lg">
+                                <ArrowLeft className="w-5 h-5 text-white" />
+                            </button>
+                            <button
+                                onClick={() => setIsFullscreen(!isFullscreen)}
+                                className="p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-xl transition-all shadow-lg"
+                            >
+                                {isFullscreen ? <Minimize2 className="w-5 h-5 text-white" /> : <Maximize2 className="w-5 h-5 text-white" />}
+                            </button>
                         </div>
 
-                        {/* 3-Column Split View Container */}
+                        {/* Botones esquina inferior derecha */}
+                        <div className="absolute bottom-6 right-6 z-20 flex gap-2">
+                            <button
+                                onClick={() => setIsDesigning(true)}
+                                className="px-4 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 rounded-xl font-medium transition-all shadow-lg flex items-center gap-2"
+                            >
+                                <Palette size={18} className="text-green-400" />
+                                Personalizar
+                            </button>
+                            <button onClick={() => setStep('editor')} className="px-6 py-3 bg-green-600 hover:bg-green-500 backdrop-blur-md text-white font-bold rounded-xl transition-all shadow-lg">
+                                Finalizar ✓
+                            </button>
+                        </div>
+
+                        {/* Full Screen Design Overlay (Focus Mode) */}
+                        {isDesigning && (
+                            <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex flex-col items-center justify-center animate-in fade-in duration-500">
+                                <div className="absolute top-8 right-8 z-50">
+                                    <button
+                                        onClick={() => setIsDesigning(false)}
+                                        className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all border border-white/10"
+                                    >
+                                        <Minimize2 size={24} />
+                                    </button>
+                                </div>
+                                <div className="flex-1 w-full overflow-y-auto p-12 flex justify-center custom-scrollbar">
+                                    <div className="bg-white shadow-[0_0_100px_rgba(255,255,255,0.1)] min-h-[297mm] w-[210mm]">
+                                        {/* DOCUMENT TEMPLATE ADAPTER (CLONED FOR FOCUS MODE) */}
+                                        {(() => {
+                                            const commonProps = {
+                                                data: flowData,
+                                                colorScheme: docConfig.esquemaColores as any,
+                                                logo: docConfig.logoBase64,
+                                                font: docConfig.fuenteDocumento,
+                                                onDataChange: (newDatos: any) => setFlowData((prev: any) => ({ ...prev, ...newDatos }))
+                                            };
+
+                                            switch (activeSection) {
+                                                case 'cotizacion-simple': return <QuoteSimple {...commonProps} />;
+                                                case 'cotizacion-compleja': return <QuoteComplex {...commonProps} />;
+                                                case 'proyecto-simple': return <ProjectSimple {...commonProps} />;
+                                                case 'proyecto-complejo': return <ProjectComplex {...commonProps} />;
+                                                case 'informe-simple': return <ReportExecutive {...commonProps} />;
+                                                case 'informe-complejo': return <ReportTechnical {...commonProps} />;
+                                                default: return null;
+                                            }
+                                        })()}
+                                    </div>
+                                </div>
+                                {/* Floating BOTTOM Toolbar */}
+                                <FocusPersonalizer
+                                    config={docConfig}
+                                    onChange={updateConfig}
+                                    onFinalize={() => setIsDesigning(false)}
+                                />
+                            </div>
+                        )}
+
+                        {/* 2-Column Split View Container (Chat + Simple Preview) */}
                         <div className="flex-1 flex overflow-hidden relative">
 
                             {/* LEFT PANEL: Chat (Fixed Width) */}
@@ -126,55 +196,45 @@ export function WorkArea() {
                             </div> */}
 
                             {/* CENTER PANEL: Live Preview (Flex Grow - Centered) */}
-                            <div className="flex-1 bg-gray-800/50 relative overflow-hidden flex flex-col items-center">
-                                <div className="absolute top-0 w-full bg-white/95 backdrop-blur-sm p-2 border-b z-10 flex justify-between items-center px-4 shadow-sm">
-                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
-                                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                        Vista Previa en Tiempo Real
-                                    </span>
-                                </div>
-                                <div className="flex-1 w-full overflow-y-auto p-4 md:p-8 pt-12 custom-scrollbar flex justify-center">
+                            <div className="flex-1 bg-gray-800/20 relative overflow-hidden flex flex-col items-center">
+                                {/* Sin barra superior - documento completamente visible */}
+                                <div className="flex-1 w-full overflow-y-auto p-4 md:p-12 custom-scrollbar flex justify-center">
                                     <div className={`
                                         bg-white shadow-2xl min-h-[297mm] w-[210mm] transition-all origin-top
-                                        ${isFullscreen ? 'scale-100' : 'scale-[0.85]'}
+                                        ${isFullscreen ? 'scale-100' : 'scale-[0.8]'}
                                     `}>
-                                        {activeSection === 'cotizacion-simple' ? (
-                                            <EditableCotizacionSimple
-                                                datos={flowData}
-                                                // Pass synced config props
-                                                esquemaColores={docConfig.esquemaColores}
-                                                logoBase64={docConfig.logoBase64}
-                                                fuenteDocumento={docConfig.fuenteDocumento}
-                                                ocultarIGV={docConfig.ocultarIGV}
-                                                ocultarPreciosUnitarios={docConfig.ocultarPreciosUnitarios}
-                                                ocultarTotalesPorItem={docConfig.ocultarTotalesPorItem}
-                                                onDatosChange={(newDatos: any) => setFlowData({ ...flowData, ...newDatos })}
-                                            />
-                                        ) : (
-                                            <EditableCotizacionCompleja
-                                                datos={{
-                                                    cliente: flowData?.cliente,
-                                                    proyecto: flowData?.proyecto || flowData?.proyecto?.nombre,
-                                                    descripcion_proyecto: flowData?.descripcion_proyecto || flowData?.descripcion,
-                                                    items: flowData?.items || []
-                                                }}
-                                                esquemaColores={docConfig.esquemaColores === 'azul-tesla' ? 'azul' : docConfig.esquemaColores}
-                                            />
-                                        )}
+                                        {/* DOCUMENT TEMPLATE ADAPTER */}
+                                        {(() => {
+                                            const commonProps = {
+                                                data: flowData,
+                                                colorScheme: docConfig.esquemaColores as any,
+                                                logo: docConfig.logoBase64,
+                                                font: docConfig.fuenteDocumento,
+                                                onDataChange: (newDatos: any) => setFlowData((prev: any) => ({ ...prev, ...newDatos }))
+                                            };
+
+                                            switch (activeSection) {
+                                                case 'cotizacion-simple':
+                                                    return <QuoteSimple {...commonProps} />;
+                                                case 'cotizacion-compleja':
+                                                    return <QuoteComplex {...commonProps} />;
+                                                case 'proyecto-simple':
+                                                    return <ProjectSimple {...commonProps} />;
+                                                case 'proyecto-complejo':
+                                                    return <ProjectComplex {...commonProps} />;
+                                                case 'informe-simple':
+                                                    return <ReportExecutive {...commonProps} />;
+                                                case 'informe-complejo':
+                                                    return <ReportTechnical {...commonProps} />;
+                                                default:
+                                                    return <div className="p-8 text-center text-gray-400">Plantilla no disponible para: {activeSection}</div>;
+                                            }
+                                        })()}
                                     </div>
                                 </div>
                             </div>
 
-                            {/* RIGHT PANEL: Customization (Collapsible/Fixed) */}
-                            <div className={`
-                                hidden xl:flex flex-none z-20 transition-all
-                                ${isFullscreen ? 'hidden' : 'w-[320px]'}
-                            `}>
-                                <DocumentPersonalizer
-                                    config={docConfig}
-                                    onChange={updateConfig}
-                                />
-                            </div>
+                            {/* RIGHT SIDEBAR REMOVED FOR BETTER UX */}
 
                         </div>
                     </motion.div>
@@ -185,156 +245,181 @@ export function WorkArea() {
             // Step 3: The "Paper" Editor / Preview (Final Step)
             if (step === 'editor') {
                 return (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full flex flex-col">
-                        <div className="flex items-center justify-between mb-4 bg-gray-900/50 p-4 rounded-xl border border-gray-800">
-                            <div className="flex items-center gap-4">
-                                <button onClick={() => setStep('chat')} className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-                                    <ArrowLeft className="w-5 h-5 text-gray-400" />
-                                </button>
-                                <div>
-                                    <h2 className="text-xl font-bold text-yellow-500">
-                                        {activeSection.includes('informe') ? 'Generando Informe' : 'Vista Previa del Documento'}
-                                    </h2>
-                                    <p className="text-xs text-gray-400">
-                                        {flowData?.cliente?.nombre || 'Nuevo Documento'}
-                                    </p>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full flex flex-col relative overflow-hidden">
+                        {/* Botón Volver - Esquina inferior izquierda */}
+                        <div className="absolute bottom-6 left-6 z-20">
+                            <button onClick={() => setStep('chat')} className="p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-xl transition-all shadow-lg">
+                                <ArrowLeft className="w-5 h-5 text-white" />
+                            </button>
+                        </div>
+
+                        {/* Documento a pantalla completa */}
+                        <div className="flex-1 overflow-auto bg-gray-800/20 p-4 md:p-12 flex justify-center custom-scrollbar">
+                            <div className="transform scale-90 origin-top bg-white shadow-2xl min-h-[297mm]">
+                                {(() => {
+                                    const commonProps = {
+                                        data: flowData,
+                                        colorScheme: docConfig.esquemaColores as any,
+                                        logo: docConfig.logoBase64,
+                                        font: docConfig.fuenteDocumento,
+                                        editable: false,
+                                        onDataChange: (newDatos: any) => setFlowData((prev: any) => ({ ...prev, ...newDatos }))
+                                    };
+
+                                    switch (activeSection) {
+                                        case 'cotizacion-simple':
+                                            return <QuoteSimple {...commonProps} />;
+                                        case 'cotizacion-compleja':
+                                            return <QuoteComplex {...commonProps} />;
+                                        case 'proyecto-simple':
+                                            return <ProjectSimple {...commonProps} />;
+                                        case 'proyecto-complejo':
+                                            return <ProjectComplex {...commonProps} />;
+                                        case 'informe-simple':
+                                            return <ReportExecutive {...commonProps} />;
+                                        case 'informe-complejo':
+                                            return <ReportTechnical {...commonProps} />;
+                                        default:
+                                            return <div className="p-8 text-center text-gray-400">Documento no disponible</div>;
+                                    }
+                                })()}
+                            </div>
+                        </div>
+
+                        {/* Barra inferior minimalista estilo FocusPersonalizer */}
+                        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] animate-in fade-in slide-in-from-bottom-5 duration-500">
+                            <div className="bg-gray-900/80 backdrop-blur-xl border border-white/10 p-4 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-6 px-8">
+                                {/* Indicador de estado */}
+                                <div className="flex items-center gap-3 border-r border-white/10 pr-6">
+                                    <CheckCircle className="w-5 h-5 text-green-500" />
+                                    <div>
+                                        <span className="text-xs font-bold text-white uppercase tracking-wider">Listo</span>
+                                        <p className="text-[10px] text-gray-400">Selecciona formato</p>
+                                    </div>
+                                </div>
+
+                                {/* Botones de descarga */}
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={async () => {
+                                            try {
+                                                const response = await fetch('http://localhost:8005/api/generation/excel', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({
+                                                        title: activeSection || 'Documento',
+                                                        data: flowData,
+                                                        personalizacion: {
+                                                            esquemaColores: docConfig.esquemaColores,
+                                                            logoBase64: docConfig.logoBase64
+                                                        }
+                                                    })
+                                                });
+
+                                                if (response.ok) {
+                                                    const blob = await response.blob();
+                                                    const url = window.URL.createObjectURL(blob);
+                                                    const a = document.createElement('a');
+                                                    a.href = url;
+                                                    a.download = `${activeSection || 'documento'}_${Date.now()}.xlsx`;
+                                                    document.body.appendChild(a);
+                                                    a.click();
+                                                    setTimeout(() => {
+                                                        document.body.removeChild(a);
+                                                        window.URL.revokeObjectURL(url);
+                                                    }, 100);
+                                                } else {
+                                                    alert('Error al generar Excel');
+                                                }
+                                            } catch (e: any) { alert('Error: ' + e.message); }
+                                        }}
+                                        className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-white font-medium transition-all shadow-lg flex items-center gap-2"
+                                    >
+                                        <BarChart3 className="w-4 h-4" />
+                                        Excel
+                                    </button>
+
+                                    <button
+                                        onClick={async () => {
+                                            try {
+                                                const response = await fetch('http://localhost:8005/api/generation/pdf', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({
+                                                        title: activeSection || 'Documento',
+                                                        data: flowData,
+                                                        personalizacion: {
+                                                            esquemaColores: docConfig.esquemaColores,
+                                                            logoBase64: docConfig.logoBase64
+                                                        }
+                                                    })
+                                                });
+
+                                                if (response.ok) {
+                                                    const blob = await response.blob();
+                                                    const url = window.URL.createObjectURL(blob);
+                                                    const a = document.createElement('a');
+                                                    a.href = url;
+                                                    a.download = `${activeSection || 'documento'}_${Date.now()}.pdf`;
+                                                    document.body.appendChild(a);
+                                                    a.click();
+                                                    setTimeout(() => {
+                                                        document.body.removeChild(a);
+                                                        window.URL.revokeObjectURL(url);
+                                                    }, 100);
+                                                } else {
+                                                    alert('Error al generar PDF');
+                                                }
+                                            } catch (e: any) { alert('Error: ' + e.message); }
+                                        }}
+                                        className="px-4 py-2.5 bg-rose-600 hover:bg-rose-500 rounded-xl text-white font-medium transition-all shadow-lg flex items-center gap-2"
+                                    >
+                                        <FileText className="w-4 h-4" />
+                                        PDF
+                                    </button>
+
+                                    <button
+                                        onClick={async () => {
+                                            try {
+                                                const response = await fetch('http://localhost:8005/api/generation/word', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({
+                                                        title: activeSection || 'Documento',
+                                                        data: flowData,
+                                                        doc_type: activeSection,
+                                                        personalizacion: {
+                                                            esquemaColores: docConfig.esquemaColores,
+                                                            logoBase64: docConfig.logoBase64,
+                                                            ocultarIGV: docConfig.ocultarIGV
+                                                        }
+                                                    })
+                                                });
+
+                                                if (response.ok) {
+                                                    const blob = await response.blob();
+                                                    const url = window.URL.createObjectURL(blob);
+                                                    const a = document.createElement('a');
+                                                    a.href = url;
+                                                    a.download = `${activeSection || 'documento'}_${Date.now()}.docx`;
+                                                    document.body.appendChild(a);
+                                                    a.click();
+                                                    setTimeout(() => {
+                                                        document.body.removeChild(a);
+                                                        window.URL.revokeObjectURL(url);
+                                                    }, 100);
+                                                } else {
+                                                    alert('Error al generar Word');
+                                                }
+                                            } catch (e: any) { alert('Error: ' + e.message); }
+                                        }}
+                                        className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-white font-medium transition-all shadow-lg flex items-center gap-2"
+                                    >
+                                        <FileText className="w-4 h-4" />
+                                        Word
+                                    </button>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
-                                <span className="px-3 py-1 bg-green-900/30 text-green-400 border border-green-800 rounded-full text-xs">Conectado a PILi 🧠</span>
-                            </div>
-                        </div>
-
-                        {/* Editor View */}
-                        <div className="flex-1 overflow-auto bg-gray-500/10 rounded-xl border border-gray-800 shadow-inner p-4 flex justify-center custom-scrollbar">
-                            <div className="transform scale-90 origin-top bg-white shadow-2xl min-h-[297mm]">
-                                {activeSection === 'cotizacion-simple' ? (
-                                    <EditableCotizacionSimple
-                                        datos={flowData || {}}
-                                        esquemaColores={docConfig.esquemaColores}
-                                        logoBase64={docConfig.logoBase64}
-                                        fuenteDocumento={docConfig.fuenteDocumento}
-                                        ocultarIGV={docConfig.ocultarIGV}
-                                        ocultarPreciosUnitarios={docConfig.ocultarPreciosUnitarios}
-                                        ocultarTotalesPorItem={docConfig.ocultarTotalesPorItem}
-                                        modoEdicion={true} // Allow final edits
-                                        onDatosChange={(newDatos: any) => setFlowData({ ...flowData, ...newDatos })}
-                                    />
-                                ) : (
-                                    <EditableCotizacionCompleja
-                                        datos={{
-                                            cliente: flowData?.cliente,
-                                            proyecto: flowData?.proyecto || flowData?.proyecto?.nombre,
-                                            descripcion_proyecto: flowData?.descripcion_proyecto || flowData?.descripcion,
-                                            items: flowData?.items || []
-                                        }}
-                                        esquemaColores="azul"
-                                    />
-                                )}
-                            </div>
-                        </div>
-
-                        {/* ✅ PANEL DE ACCIONES FINALES */}
-                        <div className="flex gap-4 p-6 bg-gray-900 border-t border-gray-800 rounded-b-2xl mt-4">
-                            <button
-                                onClick={() => setStep('chat')}
-                                className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold transition-all flex items-center gap-2">
-                                ← Volver al Chat
-                            </button>
-                            <div className="flex-1"></div>
-
-                            <button
-                                onClick={async () => {
-                                    alert('Generación de Excel no implementada en Backend aún');
-                                }}
-                                className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-green-500/20 flex items-center gap-2">
-                                📊 Descargar Excel
-                            </button>
-                            <button
-                                onClick={async () => {
-                                    alert('Generación de PDF no implementada en Backend aún');
-                                }}
-                                className="px-6 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-red-500/20 flex items-center gap-2">
-                                📄 Descargar PDF
-                            </button>
-                            <button
-                                onClick={async () => {
-                                    try {
-                                        // Skill 02 & 09: Execution Hook with Identity
-                                        const response = await piliApi.generateDocument({
-                                            user_id: 'b2289941-d90c-4d48-b8c2-6e3fafe88944', // Seeded User
-                                            project_id: 'default-project-1',             // Seeded Project
-                                            format: 'docx',
-                                            options: {
-                                                esquemaColores: docConfig.esquemaColores,
-                                                logoBase64: docConfig.logoBase64,
-                                                ocultarIGV: docConfig.ocultarIGV
-                                            },
-                                            data: flowData // Send current state (Skill 03 - Active Canvas)
-                                        });
-
-                                        if (response.success && response.download_url) {
-                                            try {
-                                                // Fetch the file as a blob
-                                                const fileResponse = await fetch(response.download_url);
-                                                if (!fileResponse.ok) {
-                                                    throw new Error(`Failed to download: ${fileResponse.statusText}`);
-                                                }
-
-                                                const blob = await fileResponse.blob();
-
-                                                // Create download link with blob URL
-                                                const blobUrl = window.URL.createObjectURL(blob);
-                                                const link = document.createElement('a');
-                                                link.href = blobUrl;
-                                                link.download = response.download_url.split('/').pop() || 'documento.docx';
-
-                                                // Trigger download (browser will show save dialog)
-                                                document.body.appendChild(link);
-                                                link.click();
-
-                                                // Clean up - defer to avoid React error
-                                                setTimeout(() => {
-                                                    if (link.parentNode) {
-                                                        link.parentNode.removeChild(link);
-                                                    }
-                                                    window.URL.revokeObjectURL(blobUrl);
-                                                }, 100);
-
-                                                // Show success notification
-                                                const notification = document.createElement('div');
-                                                notification.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50 max-w-md';
-                                                notification.innerHTML = `
-                                                    <div class="flex items-start gap-3">
-                                                        <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                        </svg>
-                                                        <div>
-                                                            <p class="font-bold">✅ Documento Generado</p>
-                                                            <p class="text-sm mt-1">Descarga iniciada - Elige dónde guardar</p>
-                                                            <p class="text-xs mt-2 opacity-80">Archivo: ${link.download}</p>
-                                                        </div>
-                                                    </div>
-                                                `;
-                                                document.body.appendChild(notification);
-                                                setTimeout(() => notification.remove(), 5000);
-
-                                            } catch (downloadError: any) {
-                                                console.error('Download error:', downloadError);
-                                                alert(`Error descargando archivo: ${downloadError.message}\n\nUbicación del archivo: ${response.file_path}`);
-                                            }
-                                        } else {
-                                            alert('Error: ' + response.message);
-                                        }
-
-                                    } catch (e: any) {
-                                        console.error(e);
-                                        alert('Error generando documento: ' + e.message);
-                                    }
-                                }}
-                                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-blue-500/20 flex items-center gap-2">
-                                📝 Descargar Word
-                            </button>
                         </div>
                     </motion.div>
                 )

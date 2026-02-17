@@ -1,516 +1,265 @@
 /**
  * QuoteSimple - Editable Simple Quote Document
  * 
- * Features:
- * - Itemized table with calculations
- * - Currency selector (PEN, USD, EUR)
- * - Subtotal, IGV, Total calculations
- * - Editable client and project info
- * - Add/remove items dynamically
+ * ALINEACIÓN FIDELIDAD TOTAL: PLANTILLA_HTML_COTIZACION_SIMPLE.html
  */
 import { useState, useEffect } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
-import { useDocumentStore, type DocumentData, type ColorScheme } from '../../store/useDocumentStore';
+import type { DocumentData, ColorScheme } from '../../store/useDocumentStore';
 
 interface QuoteSimpleProps {
     data?: Partial<DocumentData>;
     colorScheme?: ColorScheme;
-    logo?: string | null;
     font?: string;
     onDataChange?: (data: DocumentData) => void;
+    editable?: boolean;
 }
 
-type Currency = 'PEN' | 'USD' | 'EUR';
-
-const CURRENCY_SYMBOLS: Record<Currency, string> = {
-    PEN: 'S/',
-    USD: '$',
-    EUR: '€',
-};
-
 const COLOR_SCHEMES = {
-    'azul-tesla': {
-        primary: '#0052A3',
-        secondary: '#1E40AF',
-        accent: '#3B82F6',
-        light: '#EFF6FF',
-        lightBorder: '#DBEAFE',
-    },
-    'rojo-pili': {
-        primary: '#DC2626',
-        secondary: '#991B1B',
-        accent: '#EF4444',
-        light: '#FEF2F2',
-        lightBorder: '#FECACA',
-    },
-    'amarillo-pili': {
-        primary: '#D97706',
-        secondary: '#B45309',
-        accent: '#F59E0B',
-        light: '#FFFBEB',
-        lightBorder: '#FDE68A',
-    },
+    'azul-tesla': { primary: '#0052A3', secondary: '#1E40AF', accent: '#3B82F6', text: '#1f2937', contrast: '#DBEAFE' },
+    'rojo-pili': { primary: '#DC2626', secondary: '#991B1B', accent: '#EF4444', text: '#1f2937', contrast: '#FEE2E2' },
+    'amarillo-pili': { primary: '#D97706', secondary: '#92400E', accent: '#F59E0B', text: '#1f2937', contrast: '#FEF3C7' },
 };
 
 export function QuoteSimple({
     data,
     colorScheme = 'azul-tesla',
-    logo = null,
     font = 'Calibri',
     onDataChange,
+    editable = false,
 }: QuoteSimpleProps) {
-    const colors = COLOR_SCHEMES[colorScheme];
-    const [currency, setCurrency] = useState<Currency>('PEN');
+    const colors = COLOR_SCHEMES[colorScheme] || COLOR_SCHEMES['azul-tesla'];
 
-    const [editableData, setEditableData] = useState<DocumentData>({
+    const [editableData] = useState<DocumentData>({
         cliente: {
-            nombre: data?.cliente?.nombre || '',
-            ruc: data?.cliente?.ruc || '',
-            direccion: data?.cliente?.direccion || '',
-            telefono: data?.cliente?.telefono || '',
-            email: data?.cliente?.email || '',
+            nombre: data?.cliente?.nombre || 'CLIENTE EJEMPLO S.A.C.',
+            ruc: data?.cliente?.ruc || '20123456789',
+            direccion: data?.cliente?.direccion || 'Av. Los Próceres 456, Surco',
+            telefono: data?.cliente?.telefono || '01 444 5555',
+            email: data?.cliente?.email || 'compras@cliente.com',
         },
         proyecto: {
-            nombre: data?.proyecto?.nombre || '',
-            descripcion: data?.proyecto?.descripcion || '',
-            ubicacion: data?.proyecto?.ubicacion || '',
-            presupuesto: data?.proyecto?.presupuesto || 0,
-            duracion: data?.proyecto?.duracion || 30,
-            fechaInicio: data?.proyecto?.fechaInicio || new Date().toISOString().split('T')[0],
-            fechaFin: data?.proyecto?.fechaFin || '',
+            nombre: data?.proyecto?.nombre || 'SUMINISTRO DE COMPONENTES ELÉCTRICOS',
+            descripcion: data?.proyecto?.descripcion || 'Cotización de materiales según requerimiento.',
+            duracion: data?.proyecto?.duracion || 15, // Días de vigencia
         },
-        profesionales: [],
         suministros: data?.suministros || [
-            {
-                item: '01',
-                descripcion: 'Tablero eléctrico',
-                cantidad: 1,
-                unidad: 'und',
-                precioUnitario: 450,
-                precioTotal: 450,
-            },
+            { item: '01', descripcion: 'Interruptor Termomagnético 3x20A', cantidad: 5, unidad: 'und', precioUnitario: 45, precioTotal: 225 },
+            { item: '02', descripcion: 'Cable Vulcanizado 3x14 AWG x 100m', cantidad: 2, unidad: 'rll', precioUnitario: 350, precioTotal: 700 }
         ],
-        entregables: [],
-    });
+        emisor: {
+            nombre: data?.emisor?.nombre || 'TU EMPRESA S.A.C.',
+            empresa: data?.emisor?.empresa || data?.emisor?.nombre || 'TU EMPRESA S.A.C.',
+            ruc: data?.emisor?.ruc || '00000000000',
+            direccion: data?.emisor?.direccion || 'Tu Dirección, Lima',
+            logo: data?.emisor?.logo || null
+        }
+    } as any);
 
-    // Calculate totals
-    const calculateTotals = () => {
-        const subtotal = editableData.suministros.reduce(
-            (sum, item) => sum + (item.cantidad * item.precioUnitario),
-            0
-        );
-        const igv = subtotal * 0.18;
-        const total = subtotal + igv;
-
-        return {
-            subtotal: subtotal.toFixed(2),
-            igv: igv.toFixed(2),
-            total: total.toFixed(2),
-        };
-    };
-
-    const totals = calculateTotals();
-
-    // Notify parent of changes
     useEffect(() => {
-        onDataChange?.({ ...editableData });
+        onDataChange?.(editableData);
     }, [editableData, onDataChange]);
 
-    // Update item
-    const updateItem = (index: number, field: string, value: any) => {
-        const newSupplies = [...editableData.suministros];
-        newSupplies[index] = {
-            ...newSupplies[index],
-            [field]: field === 'descripcion' || field === 'unidad' ? value : parseFloat(value) || 0,
-        };
+    const subtotal = editableData.suministros.reduce((acc: number, item: any) => acc + (item.precioTotal || 0), 0);
+    const igv = subtotal * 0.18;
+    const total = subtotal + igv;
 
-        // Recalculate total for this item
-        if (field === 'cantidad' || field === 'precioUnitario') {
-            newSupplies[index].precioTotal = newSupplies[index].cantidad * newSupplies[index].precioUnitario;
+    const handleTextChange = (path: string, value: string) => {
+        const newData = { ...editableData };
+        const keys = path.split('.');
+        let current: any = newData;
+        for (let i = 0; i < keys.length - 1; i++) {
+            current = current[keys[i]];
         }
-
-        setEditableData({ ...editableData, suministros: newSupplies });
-    };
-
-    // Add item
-    const addItem = () => {
-        setEditableData({
-            ...editableData,
-            suministros: [
-                ...editableData.suministros,
-                {
-                    item: String(editableData.suministros.length + 1).padStart(2, '0'),
-                    descripcion: '',
-                    cantidad: 1,
-                    unidad: 'und',
-                    precioUnitario: 0,
-                    precioTotal: 0,
-                },
-            ],
-        });
-    };
-
-    // Remove last item
-    const removeLastItem = () => {
-        if (editableData.suministros.length > 1) {
-            setEditableData({
-                ...editableData,
-                suministros: editableData.suministros.slice(0, -1),
-            });
-        }
+        current[keys[keys.length - 1]] = value;
+        onDataChange?.(newData);
     };
 
     return (
-        <div
-            style={{
+        <div style={{ backgroundColor: '#f3f4f6', padding: '40px 0', minHeight: '100vh' }}>
+            <div style={{
                 fontFamily: font,
                 maxWidth: '210mm',
                 margin: '0 auto',
-                padding: '20mm',
                 background: 'white',
-                color: '#1f2937',
-                lineHeight: '1.6',
-            }}
-        >
-            {/* HEADER */}
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginBottom: '30px',
-                    paddingBottom: '20px',
-                    borderBottom: `4px solid ${colors.primary}`,
-                }}
-            >
-                <div style={{ width: '35%' }}>
-                    {logo ? (
-                        <img
-                            src={logo}
-                            alt="Logo"
-                            style={{ width: '180px', height: '80px', objectFit: 'contain', borderRadius: '8px' }}
-                        />
-                    ) : (
-                        <div
-                            style={{
-                                width: '180px',
-                                height: '80px',
-                                background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-                                borderRadius: '8px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'white',
-                                fontWeight: 'bold',
-                                fontSize: '24px',
-                            }}
-                        >
-                            PILi
+                boxShadow: '0 0 20px rgba(0,0,0,0.1)',
+                color: '#1f2937'
+            }}>
+                <div style={{ padding: '20mm' }}>
+                    {/* HEADER */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '20px', borderBottom: `4px solid ${colors.primary}`, marginBottom: '30px' }}>
+                        <div style={{ width: '40%' }}>
+                            {editableData.emisor?.logo ? (
+                                <img src={editableData.emisor.logo} alt="Logo" style={{ maxWidth: '180px', maxHeight: '80px', objectFit: 'contain' }} />
+                            ) : (
+                                <div style={{
+                                    width: '180px',
+                                    height: '80px',
+                                    background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+                                    borderRadius: '8px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    fontSize: '24px'
+                                }}>
+                                    {editableData.emisor?.nombre?.substring(0, 10).toUpperCase() || 'PILI'}
+                                </div>
+                            )}
+                            <div style={{ fontSize: '10px', color: '#6B7280', marginTop: '8px', lineHeight: '1.4' }}>
+                                <strong>RUC: {editableData.emisor?.ruc}</strong><br />
+                                {editableData.emisor?.direccion}<br />
+                                {editableData.emisor?.empresa}
+                            </div>
                         </div>
-                    )}
-                </div>
-
-                <div style={{ width: '65%', textAlign: 'right' }}>
-                    <div
-                        style={{
-                            fontSize: '20px',
-                            fontWeight: 'bold',
-                            color: colors.primary,
-                            marginBottom: '8px',
-                            textTransform: 'uppercase',
-                        }}
-                    >
-                        PILi QUARTS - INGENIERÍA Y PROYECTOS
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#4b5563', lineHeight: '1.5' }}>
-                        <div>RUC: 20601138787</div>
-                        <div>Jr. Las Ágatas Mz B Lote 09, Urb. San Carlos, SJL</div>
-                        <div>Teléfono: 906 315 961</div>
-                        <div>Email: contacto@piliquarts.com</div>
-                    </div>
-                </div>
-            </div>
-
-            {/* CURRENCY SELECTOR */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px', gap: '10px', alignItems: 'center' }}>
-                <span style={{ fontSize: '12px', fontWeight: '600', color: colors.secondary }}>Moneda:</span>
-                {(['PEN', 'USD', 'EUR'] as Currency[]).map((curr) => (
-                    <button
-                        key={curr}
-                        onClick={() => setCurrency(curr)}
-                        style={{
-                            padding: '6px 12px',
-                            background: currency === curr ? colors.primary : '#E5E7EB',
-                            color: currency === curr ? 'white' : '#6B7280',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '11px',
-                            fontWeight: '600',
-                        }}
-                    >
-                        {CURRENCY_SYMBOLS[curr]} {curr}
-                    </button>
-                ))}
-            </div>
-
-            {/* TITLE */}
-            <div
-                style={{
-                    textAlign: 'center',
-                    margin: '30px 0',
-                    padding: '20px',
-                    background: `linear-gradient(135deg, ${colors.light} 0%, ${colors.lightBorder} 100%)`,
-                    borderLeft: `6px solid ${colors.primary}`,
-                    borderRadius: '4px',
-                }}
-            >
-                <h1 style={{ fontSize: '28px', color: colors.primary, fontWeight: 'bold', marginBottom: '8px' }}>
-                    COTIZACIÓN DE SERVICIOS
-                </h1>
-                <div style={{ fontSize: '16px', color: colors.secondary, fontWeight: '600' }}>
-                    N° COT-{new Date().getFullYear()}-001
-                </div>
-            </div>
-
-            {/* CLIENT INFO */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', margin: '25px 0' }}>
-                <div style={{ padding: '15px', border: `2px solid ${colors.lightBorder}`, borderRadius: '6px', background: '#F9FAFB' }}>
-                    <h3
-                        style={{
-                            fontSize: '14px',
-                            color: colors.primary,
-                            fontWeight: 'bold',
-                            marginBottom: '10px',
-                            textTransform: 'uppercase',
-                            borderBottom: `2px solid ${colors.primary}`,
-                            paddingBottom: '5px',
-                        }}
-                    >
-                        Datos del Cliente
-                    </h3>
-                    <p style={{ fontSize: '12px', margin: '5px 0' }}>
-                        <strong style={{ color: colors.secondary }}>Cliente:</strong>{' '}
-                        <input
-                            type="text"
-                            value={editableData.cliente.nombre}
-                            onChange={(e) =>
-                                setEditableData({
-                                    ...editableData,
-                                    cliente: { ...editableData.cliente, nombre: e.target.value },
-                                })
-                            }
-                            style={{
-                                border: 'none',
-                                borderBottom: `1px solid ${colors.accent}`,
-                                background: 'transparent',
-                                fontSize: '12px',
-                                width: '70%',
-                            }}
-                        />
-                    </p>
-                    <p style={{ fontSize: '12px', margin: '5px 0' }}>
-                        <strong style={{ color: colors.secondary }}>Proyecto:</strong>{' '}
-                        <input
-                            type="text"
-                            value={editableData.proyecto.nombre}
-                            onChange={(e) =>
-                                setEditableData({
-                                    ...editableData,
-                                    proyecto: { ...editableData.proyecto, nombre: e.target.value },
-                                })
-                            }
-                            style={{
-                                border: 'none',
-                                borderBottom: `1px solid ${colors.accent}`,
-                                background: 'transparent',
-                                fontSize: '12px',
-                                width: '70%',
-                            }}
-                        />
-                    </p>
-                </div>
-
-                <div style={{ padding: '15px', border: `2px solid ${colors.lightBorder}`, borderRadius: '6px', background: '#F9FAFB' }}>
-                    <h3
-                        style={{
-                            fontSize: '14px',
-                            color: colors.primary,
-                            fontWeight: 'bold',
-                            marginBottom: '10px',
-                            textTransform: 'uppercase',
-                            borderBottom: `2px solid ${colors.primary}`,
-                            paddingBottom: '5px',
-                        }}
-                    >
-                        Datos de la Cotización
-                    </h3>
-                    <p style={{ fontSize: '12px', margin: '5px 0' }}>
-                        <strong style={{ color: colors.secondary }}>Fecha:</strong> {new Date().toLocaleDateString('es-PE')}
-                    </p>
-                    <p style={{ fontSize: '12px', margin: '5px 0' }}>
-                        <strong style={{ color: colors.secondary }}>Vigencia:</strong> {editableData.proyecto.duracion} días
-                    </p>
-                </div>
-            </div>
-
-            {/* ITEMS TABLE */}
-            <div style={{ margin: '30px 0' }}>
-                <h2
-                    style={{
-                        fontSize: '18px',
-                        color: colors.primary,
-                        marginBottom: '15px',
-                        paddingBottom: '8px',
-                        borderBottom: `3px solid ${colors.primary}`,
-                    }}
-                >
-                    Detalle de la Cotización
-                </h2>
-                <table style={{ width: '100%', borderCollapse: 'collapse', margin: '15px 0', boxShadow: '0 2px 8px rgba(0, 82, 163, 0.1)' }}>
-                    <thead style={{ background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`, color: 'white' }}>
-                        <tr>
-                            <th style={{ padding: '14px 10px', textAlign: 'left', fontSize: '12px', fontWeight: '700', width: '8%' }}>ITEM</th>
-                            <th style={{ padding: '14px 10px', textAlign: 'left', fontSize: '12px', fontWeight: '700', width: '42%' }}>DESCRIPCIÓN</th>
-                            <th style={{ padding: '14px 10px', textAlign: 'right', fontSize: '12px', fontWeight: '700', width: '10%' }}>CANT.</th>
-                            <th style={{ padding: '14px 10px', textAlign: 'right', fontSize: '12px', fontWeight: '700', width: '10%' }}>UNIDAD</th>
-                            <th style={{ padding: '14px 10px', textAlign: 'right', fontSize: '12px', fontWeight: '700', width: '15%' }}>P. UNIT.</th>
-                            <th style={{ padding: '14px 10px', textAlign: 'right', fontSize: '12px', fontWeight: '700', width: '15%' }}>TOTAL</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {editableData.suministros.map((item, index) => (
-                            <tr key={index} style={{ borderBottom: '1px solid #E5E7EB', background: index % 2 === 0 ? '#F9FAFB' : 'white' }}>
-                                <td style={{ padding: '12px 10px', textAlign: 'center', fontSize: '11px' }}>
-                                    {String(index + 1).padStart(2, '0')}
-                                </td>
-                                <td style={{ padding: '12px 10px', fontSize: '11px' }}>
-                                    <input
-                                        type="text"
-                                        value={item.descripcion}
-                                        onChange={(e) => updateItem(index, 'descripcion', e.target.value)}
-                                        style={{ width: '100%', border: 'none', background: 'transparent', fontSize: '11px' }}
-                                    />
-                                </td>
-                                <td style={{ padding: '12px 10px', textAlign: 'right', fontSize: '11px' }}>
-                                    <input
-                                        type="number"
-                                        value={item.cantidad}
-                                        onChange={(e) => updateItem(index, 'cantidad', e.target.value)}
-                                        style={{ width: '60px', border: 'none', background: 'transparent', fontSize: '11px', textAlign: 'right' }}
-                                    />
-                                </td>
-                                <td style={{ padding: '12px 10px', textAlign: 'right', fontSize: '11px' }}>
-                                    <input
-                                        type="text"
-                                        value={item.unidad}
-                                        onChange={(e) => updateItem(index, 'unidad', e.target.value)}
-                                        style={{ width: '50px', border: 'none', background: 'transparent', fontSize: '11px', textAlign: 'right' }}
-                                    />
-                                </td>
-                                <td style={{ padding: '12px 10px', textAlign: 'right', fontSize: '11px' }}>
-                                    {CURRENCY_SYMBOLS[currency]}{' '}
-                                    <input
-                                        type="number"
-                                        value={item.precioUnitario}
-                                        onChange={(e) => updateItem(index, 'precioUnitario', e.target.value)}
-                                        style={{ width: '80px', border: 'none', background: 'transparent', fontSize: '11px', textAlign: 'right' }}
-                                    />
-                                </td>
-                                <td style={{ padding: '12px 10px', textAlign: 'right', fontSize: '11px', fontWeight: '600' }}>
-                                    {CURRENCY_SYMBOLS[currency]} {item.precioTotal.toFixed(2)}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
-                    <button
-                        onClick={addItem}
-                        style={{
-                            padding: '8px 16px',
-                            background: colors.primary,
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                        }}
-                    >
-                        + Agregar Item
-                    </button>
-                    {editableData.suministros.length > 1 && (
-                        <button
-                            onClick={removeLastItem}
-                            style={{
-                                padding: '8px 16px',
-                                background: '#DC2626',
-                                color: 'white',
-                                border: 'none',
+                        <div style={{ width: '55%', textAlign: 'right' }}>
+                            <div style={{
+                                fontSize: '22px',
+                                fontWeight: '900',
+                                color: colors.primary,
+                                marginBottom: '5px',
+                                border: `2px solid ${colors.primary}`,
+                                padding: '10px',
                                 borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '12px',
-                            }}
+                                display: 'inline-block'
+                            }}>
+                                COTIZACIÓN SIMPLE
+                            </div>
+                            <div style={{ fontSize: '12px', marginTop: '10px', color: colors.secondary, fontWeight: 'bold' }}>
+                                N° COT-SIMP-{new Date().getFullYear()}-{Math.floor(Math.random() * 900) + 100}
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#4b5563' }}>Fecha: {new Date().toLocaleDateString('es-PE')}</div>
+                        </div>
+                    </div>
+
+                    {/* CLIENT INFO */}
+                    <div style={{ marginBottom: '30px', background: colors.contrast, padding: '15px', borderRadius: '4px' }}>
+                        <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                            <tbody>
+                                <tr>
+                                    <td style={{ width: '15%', fontWeight: 'bold', color: colors.primary, padding: '4px 0' }}>CLIENTE:</td>
+                                    <td
+                                        style={{ width: '50%', padding: '4px 0', outline: 'none' }}
+                                        contentEditable={editable}
+                                        suppressContentEditableWarning
+                                        onBlur={(e) => handleTextChange('cliente.nombre', e.currentTarget.textContent || '')}
+                                    >
+                                        {editableData.cliente.nombre}
+                                    </td>
+                                    <td style={{ width: '15%', fontWeight: 'bold', color: colors.primary, padding: '4px 0' }}>RUC:</td>
+                                    <td
+                                        style={{ width: '20%', padding: '4px 0', outline: 'none' }}
+                                        contentEditable={editable}
+                                        suppressContentEditableWarning
+                                        onBlur={(e) => handleTextChange('cliente.ruc', e.currentTarget.textContent || '')}
+                                    >
+                                        {editableData.cliente.ruc}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ fontWeight: 'bold', color: colors.primary, padding: '4px 0' }}>DIRECCIÓN:</td>
+                                    <td
+                                        colSpan={3}
+                                        style={{ padding: '4px 0', outline: 'none' }}
+                                        contentEditable={editable}
+                                        suppressContentEditableWarning
+                                        onBlur={(e) => handleTextChange('cliente.direccion', e.currentTarget.textContent || '')}
+                                    >
+                                        {editableData.cliente.direccion}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ fontWeight: 'bold', color: colors.primary, padding: '4px 0' }}>TELÉFONO:</td>
+                                    <td
+                                        style={{ padding: '4px 0', outline: 'none' }}
+                                        contentEditable={editable}
+                                        suppressContentEditableWarning
+                                        onBlur={(e) => handleTextChange('cliente.telefono', e.currentTarget.textContent || '')}
+                                    >
+                                        {editableData.cliente.telefono}
+                                    </td>
+                                    <td style={{ fontWeight: 'bold', color: colors.primary, padding: '4px 0' }}>VIGENCIA:</td>
+                                    <td
+                                        style={{ padding: '4px 0', outline: 'none' }}
+                                        contentEditable={editable}
+                                        suppressContentEditableWarning
+                                        onBlur={(e) => handleTextChange('proyecto.duracion', e.currentTarget.textContent || '')}
+                                    >
+                                        {editableData.proyecto.duracion} Días Calendario
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* ITEMS TABLE */}
+                    <div style={{ marginBottom: '40px' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                            <thead>
+                                <tr style={{ background: colors.primary, color: 'white' }}>
+                                    <th style={{ padding: '12px', textAlign: 'center', border: '1px solid white' }}>ITEM</th>
+                                    <th style={{ padding: '12px', textAlign: 'left', border: '1px solid white' }}>DESCRIPCIÓN</th>
+                                    <th style={{ padding: '12px', textAlign: 'center', border: '1px solid white' }}>CANT.</th>
+                                    <th style={{ padding: '12px', textAlign: 'center', border: '1px solid white' }}>UND.</th>
+                                    <th style={{ padding: '12px', textAlign: 'right', border: '1px solid white' }}>P. UNIT.</th>
+                                    <th style={{ padding: '12px', textAlign: 'right', border: '1px solid white' }}>TOTAL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {editableData.suministros.map((item: any, i: number) => (
+                                    <tr key={i} style={{ borderBottom: `1px solid ${colors.contrast}` }}>
+                                        <td style={{ padding: '10px', textAlign: 'center' }}>{String(i + 1).padStart(2, '0')}</td>
+                                        <td style={{ padding: '10px' }}>{item.descripcion}</td>
+                                        <td style={{ padding: '10px', textAlign: 'center' }}>{item.cantidad}</td>
+                                        <td style={{ padding: '10px', textAlign: 'center' }}>{item.unidad}</td>
+                                        <td style={{ padding: '10px', textAlign: 'right' }}>S/ {item.precioUnitario.toFixed(2)}</td>
+                                        <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold' }}>S/ {item.precioTotal.toFixed(2)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* TOTALS */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '40px' }}>
+                        <table style={{ width: '250px', fontSize: '12px', borderCollapse: 'collapse' }}>
+                            <tbody>
+                                <tr>
+                                    <td style={{ padding: '8px', borderBottom: `1px solid ${colors.contrast}` }}><strong>SUBTOTAL:</strong></td>
+                                    <td style={{ padding: '8px', textAlign: 'right', borderBottom: `1px solid ${colors.contrast}` }}>S/ {subtotal.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ padding: '8px', borderBottom: `1px solid ${colors.contrast}` }}><strong>IGV (18%):</strong></td>
+                                    <td style={{ padding: '8px', textAlign: 'right', borderBottom: `1px solid ${colors.contrast}` }}>S/ {igv.toFixed(2)}</td>
+                                </tr>
+                                <tr style={{ background: colors.primary, color: 'white' }}>
+                                    <td style={{ padding: '10px' }}><strong>TOTAL:</strong></td>
+                                    <td style={{ padding: '10px', textAlign: 'right', fontWeight: '900', fontSize: '14px' }}>S/ {total.toFixed(2)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* CONDITIONS */}
+                    <div style={{ fontSize: '11px', color: '#4B5563', borderTop: `1px solid ${colors.contrast}`, paddingTop: '20px' }}>
+                        <p><strong>CONDICIONES COMERCIALES:</strong></p>
+                        <ul
+                            style={{ paddingLeft: '20px', margin: '5px 0', outline: 'none' }}
+                            contentEditable={editable}
+                            suppressContentEditableWarning
                         >
-                            - Eliminar Último
-                        </button>
-                    )}
-                </div>
-            </div>
+                            <li>Forma de pago: Contado contra entrega.</li>
+                            <li>Tiempo de entrega: Inmediato sujeto a disponibilidad.</li>
+                            <li>Los precios incluyen IGV.</li>
+                        </ul>
+                    </div>
 
-            {/* TOTALS */}
-            <div style={{ marginTop: '25px', display: 'flex', justifyContent: 'flex-end' }}>
-                <div style={{ width: '350px', border: `2px solid ${colors.primary}`, borderRadius: '6px', overflow: 'hidden' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 20px', borderBottom: `1px solid ${colors.lightBorder}` }}>
-                        <span style={{ fontWeight: '600', color: colors.secondary }}>SUBTOTAL:</span>
-                        <span style={{ fontWeight: '700', color: colors.primary }}>
-                            {CURRENCY_SYMBOLS[currency]} {totals.subtotal}
-                        </span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 20px', borderBottom: `1px solid ${colors.lightBorder}` }}>
-                        <span style={{ fontWeight: '600', color: colors.secondary }}>IGV (18%):</span>
-                        <span style={{ fontWeight: '700', color: colors.primary }}>
-                            {CURRENCY_SYMBOLS[currency]} {totals.igv}
-                        </span>
-                    </div>
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            padding: '12px 20px',
-                            background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-                            color: 'white',
-                            fontWeight: 'bold',
-                            fontSize: '16px',
-                        }}
-                    >
-                        <span>TOTAL:</span>
-                        <span>
-                            {CURRENCY_SYMBOLS[currency]} {totals.total}
-                        </span>
+                    {/* FOOTER */}
+                    <div style={{ marginTop: '60px', textAlign: 'center', borderTop: `1px solid ${colors.contrast}`, paddingTop: '20px' }}>
+                        <div style={{ fontSize: '11px', color: colors.secondary, fontWeight: 'bold' }}>{editableData.emisor?.empresa}</div>
+                        <div style={{ fontSize: '10px', color: '#9CA3AF' }}>{editableData.emisor?.direccion} | RUC: {editableData.emisor?.ruc}</div>
                     </div>
                 </div>
-            </div>
-
-            {/* FOOTER */}
-            <div
-                style={{
-                    marginTop: '40px',
-                    paddingTop: '20px',
-                    borderTop: `3px solid ${colors.primary}`,
-                    textAlign: 'center',
-                    fontSize: '10px',
-                    color: '#6B7280',
-                }}
-            >
-                <div style={{ fontWeight: 'bold', color: colors.primary, fontSize: '12px', marginBottom: '8px' }}>
-                    PILi QUARTS - INGENIERÍA Y PROYECTOS
-                </div>
-                <div style={{ margin: '5px 0' }}>RUC: 20601138787 | Teléfono: 906 315 961</div>
-                <div style={{ margin: '5px 0' }}>Email: contacto@piliquarts.com</div>
             </div>
         </div>
     );
