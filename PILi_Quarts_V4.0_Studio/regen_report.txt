@@ -1,0 +1,18 @@
+[R.A.L.F.H.] REGENERANDO PROYECTOS E INFORMES (TARGET: 12 ARCHIVOS)
+===================================================================
+DOCUMENTO                 | FMT    | ESTADO     | ARCHIVO                                 
+------------------------------------------------------------------------------------------
+Proyecto Simple           | WORD   | [OK]       | proyecto_simple_1771081488.docx         
+Proyecto Simple           | EXCEL  | [OK]       | proyecto_simple_1771081488.xlsx         
+Proyecto Simple           | PDF    | [OK]       | proyecto_simple_1771081488.pdf          
+Proyecto Complejo         | WORD   | [OK]       | proyecto_complejo_1771081488.docx       
+Proyecto Complejo         | EXCEL  | [OK]       | proyecto_complejo_1771081488.xlsx       
+Proyecto Complejo         | PDF    | [OK]       | proyecto_complejo_1771081489.pdf        
+Informe Técnico           | WORD   | [OK]       | informe_tecnico_1771081489.docx         
+Informe Técnico           | EXCEL  | [OK]       | informe_tecnico_1771081489.xlsx         
+Informe Técnico           | PDF    | [OK]       | informe_tecnico_1771081489.pdf          
+Informe Ejecutivo         | WORD   | [OK]       | informe_ejecutivo_1771081489.docx       
+Informe Ejecutivo         | EXCEL  | [OK]       | informe_ejecutivo_1771081489.xlsx       
+Informe Ejecutivo         | PDF    | [OK]       | informe_ejecutivo_1771081489.pdf        
+------------------------------------------------------------------------------------------
+Total Generados: 12/12

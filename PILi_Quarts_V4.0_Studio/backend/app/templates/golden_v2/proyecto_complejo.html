@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Proyecto Complejo PMI - {{ agente }}</title>
+    <style>
+        :root {
+            --primary: #0052A3;
+            --primary-dark: #1E40AF;
+            --primary-light: #fff;
+            --accent: #3B82F6;
+            --text-main: #0f172a;
+            --text-light: #64748b;
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        /* Header Profesional */
+        .project-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 30px;
+            position: relative;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .project-id {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .project-title h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-title p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        /* Secciones */
+        .section-title {
+            color: var(--primary);
+            font-size: 20px;
+            font-weight: 800;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin: 30px 0 20px 0;
+            text-transform: uppercase;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-group {
+            margin-bottom: 15px;
+        }
+
+        .info-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .info-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-main);
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Tablas */
+        .table-container {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 15px;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f1f5f9;
+            color: var(--text-main);
+            font-weight: 700;
+            text-align: left;
+            padding: 12px 15px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-active {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-done {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-risk {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .footer {
+            background: #f8fafc;
+            border-top: 1px solid var(--border);
+            padding: 20px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 50px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="project-header">
+            <div class="project-meta">
+                <span class="project-id">{{ codigo }}</span>
+                <span class="project-id"
+                    style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.4);">🟢 ESTADO:
+                    PLANIFICACIÓN</span>
+            </div>
+            <div class="project-title">
+                <h1>{{ nombre }}</h1>
+                <p>{{ cliente }} | {{ agente }}</p>
+            </div>
+        </div>
+
+        <div style="padding: 40px;">
+
+            <!-- 1. GENERAL -->
+            <h2 class="section-title">📌 General & Alcance</h2>
+            <div class="grid-2">
+                <div>
+                    <div class="info-group">
+                        <span class="info-label">Nombre del Proyecto</span>
+                        <div class="info-value">{{ nombre }}</div>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">Cliente / Empresa</span>
+                        <div class="info-value">{{ cliente }}</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="grid-2">
+                        <div class="info-group">
+                            <span class="info-label">Inicio Planificado</span>
+                            <div class="info-value">{{ fecha_inicio }}</div>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Cierre Estimado</span>
+                            <div class="info-value">{{ fecha_fin }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-group">
+                <span class="info-label">Definición del Alcance (SOW)</span>
+                <div class="info-value" style="white-space: pre-wrap; line-height: 1.6;">{{ alcance }}</div>
+            </div>
+
+            <!-- 2. STAKEHOLDERS -->
+            <h2 class="section-title">👥 Stakeholders</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Rol / Cargo</th>
+                            <th>Tipo</th>
+                            <th>Influencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Gerencia General</td>
+                            <td>Sponsor</td>
+                            <td><span class="badge badge-active">Interno</span></td>
+                            <td>Alto</td>
+                        </tr>
+                        <tr>
+                            <td>{{ cliente }}</td>
+                            <td>Cliente</td>
+                            <td><span class="badge badge-pending">Externo</span></td>
+                            <td>Alto</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 3. CRONOGRAMA -->
+            <h2 class="section-title">📅 Cronograma de Trabajo (WBS)</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="10%">ID</th>
+                            <th width="40%">Fase</th>
+                            <th width="15%">Duración</th>
+                            <th width="15%">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fase in fases_pmi %}
+                        <tr>
+                            <td><b>{{ loop.index }}.0</b></td>
+                            <td>{{ fase[1] }}</td> <!-- Assuming list of tuples for PMI phases -->
+                            <td>{{ fase[2] }}</td>
+                            <td><span
+                                    class="badge {{ 'badge-active' if fase[3] == 'En curso' else 'badge-pending' }}">{{
+                                    fase[3] }}</span></td>
+                        </tr>
+                        {% endfor %}
+                        <!-- If fases_pmi is not available, try fases -->
+                        {% if not fases_pmi and fases %}
+                        {% for fase in fases %}
+                        <tr>
+                            <td><b>{{ loop.index }}.0</b></td>
+                            <td>{{ fase.nombre }}</td>
+                            <td>{{ fase.duracion }}</td>
+                            <td><span class="badge badge-pending">{{ fase.estado }}</span></td>
+                        </tr>
+                        {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 4. RIESGOS -->
+            <h2 class="section-title">⚠️ Matriz de Riesgos</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="40%">Riesgo Identificado</th>
+                            <th width="20%">Impacto</th>
+                            <th width="40%">Plan de Respuesta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Retraso en suministro de equipos</td>
+                            <td><span class="badge badge-risk">Medio</span></td>
+                            <td>Contar con proveedores alternativos.</td>
+                        </tr>
+                        <tr>
+                            <td>Cambios en alcance por cliente</td>
+                            <td><span class="badge badge-risk">Alto</span></td>
+                            <td>Estricto control de cambios.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 5. PRESUPUESTO -->
+            <h2 class="section-title">💰 Presupuesto Detallado</h2>
+            <div class="grid-3">
+                <div class="info-group">
+                    <span class="info-label">Presupuesto Total</span>
+                    <div class="info-value" style="color: var(--primary); font-size: 18px;">S/ {{
+                        "%.2f"|format(presupuesto) }}</div>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Contingencia (10%)</span>
+                    <div class="info-value">S/ {{ "%.2f"|format(presupuesto * 0.10) }}</div>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Margen Estimado</span>
+                    <div class="info-value">25%</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Partida</th>
+                            <th>Estimado (S/)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1. Materiales y Equipos</td>
+                            <td>S/ {{ "%.2f"|format(presupuesto * 0.45) }}</td>
+                        </tr>
+                        <tr>
+                            <td>2. Mano de Obra</td>
+                            <td>S/ {{ "%.2f"|format(presupuesto * 0.30) }}</td>
+                        </tr>
+                        <tr>
+                            <td>3. Gastos Generales</td>
+                            <td>S/ {{ "%.2f"|format(presupuesto * 0.15) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            <strong>PILI System v3.0</strong> | {{ fecha_generacion }}<br>
+            Documento Confidencial - Uso Interno
+        </div>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cotización Eléctrica Industrial</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="{{ logo_url }}" alt="Logo" style="height: 50px;">
+        </div>
+        <div class="company-info">
+            <h1>SOLUCIONES ELÉCTRICAS</h1>
+            <p>RUC: 20100000001 | Av. Industrial 500, Lima</p>
+        </div>
+    </div>
+
+    <div class="client-box">
+        <h3>Preparado para:</h3>
+        <p><strong>Cliente:</strong> {{ client_name }}</p>
+        <p><strong>Fecha:</strong> {{ date }}</p>
+        <p><strong>Servicio:</strong> {{ service_name }}</p>
+    </div>
+
+    <div class="content">
+        <h2>Detalle de Inversión</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 10%;">Item</th>
+                    <th style="width: 50%;">Descripción</th>
+                    <th style="width: 10%;">Cant.</th>
+                    <th style="width: 15%;">P. Unit</th>
+                    <th style="width: 15%;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }} {{ item.unit }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>{{ item.total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="totals-box">
+        <p>Subtotal: {{ totals.subtotal }}</p>
+        <p>IGV (18%): {{ totals.igv }}</p>
+        <p class="grand-total">TOTAL: {{ totals.total }}</p>
+    </div>
+
+    <div class="footer">
+        <p>Válido por 15 días. Normativa: {{ normativa }}</p>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head><title>COTIZACION_SIMPLE</title><link rel='stylesheet' href='style.css'></head>
+<body>
+    <h1>COTIZACION SIMPLE</h1>
+    <p>Cliente: {{ client_name }}</p>
+    <table>
+        <thead><tr><th>Item</th><th>Desc</th><th>Total</th></tr></thead>
+        <tbody>
+            {% for item in items %}
+            <tr><td>{{ loop.index }}</td><td>{{ item.description }}</td><td>{{ item.total }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

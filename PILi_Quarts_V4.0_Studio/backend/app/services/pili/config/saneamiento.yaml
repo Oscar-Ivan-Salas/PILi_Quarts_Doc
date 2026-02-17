@@ -1,0 +1,173 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# 💧 CONFIGURACIÓN COMPLETA SANEAMIENTO - INSTALACIONES SANITARIAS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+service: saneamiento
+name: "Saneamiento"
+description: "Sistemas de agua potable y desagüe profesionales"
+normativa: "RNE IS.010, IS.020, Código Sanitario"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 💧 TIPOS DE INSTALACIÓN
+# ═══════════════════════════════════════════════════════════════════════════════
+tipos:
+  AGUA:
+    nombre: "Red de Agua Potable"
+    descripcion: "Instalación de agua fría y caliente"
+    precio_m2: 20.00
+    incluye:
+      - "Tuberías PVC y CPVC"
+      - "Accesorios de conexión"
+      - "Válvulas y llaves"
+      - "Pruebas hidráulicas"
+  
+  DESAGUE:
+    nombre: "Red de Desagüe"
+    descripcion: "Instalación de desagüe y ventilación"
+    precio_m2: 18.00
+    incluye:
+      - "Tuberías PVC SAL"
+      - "Accesorios y codos"
+      - "Cajas de registro"
+      - "Pruebas de hermeticidad"
+  
+  COMPLETO:
+    nombre: "Sistema Completo"
+    descripcion: "Agua potable + Desagüe + Ventilación"
+    precio_m2: 35.00
+    incluye:
+      - "Todo lo de agua"
+      - "Todo lo de desagüe"
+      - "Sistema de ventilación"
+      - "Pruebas completas"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 💰 PRECIOS DE MATERIALES
+# ═══════════════════════════════════════════════════════════════════════════════
+precios:
+  tuberia_pvc_1_2: 3.50
+  tuberia_pvc_3_4: 4.50
+  tuberia_pvc_1: 6.50
+  tuberia_pvc_sal_2: 8.00
+  tuberia_pvc_sal_4: 12.00
+  codo_pvc_90: 2.50
+  tee_pvc: 3.00
+  valvula_compuerta_1_2: 25.00
+  valvula_compuerta_3_4: 35.00
+  llave_paso_1_2: 18.00
+  caja_registro_12x24: 85.00
+  caja_registro_24x24: 120.00
+  sumidero_2: 15.00
+  sumidero_4: 25.00
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📝 MENSAJES PROFESIONALES
+# ═══════════════════════════════════════════════════════════════════════════════
+mensajes:
+  presentacion: |
+    ¡Hola! 👋 Soy **Pili**, tu especialista en Saneamiento de **Tesla Electricidad**.
+    
+    🎯 Te ayudo con:
+    ✅ Agua potable
+    ✅ Desagüe y ventilación
+    ✅ Agua caliente
+    ✅ Garantía de 1 año
+    
+    **Selecciona el tipo de instalación:**
+  
+  confirm_tipo: |
+    Perfecto, instalación **{tipo}**.
+    
+    📋 **Incluye:** {incluye}
+    💰 **Precio por m²:** S/ {precio_m2}
+    
+    📏 **¿Cuál es el área total en m²?**
+    
+    _Escribe el número (ejemplo: 180)_
+  
+  ask_banos: |
+    ✅ Área: **{area} m²**
+    
+    🚽 **¿Cuántos baños tiene la edificación?**
+    
+    _Escribe el número (ejemplo: 3)_
+  
+  cotizacion: |
+    📊 **COTIZACIÓN INSTALACIONES SANITARIAS**
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **📋 DATOS DEL PROYECTO:**
+    
+    💧 Tipo: {tipo}
+    📏 Área: {area} m²
+    🚽 Baños: {banos}
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **💰 ITEMS CALCULADOS:**
+    
+    {items_detalle}
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **📈 TOTALES:**
+    
+    Subtotal: S/ {subtotal:.2f}
+    IGV (18%): S/ {igv:.2f}
+    **TOTAL: S/ {total:.2f}**
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    
+    ✅ Incluye: Materiales + Instalación + Pruebas
+    ⏱️ Tiempo: 12-15 días hábiles
+    📋 Normativa: RNE IS.010
+    🎁 Garantía: 1 año
+    
+    ¿Deseas generar el documento?
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔄 FLUJO DE CONVERSACIÓN
+# ═══════════════════════════════════════════════════════════════════════════════
+documents:
+  cotizacion-simple:
+    etapas:
+      - id: tipo
+        type: buttons
+        message_template: presentacion
+        next: area
+        progress: "1/4"
+        opciones:
+          - text: "💧 Agua Potable"
+            value: "AGUA"
+          - text: "🚽 Desagüe"
+            value: "DESAGUE"
+          - text: "💧🚽 Sistema Completo"
+            value: "COMPLETO"
+      
+      - id: area
+        type: input_number
+        message_template: confirm_tipo
+        next: banos
+        progress: "2/4"
+        validacion:
+          min: 10
+          max: 10000
+          type: float
+      
+      - id: banos
+        type: input_number
+        message_template: ask_banos
+        next: quotation
+        progress: "3/4"
+        validacion:
+          min: 1
+          max: 50
+          type: int
+      
+      - id: quotation
+        type: generate_quote
+        message_template: cotizacion
+        calculator: calculate_saneamiento_quote
+        progress: "4/4"
+        actions:
+          - text: "📄 Generar Cotización"
+            value: "GENERAR"
+          - text: "🔄 Nueva consulta"
+            value: "RESTART"

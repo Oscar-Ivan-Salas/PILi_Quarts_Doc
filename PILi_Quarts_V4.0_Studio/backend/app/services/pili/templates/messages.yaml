@@ -1,0 +1,174 @@
+# Plantillas de mensajes para todos los servicios
+
+# ========================================
+# ITSE - Certificado ITSE
+# ========================================
+itse:
+  presentacion: |
+    ¡Hola! 👋 Soy **Pili**, tu especialista en certificados ITSE de **Tesla Electricidad - Huancayo**.
+    
+    🎯 Te ayudo a obtener tu certificado ITSE con:
+    ✅ Visita técnica GRATUITA
+    ✅ Precios oficiales TUPA Huancayo
+    ✅ Trámite 100% gestionado
+    ✅ Entrega en 7 días hábiles
+    
+    **Selecciona tu tipo de establecimiento:**
+  
+  confirm_categoria: |
+    Perfecto, sector **{categoria}**. ¿Qué tipo específico es?
+  
+  ask_area: |
+    Entendido, es un **{tipo}**.
+    
+    ¿Cuál es el área total en m²?
+    
+    _Escribe el número (ejemplo: 150)_
+  
+  ask_pisos: |
+    📐 Área: **{area} m²**
+    
+    ¿Cuántos pisos tiene el establecimiento?
+    
+    _Escribe el número (ejemplo: 2)_
+  
+  ask_personal: |
+    🏢 Pisos: **{pisos}**
+    
+    ¿Cuántas personas trabajan en el establecimiento?
+    
+    _Escribe el número (ejemplo: 25)_
+  
+  ask_equipos: |
+    👥 Personal: **{personal} personas**
+    
+    ¿Cuántos equipos/maquinarias especiales hay?
+    
+    _Escribe el número (ejemplo: 5, o 0 si no hay)_
+  
+  ask_observaciones: |
+    ⚙️ Equipos: **{equipos}**
+    
+    ¿Alguna observación o requerimiento especial?
+    
+    _Escribe tu comentario o "ninguno"_
+  
+  cotizacion: |
+    💰 **COSTOS DESGLOSADOS:**
+    
+    🏛️ **Derecho Municipal (TUPA):**
+    └ S/ {costo_tupa:.2f}
+    
+    ⚡ **Servicio Técnico TESLA:**
+    └ S/ {costo_servicio:.2f}
+    └ Incluye: Evaluación + Planos + Gestión + Seguimiento
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    
+    📊 **TOTAL ESTIMADO:**
+    **S/ {total:.2f}**
+    
+    ⏱️ **Tiempo:** {tiempo_entrega}
+    🎁 **Visita técnica:** {condiciones}
+    ✅ **Garantía:** {garantia}
+    
+    ¿Qué deseas hacer?
+
+# ========================================
+# ELECTRICIDAD - Instalaciones Eléctricas
+# ========================================
+electricidad:
+  presentacion: |
+    ¡Hola! 👋 Soy **Pili**, tu especialista en instalaciones eléctricas de **Tesla Electricidad - Huancayo**.
+    
+    🎯 Te ayudo con:
+    ✅ Instalaciones residenciales, comerciales e industriales
+    ✅ Diseño y cálculo profesional
+    ✅ Materiales de primera calidad
+    ✅ Garantía de 1 año
+    
+    **Selecciona el tipo de instalación:**
+  
+  confirm_tipo: |
+    Perfecto, instalación **{tipo}**. ¿Cuál es el área a trabajar en m²?
+    
+    _Escribe el número (ejemplo: 120)_
+  
+  ask_puntos: |
+    📐 Área: **{area} m²**
+    
+    ¿Cuántos puntos eléctricos necesitas? (tomacorrientes + luminarias)
+    
+    _Escribe el número (ejemplo: 30)_
+  
+  ask_potencia: |
+    🔌 Puntos: **{puntos}**
+    
+    ¿Qué potencia total necesitas en HP o kW?
+    
+    _Escribe el número (ejemplo: 15)_
+  
+  cotizacion: |
+    💰 **COSTOS DESGLOSADOS:**
+    
+    🔌 **Puntos Eléctricos:**
+    └ S/ {costo_puntos:.2f}
+    
+    ⚡ **Instalación de Potencia:**
+    └ S/ {costo_potencia:.2f}
+    
+    🛠️ **Materiales:**
+    └ S/ {costo_materiales:.2f}
+    
+    👷 **Mano de Obra:**
+    └ S/ {costo_mano_obra:.2f}
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    
+    📊 **TOTAL ESTIMADO:**
+    **S/ {total:.2f}**
+    
+    ⏱️ **Tiempo:** {tiempo_entrega}
+    ✅ **Garantía:** {garantia}
+    
+    ¿Qué deseas hacer?
+
+# POZO A TIERRA
+pozo-tierra:
+  presentacion: |
+    ¡Hola!  Soy **Pili**, tu especialista en sistemas de puesta a tierra de **Tesla Electricidad**.
+    
+     Te ayudo con:
+     Pozos a tierra profesionales
+     Medición de resistencia
+     Cumplimiento del CNE
+     Garantía de 2 años
+    
+    **Selecciona el tipo de sistema:**
+  
+  ask_resistencia: |
+    Perfecto, sistema **{tipo}**.
+    
+    ¿Qué resistencia objetivo necesitas en Ohms?
+    
+    _Escribe el número (ejemplo: 25)_
+  
+  cotizacion: |
+     **COSTOS DESGLOSADOS:**
+    
+     **Sistema Base:**
+     S/ {costo_base:.2f}
+    
+     **Ajuste por Resistencia:**
+     S/ {ajuste_resistencia:.2f}
+    
+    
+    
+     **TOTAL ESTIMADO:**
+    **S/ {total:.2f}**
+    
+     **Tiempo:** {tiempo_entrega}
+     **Garantía:** {garantia}
+    
+    ¿Qué deseas hacer?
+

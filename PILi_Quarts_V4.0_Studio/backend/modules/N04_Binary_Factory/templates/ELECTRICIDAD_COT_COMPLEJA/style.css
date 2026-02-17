@@ -1,0 +1,23 @@
+/* CSS for WYSIWYG Mirroring */
+body {
+    font-family: 'Arial', sans-serif;
+    font-size: 11pt;
+    color: #333;
+}
+
+.header h1 {
+    color: #CC0000;
+    /* Tesla Red logic */
+    font-size: 18pt;
+}
+
+table {
+    width: 100%;
+    border-color: #CC0000;
+}
+
+th {
+    background-color: #EEEEEE;
+    color: #000;
+    font-weight: bold;
+}

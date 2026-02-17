@@ -1,0 +1,39 @@
+{
+  "excel_layout": {
+    "sheet_name": "COTIZACION_SIMPLE",
+    "static_cells": {
+      "B2": "COTIZACION SIMPLE"
+    },
+    "dynamic_cells": {
+      "client_name": "C5"
+    },
+    "tables": [
+      {
+        "data_key": "items",
+        "start_row": 8,
+        "columns": {
+          "index": "B",
+          "description": "C",
+          "quantity": "D",
+          "price": "E",
+          "total": "F"
+        }
+      }
+    ]
+  },
+  "word_layout": {
+    "title": "COTIZACION SIMPLE",
+    "headers": [
+      "Item",
+      "Descripci\u00f3n",
+      "Cant",
+      "P. Unit",
+      "Total"
+    ]
+  },
+  "styles": {
+    "colors": {
+      "primary": "#CC0000"
+    }
+  }
+}

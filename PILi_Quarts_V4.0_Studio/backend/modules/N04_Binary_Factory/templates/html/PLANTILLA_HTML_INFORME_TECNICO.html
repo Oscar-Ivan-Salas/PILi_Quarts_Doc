@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Técnico - Tesla Electricidad</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            color: #1f2937;
+            line-height: 1.8;
+            background: #ffffff;
+        }
+
+        .container {
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            background: white;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 4px solid #0052A3;
+        }
+
+        .logo {
+            width: 180px;
+            height: 80px;
+            background: linear-gradient(135deg, #0052A3 0%, #1E40AF 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .empresa-info {
+            text-align: right;
+            font-size: 11px;
+            color: #4b5563;
+        }
+
+        .empresa-nombre {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0052A3;
+            margin-bottom: 8px;
+        }
+
+        /* Portada */
+        .portada {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .portada h1 {
+            font-size: 32px;
+            color: #0052A3;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .portada h2 {
+            font-size: 22px;
+            color: #1E40AF;
+            margin: 15px 0;
+            line-height: 1.4;
+        }
+
+        .portada-info {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .portada-info div {
+            margin: 8px 0;
+        }
+
+        /* Metadatos -->
+        .metadatos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 25px 0;
+            padding: 20px;
+            background: #F9FAFB;
+            border-left: 4px solid #3B82F6;
+            border-radius: 4px;
+        }
+
+        .metadatos-item {
+            font-size: 12px;
+        }
+
+        .metadatos-label {
+            font-weight: 600;
+            color: #1E40AF;
+            margin-bottom: 5px;
+        }
+
+        .metadatos-value {
+            color: #374151;
+        }
+
+        /* Resumen ejecutivo */
+        .resumen-ejecutivo {
+            padding: 25px;
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            border-left: 6px solid #0052A3;
+            border-radius: 4px;
+            margin: 30px 0;
+        }
+
+        .resumen-ejecutivo h3 {
+            font-size: 18px;
+            color: #0052A3;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .resumen-ejecutivo p {
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.8;
+            text-align: justify;
+        }
+
+        /* Secciones */
+        .seccion {
+            margin: 35px 0;
+        }
+
+        .seccion h2 {
+            font-size: 20px;
+            color: #0052A3;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #0052A3;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .seccion h2:before {
+            content: '';
+            width: 6px;
+            height: 26px;
+            background: #3B82F6;
+        }
+
+        .seccion h3 {
+            font-size: 16px;
+            color: #1E40AF;
+            margin: 20px 0 12px 0;
+            font-weight: 600;
+        }
+
+        .seccion p {
+            font-size: 12px;
+            color: #374151;
+            line-height: 1.8;
+            text-align: justify;
+            margin: 12px 0;
+        }
+
+        /* Listas */
+        .lista {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .lista li {
+            font-size: 12px;
+            color: #374151;
+            margin: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .lista li:before {
+            content: "●";
+            position: absolute;
+            left: 10px;
+            color: #0052A3;
+            font-size: 16px;
+        }
+
+        .lista-numerada {
+            counter-reset: item;
+            list-style: none;
+            padding: 0;
+        }
+
+        .lista-numerada li {
+            counter-increment: item;
+            margin: 12px 0;
+            padding-left: 35px;
+            position: relative;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .lista-numerada li:before {
+            content: counter(item) ".";
+            position: absolute;
+            left: 10px;
+            color: #0052A3;
+            font-weight: bold;
+        }
+
+        /* Tablas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #0052A3 0%, #1E40AF 100%);
+            color: white;
+        }
+
+        th {
+            padding: 14px 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px;
+            font-size: 11px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        tr:nth-child(even) {
+            background-color: #F9FAFB;
+        }
+
+        /* Caja destacada */
+        .caja-destacada {
+            padding: 20px;
+            background: #F9FAFB;
+            border-left: 4px solid #0052A3;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .caja-destacada h4 {
+            font-size: 14px;
+            color: #0052A3;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        /* Conclusiones */
+        .conclusiones {
+            margin: 30px 0;
+        }
+
+        .conclusiones-box {
+            padding: 25px;
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            border-left: 6px solid #0052A3;
+            border-radius: 4px;
+        }
+
+        .conclusiones h3 {
+            font-size: 18px;
+            color: #0052A3;
+            margin-bottom: 15px;
+        }
+
+        .conclusiones ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .conclusiones li {
+            font-size: 12px;
+            color: #374151;
+            margin: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .conclusiones li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #0052A3;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 3px solid #0052A3;
+            text-align: center;
+            font-size: 10px;
+            color: #6B7280;
+        }
+
+        .footer-empresa {
+            font-weight: bold;
+            color: #0052A3;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        /* Salto de página */
+        .page-break {
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div>
+                <div class="logo">TESLA</div>
+                <p style="font-size: 10px; color: #6B7280;">Electricidad y Automatización</p>
+            </div>
+            <div class="empresa-info">
+                <div class="empresa-nombre">TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.</div>
+                <div>RUC: 20601138787</div>
+                <div>Jr. Las Ágatas Mz B Lote 09, Urb. San Carlos, SJL</div>
+                <div>Teléfono: 906 315 961 | Email: ingenieria.teslaelectricidad@gmail.com</div>
+            </div>
+        </div>
+
+        <!-- PORTADA -->
+        <div class="portada">
+            <h1>INFORME TÉCNICO</h1>
+            <h2>{{TITULO_INFORME}}</h2>
+            <div class="portada-info">
+                <div><strong>Código:</strong> {{CODIGO_INFORME}}</div>
+                <div><strong>Cliente:</strong> {{CLIENTE}}</div>
+                <div><strong>Fecha:</strong> {{FECHA}}</div>
+                <div style="margin-top: 30px;">
+                    <strong>Elaborado por:</strong><br>
+                    Tesla Electricidad y Automatización S.A.C.<br>
+                    Departamento de Ingeniería
+                </div>
+            </div>
+        </div>
+
+        <!-- METADATOS -->
+        <div class="metadatos">
+            <div class="metadatos-item">
+                <div class="metadatos-label">Código del Informe:</div>
+                <div class="metadatos-value">{{CODIGO_INFORME}}</div>
+            </div>
+            <div class="metadatos-item">
+                <div class="metadatos-label">Fecha de Emisión:</div>
+                <div class="metadatos-value">{{FECHA}}</div>
+            </div>
+            <div class="metadatos-item">
+                <div class="metadatos-label">Cliente:</div>
+                <div class="metadatos-value">{{CLIENTE}}</div>
+            </div>
+            <div class="metadatos-item">
+                <div class="metadatos-label">Autor:</div>
+                <div class="metadatos-value">Tesla Electricidad y Automatización S.A.C.</div>
+            </div>
+        </div>
+
+        <!-- RESUMEN EJECUTIVO -->
+        <div class="resumen-ejecutivo">
+            <h3>Resumen Ejecutivo</h3>
+            <p>{{RESUMEN_EJECUTIVO}}</p>
+        </div>
+
+        <!-- SECCIÓN 1: INTRODUCCIÓN -->
+        <div class="seccion">
+            <h2>1. INTRODUCCIÓN</h2>
+
+            <h3>1.1. Antecedentes</h3>
+            <p>
+                El presente informe técnico describe el proyecto de {{SERVICIO_NOMBRE}}
+                desarrollado para el cliente {{CLIENTE}}. La necesidad surge del requerimiento
+                de implementar un sistema que cumpla con las normativas vigentes y los
+                estándares de calidad establecidos.
+            </p>
+
+            <h3>1.2. Objetivos del Proyecto</h3>
+            <ul class="lista">
+                <li>Diseñar el sistema según normativa {{NORMATIVA_APLICABLE}}</li>
+                <li>Especificar materiales y equipos requeridos con certificación internacional</li>
+                <li>Definir metodología de instalación según mejores prácticas</li>
+                <li>Establecer procedimientos de prueba y comisionamiento</li>
+                <li>Garantizar cumplimiento normativo y operación segura</li>
+            </ul>
+
+            <h3>1.3. Alcance del Informe</h3>
+            <p>
+                El presente documento cubre todos los aspectos técnicos del proyecto, incluyendo
+                diseño, especificaciones, metodología de ejecución, pruebas y documentación de
+                respaldo. Se proporcionan los cálculos y memorias técnicas que justifican las
+                decisiones de ingeniería adoptadas.
+            </p>
+        </div>
+
+        <!-- SECCIÓN 2: MARCO NORMATIVO -->
+        <div class="seccion">
+            <h2>2. MARCO NORMATIVO</h2>
+
+            <p>
+                El proyecto se desarrolla bajo la normativa {{NORMATIVA_APLICABLE}}, garantizando
+                el cumplimiento de todos los requisitos legales y técnicos aplicables.
+            </p>
+
+            <h3>2.1. Códigos y Estándares Aplicables</h3>
+            <ul class="lista">
+                <li>{{NORMATIVA_APLICABLE}}</li>
+                <li>Reglamento Nacional de Edificaciones (RNE)</li>
+                <li>Normas Técnicas Peruanas (NTP) aplicables</li>
+                <li>Estándares internacionales de seguridad y calidad</li>
+            </ul>
+
+            <h3>2.2. Requisitos Regulatorios</h3>
+            <div class="caja-destacada">
+                <h4>Documentación Requerida</h4>
+                <ul class="lista-numerada">
+                    <li>Certificación de instalaciones según normativa vigente</li>
+                    <li>Protocolos de seguridad y prevención de riesgos</li>
+                    <li>Documentación técnica completa (planos, memorias, certificados)</li>
+                    <li>Pruebas de aceptación y conformidad</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: DESCRIPCIÓN TÉCNICA -->
+        <div class="seccion">
+            <h2>3. DESCRIPCIÓN TÉCNICA</h2>
+
+            <p>
+                Descripción detallada del sistema de {{SERVICIO_NOMBRE}}, incluyendo
+                características principales, componentes y especificaciones técnicas.
+            </p>
+
+            <h3>3.1. Características Principales</h3>
+            <ul class="lista">
+                <li>Sistema diseñado según {{NORMATIVA_APLICABLE}}</li>
+                <li>Materiales de primera calidad con certificación internacional</li>
+                <li>Equipos con tecnología de última generación</li>
+                <li>Diseño modular y escalable para futuras expansiones</li>
+            </ul>
+
+            <h3>3.2. Componentes del Sistema</h3>
+            <p>
+                El sistema comprende todos los componentes necesarios para la correcta operación,
+                incluyendo elementos principales, auxiliares y sistemas de protección y control.
+            </p>
+
+            <div class="caja-destacada">
+                <h4>Especificaciones Técnicas Principales</h4>
+                <p style="font-size: 12px; line-height: 1.6;">
+                    Todos los componentes cumplen con especificaciones técnicas rigurosas,
+                    incluyendo certificaciones de calidad, pruebas de fábrica y garantías
+                    extendidas del fabricante.
+                </p>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 4: METODOLOGÍA -->
+        <div class="seccion">
+            <h2>4. METODOLOGÍA</h2>
+
+            <h3>4.1. Proceso de Diseño</h3>
+            <ul class="lista-numerada">
+                <li>Levantamiento de información y requisitos del cliente</li>
+                <li>Cálculos y dimensionamiento según normativa vigente</li>
+                <li>Selección de equipos y materiales certificados</li>
+                <li>Elaboración de planos de ingeniería de detalle</li>
+                <li>Verificación y validación por pares técnicos</li>
+            </ul>
+
+            <h3>4.2. Cálculos y Verificaciones</h3>
+            <div class="caja-destacada">
+                <h4>Aspectos Verificados</h4>
+                <ul class="lista">
+                    <li>Cumplimiento estricto de normativa {{NORMATIVA_APLICABLE}}</li>
+                    <li>Compatibilidad técnica entre todos los componentes</li>
+                    <li>Factores de seguridad según mejores prácticas</li>
+                    <li>Análisis de cargas y capacidades operativas</li>
+                </ul>
+            </div>
+
+            <h3>4.3. Pruebas Realizadas</h3>
+            <p>
+                Se ejecutaron pruebas exhaustivas de funcionamiento, incluyendo pruebas de
+                aceptación en fábrica (FAT), pruebas de aceptación en sitio (SAT), y
+                comisionamiento completo del sistema.
+            </p>
+        </div>
+
+        <!-- SECCIÓN 5: RESULTADOS -->
+        <div class="seccion">
+            <h2>5. RESULTADOS</h2>
+
+            <h3>5.1. Cumplimiento de Especificaciones</h3>
+            <p>
+                El sistema diseñado cumple con todas las especificaciones técnicas requeridas,
+                garantizando operación segura, eficiente y conforme a normativa.
+            </p>
+
+            <h3>5.2. Pruebas y Verificaciones</h3>
+            <p>
+                Todas las pruebas se ejecutaron satisfactoriamente según protocolos establecidos,
+                demostrando el correcto funcionamiento del sistema y el cumplimiento de los
+                parámetros de diseño.
+            </p>
+
+            <h3>5.3. Observaciones</h3>
+            <div class="caja-destacada">
+                <h4>Recomendaciones Operativas</h4>
+                <p style="font-size: 12px; line-height: 1.6;">
+                    Se recomienda implementar un programa de mantenimiento preventivo para
+                    garantizar la operación continua y prolongar la vida útil del sistema.
+                    El manual de operación y mantenimiento se entrega como anexo del presente
+                    informe.
+                </p>
+            </div>
+        </div>
+
+        <!-- CONCLUSIONES -->
+        <div class="conclusiones">
+            <div class="conclusiones-box">
+                <h3>CONCLUSIONES</h3>
+                <ul>
+                    <li>El proyecto de {{SERVICIO_NOMBRE}} es técnicamente viable y cumple con todos los requisitos establecidos</li>
+                    <li>El diseño cumple estrictamente con la normativa {{NORMATIVA_APLICABLE}}</li>
+                    <li>Los cálculos realizados garantizan el funcionamiento seguro y eficiente del sistema</li>
+                    <li>Se recomienda seguimiento periódico mediante programa de mantenimiento preventivo</li>
+                    <li>El sistema está listo para iniciar operaciones según cronograma establecido</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- RECOMENDACIONES -->
+        <div class="seccion">
+            <h2>RECOMENDACIONES</h2>
+            <ul class="lista-numerada">
+                <li>Iniciar el proyecto según cronograma establecido</li>
+                <li>Asegurar la disponibilidad oportuna de materiales certificados</li>
+                <li>Implementar control de calidad riguroso durante la ejecución</li>
+                <li>Capacitar al personal operativo en el uso adecuado del sistema</li>
+                <li>Mantener documentación técnica actualizada para futuras referencias</li>
+            </ul>
+        </div>
+
+        <!-- NORMATIVA -->
+        <div style="padding: 20px; background: #F9FAFB; border-left: 4px solid #0052A3; margin: 30px 0; border-radius: 4px;">
+            <div style="font-size: 13px; color: #6B7280; margin-bottom: 8px; font-weight: 600;">NORMATIVA APLICABLE</div>
+            <div style="font-size: 16px; color: #0052A3; font-weight: bold;">{{NORMATIVA_APLICABLE}}</div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="footer-empresa">TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.</div>
+            <div>RUC: 20601138787 | Teléfono: 906 315 961 | Email: ingenieria.teslaelectricidad@gmail.com</div>
+            <div>Jr. Las Ágatas Mz B Lote 09, Urb. San Carlos, SJL</div>
+        </div>
+    </div>
+</body>
+</html>

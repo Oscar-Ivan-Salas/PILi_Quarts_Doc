@@ -1,0 +1,34 @@
+{
+    "user_id": "b2289941-d90c-4d48-b8c2-6e3fafe88944",
+    "project_id": "default-project-1",
+    "format": "docx",
+    "options": {
+        "esquema_colores": "azul-tesla"
+    },
+    "data": {
+        "cliente": {
+            "nombre": "Empresa Demo S.A.C."
+        },
+        "proyecto": "Instalación Eléctrica Industrial",
+        "items": [
+            {
+                "descripcion": "Tablero eléctrico trifásico 380V",
+                "cantidad": 2,
+                "unidad": "und",
+                "precio_unitario": 1500.00
+            },
+            {
+                "descripcion": "Cableado eléctrico calibre 10 AWG",
+                "cantidad": 150,
+                "unidad": "m",
+                "precio_unitario": 8.50
+            },
+            {
+                "descripcion": "Tomacorrientes industriales",
+                "cantidad": 12,
+                "unidad": "und",
+                "precio_unitario": 45.00
+            }
+        ]
+    }
+}

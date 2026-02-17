@@ -1,0 +1,136 @@
+{
+  "config": {
+    "rootDir": "E:/PILi_Quarts/workspace-modern/frontend",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "E:/PILi_Quarts/workspace-modern/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "E:/PILi_Quarts/workspace-modern/frontend",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.1",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "tests\\verify_full_flow.spec.ts",
+      "file": "tests/verify_full_flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Full User Journey: Quote Creation and Export",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3261,
+                  "error": {
+                    "message": "Error: locator.fill: Error: strict mode violation: locator('textarea') resolved to 2 elements:\n    1) <textarea placeholder=\"Descripción detallada del proyecto...\">Solicito cotización para cableado de 5 oficinas a…</textarea> aka getByRole('textbox', { name: 'Descripción detallada del' })\n    2) <textarea placeholder=\"Pregúntale a PILi...\" class=\"flex rounded-md border border-input transition-all duration-200 ease-in-out disabled:cursor-not-allowed disabled:opacity-50 w-full px-4 py-3 resize-none bg-transparent border-none text-white/90 text-sm focus:outline-none placeholder:text-white/20 min-h-[60px]\"></textarea> aka getByRole('textbox', { name: 'Pregúntale a PILi...' })\n\nCall log:\n\u001b[2m  - waiting for locator('textarea')\u001b[22m\n",
+                    "stack": "Error: locator.fill: Error: strict mode violation: locator('textarea') resolved to 2 elements:\n    1) <textarea placeholder=\"Descripción detallada del proyecto...\">Solicito cotización para cableado de 5 oficinas a…</textarea> aka getByRole('textbox', { name: 'Descripción detallada del' })\n    2) <textarea placeholder=\"Pregúntale a PILi...\" class=\"flex rounded-md border border-input transition-all duration-200 ease-in-out disabled:cursor-not-allowed disabled:opacity-50 w-full px-4 py-3 resize-none bg-transparent border-none text-white/90 text-sm focus:outline-none placeholder:text-white/20 min-h-[60px]\"></textarea> aka getByRole('textbox', { name: 'Pregúntale a PILi...' })\n\nCall log:\n\u001b[2m  - waiting for locator('textarea')\u001b[22m\n\n    at E:\\PILi_Quarts\\workspace-modern\\frontend\\tests\\verify_full_flow.spec.ts:44:36",
+                    "location": {
+                      "file": "E:\\PILi_Quarts\\workspace-modern\\frontend\\tests\\verify_full_flow.spec.ts",
+                      "column": 36,
+                      "line": 44
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 42 |\u001b[39m     \u001b[36mconst\u001b[39m chatInput \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByPlaceholder(\u001b[32m'Escribe tu mensaje...'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Just assuming placeholder or use textarea\u001b[39m\n \u001b[90m 43 |\u001b[39m     \u001b[90m// If placeholder isn't clear, use locator('textarea')\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 44 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'textarea'\u001b[39m)\u001b[33m.\u001b[39mfill(\u001b[32m'Hola, por favor agrega 10 puntos de red Cat6.'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 45 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[32m'Send'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 46 |\u001b[39m\n \u001b[90m 47 |\u001b[39m     \u001b[90m// Verify message appears in chat\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "E:\\PILi_Quarts\\workspace-modern\\frontend\\tests\\verify_full_flow.spec.ts",
+                        "column": 36,
+                        "line": 44
+                      },
+                      "message": "Error: locator.fill: Error: strict mode violation: locator('textarea') resolved to 2 elements:\n    1) <textarea placeholder=\"Descripción detallada del proyecto...\">Solicito cotización para cableado de 5 oficinas a…</textarea> aka getByRole('textbox', { name: 'Descripción detallada del' })\n    2) <textarea placeholder=\"Pregúntale a PILi...\" class=\"flex rounded-md border border-input transition-all duration-200 ease-in-out disabled:cursor-not-allowed disabled:opacity-50 w-full px-4 py-3 resize-none bg-transparent border-none text-white/90 text-sm focus:outline-none placeholder:text-white/20 min-h-[60px]\"></textarea> aka getByRole('textbox', { name: 'Pregúntale a PILi...' })\n\nCall log:\n\u001b[2m  - waiting for locator('textarea')\u001b[22m\n\n\n  42 |     const chatInput = page.getByPlaceholder('Escribe tu mensaje...'); // Just assuming placeholder or use textarea\n  43 |     // If placeholder isn't clear, use locator('textarea')\n> 44 |     await page.locator('textarea').fill('Hola, por favor agrega 10 puntos de red Cat6.');\n     |                                    ^\n  45 |     await page.locator('button').filter({ hasText: 'Send' }).click();\n  46 |\n  47 |     // Verify message appears in chat\n    at E:\\PILi_Quarts\\workspace-modern\\frontend\\tests\\verify_full_flow.spec.ts:44:36"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-02-03T21:56:34.271Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "E:\\PILi_Quarts\\workspace-modern\\frontend\\test-results\\tests-verify_full_flow-Ful-f7474-y-Quote-Creation-and-Export\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "E:\\PILi_Quarts\\workspace-modern\\frontend\\tests\\verify_full_flow.spec.ts",
+                    "column": 36,
+                    "line": 44
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "5677f8f71feadb5e0efc-bba8dff599557bab0858",
+          "file": "tests/verify_full_flow.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-02-03T21:56:32.860Z",
+    "duration": 4942.798000000001,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

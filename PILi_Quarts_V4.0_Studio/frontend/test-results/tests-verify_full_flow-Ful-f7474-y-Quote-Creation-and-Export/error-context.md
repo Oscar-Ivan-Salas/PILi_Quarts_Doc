@@ -1,0 +1,232 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e7]:
+        - generic [ref=e8]: P
+        - generic [ref=e9]:
+          - heading "PILi_Quarts" [level=1] [ref=e10]
+          - paragraph [ref=e11]: Workspace Agentic v3.0
+      - generic [ref=e12]:
+        - button "Inicio" [ref=e13] [cursor=pointer]:
+          - img [ref=e14]
+          - generic [ref=e17]: Inicio
+        - button "Guardar" [ref=e18] [cursor=pointer]:
+          - img [ref=e19]
+          - generic [ref=e23]: Guardar
+        - 'button "Tema actual: dark" [ref=e24] [cursor=pointer]':
+          - img [ref=e25]
+        - button [ref=e27] [cursor=pointer]:
+          - img [ref=e28]
+  - generic [ref=e31]:
+    - navigation [ref=e33]:
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - button "Cotizaciones" [ref=e36] [cursor=pointer]:
+            - generic [ref=e37]:
+              - img [ref=e38]
+              - generic [ref=e41]: Cotizaciones
+            - img [ref=e42]
+          - generic [ref=e44]:
+            - button "Simple 10" [ref=e45] [cursor=pointer]:
+              - generic [ref=e46]: Simple
+              - generic [ref=e47]: "10"
+            - button "Compleja 3" [ref=e48] [cursor=pointer]:
+              - generic [ref=e49]: Compleja
+              - generic [ref=e50]: "3"
+        - generic [ref=e51]:
+          - button "Proyectos" [ref=e52] [cursor=pointer]:
+            - generic [ref=e53]:
+              - img [ref=e54]
+              - generic [ref=e56]: Proyectos
+            - img [ref=e57]
+          - generic [ref=e59]:
+            - button "Simple 3" [ref=e60] [cursor=pointer]:
+              - generic [ref=e61]: Simple
+              - generic [ref=e62]: "3"
+            - button "Complejo 1" [ref=e63] [cursor=pointer]:
+              - generic [ref=e64]: Complejo
+              - generic [ref=e65]: "1"
+        - button "Informes" [ref=e67] [cursor=pointer]:
+          - generic [ref=e68]:
+            - img [ref=e69]
+            - generic [ref=e71]: Informes
+          - img [ref=e72]
+      - generic [ref=e74]:
+        - heading "Acciones Rápidas" [level=3] [ref=e75]
+        - generic [ref=e76]:
+          - button "Nuevo Proyecto" [ref=e77] [cursor=pointer]:
+            - img [ref=e78]
+            - text: Nuevo Proyecto
+          - button "Calculadora" [ref=e80] [cursor=pointer]:
+            - img [ref=e81]
+            - text: Calculadora
+    - generic [ref=e85]:
+      - generic [ref=e86]:
+        - generic [ref=e87]:
+          - button [ref=e88] [cursor=pointer]:
+            - img [ref=e89]
+          - generic [ref=e91]:
+            - heading "Vista Previa del Documento" [level=2] [ref=e92]
+            - paragraph [ref=e93]: Test Client Corp
+        - generic [ref=e95]: Conectado a PILi 🧠
+      - generic [ref=e98]:
+        - generic [ref=e99]:
+          - generic [ref=e100]:
+            - generic [ref=e101]: TESLA
+            - paragraph [ref=e102]: Electricidad y Automatización
+          - generic [ref=e103]:
+            - generic [ref=e104]: TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.
+            - generic [ref=e105]:
+              - generic [ref=e106]: "RUC: 20601138787"
+              - generic [ref=e107]: Jr. Las Ágatas Mz B Lote 09, Urb. San Carlos, SJL
+              - generic [ref=e108]: "Teléfono: 906 315 961"
+              - generic [ref=e109]: "Email: ingenieria.teslaelectricidad@gmail.com"
+        - generic [ref=e110]:
+          - generic [ref=e111]: "Moneda:"
+          - button "S/ Soles" [ref=e112] [cursor=pointer]
+          - button "$ Dólares" [ref=e113] [cursor=pointer]
+          - button "€ Euros" [ref=e114] [cursor=pointer]
+        - generic [ref=e115]:
+          - heading "COTIZACIÓN DE SERVICIOS" [level=1] [ref=e116]
+          - generic [ref=e117]:
+            - text: N°
+            - textbox [ref=e118]: COT-001
+        - generic [ref=e119]:
+          - generic [ref=e120]:
+            - heading "Datos del Cliente" [level=3] [ref=e121]
+            - paragraph [ref=e122]:
+              - strong [ref=e123]: "Cliente:"
+              - textbox [ref=e124]: Test Client Corp
+            - paragraph [ref=e125]:
+              - strong [ref=e126]: "Proyecto:"
+              - textbox [ref=e127]: "[object Object]"
+            - paragraph [ref=e128]:
+              - strong [ref=e129]: "Área:"
+              - spinbutton [ref=e130]: "0"
+              - text: m²
+          - generic [ref=e131]:
+            - heading "Datos de la Cotización" [level=3] [ref=e132]
+            - paragraph [ref=e133]:
+              - strong [ref=e134]: "Fecha:"
+              - text: 3/2/2026
+            - paragraph [ref=e135]:
+              - strong [ref=e136]: "Vigencia:"
+              - textbox [ref=e137]: 30 días
+            - paragraph [ref=e138]:
+              - strong [ref=e139]: "Servicio:"
+              - textbox [ref=e140]: electricidad
+        - generic [ref=e141]:
+          - heading "Descripción del Proyecto" [level=3] [ref=e142]
+          - textbox "Descripción detallada del proyecto..." [ref=e143]: Solicito cotización para cableado de 5 oficinas administrativas.
+        - generic [ref=e144]:
+          - heading "Detalle de la Cotización" [level=2] [ref=e145]
+          - table [ref=e146]:
+            - rowgroup [ref=e147]:
+              - row "ITEM DESCRIPCIÓN CANT. UNIDAD P. UNIT. TOTAL" [ref=e148]:
+                - columnheader "ITEM" [ref=e149]
+                - columnheader "DESCRIPCIÓN" [ref=e150]
+                - columnheader "CANT." [ref=e151]
+                - columnheader "UNIDAD" [ref=e152]
+                - columnheader "P. UNIT." [ref=e153]
+                - columnheader "TOTAL" [ref=e154]
+            - rowgroup [ref=e155]:
+              - row "01 Tablero eléctrico 1 und S/ 450 S/ 450.00" [ref=e156]:
+                - cell "01" [ref=e157]
+                - cell "Tablero eléctrico" [ref=e158]:
+                  - textbox [ref=e159]: Tablero eléctrico
+                - cell "1" [ref=e160]:
+                  - spinbutton [ref=e161]: "1"
+                - cell "und" [ref=e162]:
+                  - textbox [ref=e163]: und
+                - cell "S/ 450" [ref=e164]:
+                  - text: S/
+                  - spinbutton [ref=e165]: "450"
+                - cell "S/ 450.00" [ref=e166]
+          - button "+ Agregar Item" [ref=e168] [cursor=pointer]
+        - generic [ref=e170]:
+          - generic [ref=e171]:
+            - generic [ref=e172]: "SUBTOTAL:"
+            - generic [ref=e173]: S/ 450.00
+          - generic [ref=e174]:
+            - generic [ref=e175]: "IGV (18%):"
+            - generic [ref=e176]: S/ 81.00
+          - generic [ref=e177]:
+            - generic [ref=e178]: "TOTAL:"
+            - generic [ref=e179]: S/ 531.00
+        - generic [ref=e180]:
+          - heading "Observaciones Técnicas" [level=3] [ref=e181]
+          - list [ref=e182]:
+            - listitem [ref=e183]:
+              - generic [ref=e184]: ✓
+              - text: Trabajos ejecutados según CNE - Código Nacional de Electricidad
+            - listitem [ref=e185]:
+              - generic [ref=e186]: ✓
+              - text: Materiales de primera calidad con certificación
+            - listitem [ref=e187]:
+              - generic [ref=e188]: ✓
+              - text: Mano de obra especializada
+            - listitem [ref=e189]:
+              - generic [ref=e190]: ✓
+              - text: Garantía de 12 meses en mano de obra
+            - listitem [ref=e191]:
+              - generic [ref=e192]: ✓
+              - text: Precios en soles peruanos (PEN)
+            - listitem [ref=e193]:
+              - generic [ref=e194]: ✓
+              - text: "Forma de pago: 50% adelanto, 50% contra entrega"
+            - listitem [ref=e195]:
+              - generic [ref=e196]: ✓
+              - text: Cotización válida por 30 días
+        - generic [ref=e197]:
+          - generic [ref=e198]: TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.
+          - generic [ref=e199]: "RUC: 20601138787 | Teléfono: 906 315 961"
+          - generic [ref=e200]: "Email: ingenieria.teslaelectricidad@gmail.com"
+          - generic [ref=e201]: Jr. Las Ágatas Mz B Lote 09, Urb. San Carlos, SJL
+      - generic [ref=e202]:
+        - button "← Volver al Chat" [ref=e203] [cursor=pointer]
+        - button "📊 Descargar Excel" [active] [ref=e204] [cursor=pointer]
+        - button "📄 Descargar PDF" [ref=e205] [cursor=pointer]
+        - button "📝 Descargar Word" [ref=e206] [cursor=pointer]
+    - generic [ref=e210]:
+      - generic [ref=e211]:
+        - img [ref=e215]
+        - heading "¿Cómo puedo ayudarte hoy?" [level=1] [ref=e218]
+        - paragraph [ref=e220]: Escribe un comando o haz una pregunta
+      - generic [ref=e221]:
+        - generic [ref=e222]:
+          - paragraph [ref=e225]: Hola, por favor agrega 10 puntos de red Cat6.
+          - paragraph [ref=e228]: Servicio redes-cctv en desarrollo. Por favor usa Gemini o contacta soporte.
+        - generic [ref=e229]:
+          - textbox "Pregúntale a PILi..." [ref=e232]
+          - generic [ref=e234]:
+            - generic [ref=e235]:
+              - button [ref=e236] [cursor=pointer]:
+                - img [ref=e237]
+              - button [ref=e240] [cursor=pointer]:
+                - img [ref=e241]
+            - button "Send" [disabled] [ref=e244]:
+              - img [ref=e245]
+              - generic [ref=e248]: Send
+      - generic [ref=e249]:
+        - button "Cotización Simple" [ref=e250] [cursor=pointer]:
+          - img [ref=e251]
+          - generic [ref=e254]: Cotización Simple
+        - button "Cotización Compleja" [ref=e256] [cursor=pointer]:
+          - img [ref=e257]
+          - generic [ref=e260]: Cotización Compleja
+        - button "Proyecto Simple" [ref=e262] [cursor=pointer]:
+          - img [ref=e263]
+          - generic [ref=e265]: Proyecto Simple
+        - button "Proyecto Complejo" [ref=e267] [cursor=pointer]:
+          - img [ref=e268]
+          - generic [ref=e270]: Proyecto Complejo
+        - button "Informe Simple" [ref=e272] [cursor=pointer]:
+          - img [ref=e273]
+          - generic [ref=e275]: Informe Simple
+        - button "Informe Complejo" [ref=e277] [cursor=pointer]:
+          - img [ref=e278]
+          - generic [ref=e280]: Informe Complejo
+```

@@ -1,0 +1,176 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📹 CONFIGURACIÓN COMPLETA CCTV - VIDEOVIGILANCIA PROFESIONAL
+# ═══════════════════════════════════════════════════════════════════════════════
+
+service: cctv
+name: "Sistemas CCTV"
+description: "Sistemas de videovigilancia y seguridad profesional"
+normativa: "Ley 29733 - Protección de Datos Personales"
+dias_grabacion_opciones: [7, 15, 30, 60, 90]
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📹 TIPOS DE CÁMARAS
+# ═══════════════════════════════════════════════════════════════════════════════
+tipos_camara:
+  ANALOGICA:
+    nombre: "Cámaras Analógicas HD"
+    descripcion: "Tecnología AHD/TVI/CVI"
+    grabador: "DVR"
+    cable: "Coaxial RG59"
+    precios:
+      camara_2mp_domo: 250.00
+      camara_2mp_bala: 280.00
+      camara_4mp_domo: 350.00
+      camara_4mp_bala: 380.00
+      camara_5mp_domo: 420.00
+      camara_5mp_bala: 450.00
+  
+  IP:
+    nombre: "Cámaras IP (Red)"
+    descripcion: "Tecnología IP PoE"
+    grabador: "NVR"
+    cable: "UTP Cat6"
+    precios:
+      camara_2mp_domo: 350.00
+      camara_2mp_bala: 380.00
+      camara_4mp_domo: 450.00
+      camara_4mp_bala: 480.00
+      camara_8mp_domo: 650.00
+      camara_8mp_bala: 680.00
+      camara_ptz_2mp: 850.00
+      camara_ptz_4mp: 1200.00
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 💰 PRECIOS DE ACCESORIOS
+# ═══════════════════════════════════════════════════════════════════════════════
+precios_accesorios:
+  dvr_4ch: 450.00
+  dvr_8ch: 800.00
+  dvr_16ch: 1200.00
+  nvr_4ch_poe: 650.00
+  nvr_8ch_poe: 1200.00
+  nvr_16ch_poe: 1800.00
+  disco_1tb_purple: 180.00
+  disco_2tb_purple: 280.00
+  disco_4tb_purple: 450.00
+  cable_coaxial_rg59_metro: 1.50
+  cable_utp_cat6_metro: 1.20
+  fuente_12v_5a: 35.00
+  fuente_12v_10a: 55.00
+  switch_poe_8p: 280.00
+  switch_poe_16p: 550.00
+  monitor_led_24: 450.00
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📝 MENSAJES PROFESIONALES
+# ═══════════════════════════════════════════════════════════════════════════════
+mensajes:
+  presentacion: |
+    ¡Hola! 👋 Soy **Pili**, tu especialista en Sistemas CCTV de **Tesla Electricidad**.
+    
+    🎯 Te ayudo con:
+    ✅ Cámaras HD y 4K
+    ✅ Grabación en la nube
+    ✅ Visión nocturna
+    ✅ Acceso remoto 24/7
+    
+    **Selecciona el tipo de sistema:**
+  
+  confirm_tipo: |
+    Perfecto, sistema **{tipo_camara}**.
+    
+    📋 **Tecnología:** {descripcion}
+    🎥 **Grabador:** {grabador}
+    📡 **Cable:** {cable}
+    
+    📹 **¿Cuántas cámaras necesitas?**
+    
+    _Escribe el número (ejemplo: 8)_
+  
+  ask_grabacion: |
+    ✅ Cámaras: **{num_camaras}**
+    
+    💾 **Selecciona el tiempo de grabación:**
+  
+  cotizacion: |
+    📊 **COTIZACIÓN SISTEMA CCTV**
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **📋 DATOS DEL PROYECTO:**
+    
+    📹 Tipo: {tipo_camara}
+    🎥 Cámaras: {num_camaras}
+    💾 Grabación: {dias_grabacion} días
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **💰 ITEMS CALCULADOS:**
+    
+    {items_detalle}
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **📈 TOTALES:**
+    
+    Subtotal: S/ {subtotal:.2f}
+    IGV (18%): S/ {igv:.2f}
+    **TOTAL: S/ {total:.2f}**
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    
+    ✅ Incluye: Equipos + Instalación + Configuración
+    ⏱️ Tiempo: 7-10 días hábiles
+    📋 Normativa: Ley 29733
+    🎁 Garantía: 1 año
+    
+    ¿Deseas generar el documento?
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔄 FLUJO DE CONVERSACIÓN
+# ═══════════════════════════════════════════════════════════════════════════════
+documents:
+  cotizacion-simple:
+    etapas:
+      - id: tipo_camara
+        type: buttons
+        message_template: presentacion
+        next: num_camaras
+        progress: "1/4"
+        opciones:
+          - text: "📹 Analógico HD"
+            value: "ANALOGICA"
+          - text: "📹 IP (Red)"
+            value: "IP"
+      
+      - id: num_camaras
+        type: input_number
+        message_template: confirm_tipo
+        next: grabacion
+        progress: "2/4"
+        validacion:
+          min: 1
+          max: 100
+          type: int
+      
+      - id: grabacion
+        type: buttons
+        message_template: ask_grabacion
+        next: quotation
+        progress: "3/4"
+        opciones:
+          - text: "💾 7 días"
+            value: "7"
+          - text: "💾 15 días"
+            value: "15"
+          - text: "💾 30 días"
+            value: "30"
+          - text: "💾 60 días"
+            value: "60"
+      
+      - id: quotation
+        type: generate_quote
+        message_template: cotizacion
+        calculator: calculate_cctv_quote
+        progress: "4/4"
+        actions:
+          - text: "📄 Generar Cotización"
+            value: "GENERAR"
+          - text: "🔄 Nueva consulta"
+            value: "RESTART"

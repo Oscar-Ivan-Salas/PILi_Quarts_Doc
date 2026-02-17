@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Informe Ejecutivo APA - Ing. Carlos Tovar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background: white;
+            padding: 40px;
+            line-height: 2.0;
+            color: #000;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+        }
+
+        /* PORTADA ESTILO APA */
+        .portada {
+            text-align: center;
+            padding: 100px 40px;
+            border: 4px solid #0052A3;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .portada::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #0052A3 0%, #1E40AF 50%, #3B82F6 100%);
+        }
+
+        .portada-titulo {
+            font-size: 28px;
+            font-weight: 900;
+            color: #0052A3;
+            margin: 20px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            border: 2px solid #bfdbfe;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .portada-subtitulo {
+            font-size: 18px;
+            color: #1E40AF;
+            margin: 15px 0;
+            font-weight: 600;
+            width: 100%;
+            border: 2px solid #bfdbfe;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .portada-info {
+            margin: 30px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .portada-field {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 15px;
+        }
+
+        .portada-label {
+            font-weight: 700;
+            color: #1E40AF;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .portada-valor {
+            font-weight: 600;
+            color: #1f2937;
+            padding: 5px 10px;
+            font-size: 16px;
+            min-width: 250px;
+            text-align: left;
+        }
+
+        .portada-empresa {
+            margin-top: 40px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #0052A3;
+        }
+
+        /* SECCIONES */
+        .seccion {
+            margin-bottom: 40px;
+            page-break-inside: avoid;
+        }
+
+        .seccion-titulo {
+            font-size: 20px;
+            font-weight: 900;
+            color: #0052A3;
+            border-bottom: 3px solid #1E40AF;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .seccion-texto {
+            font-size: 14px;
+            line-height: 2.0;
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        /* MÉTRICAS FINANCIERAS */
+        .metricas-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .metrica {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 6px solid #0052A3;
+            box-shadow: 0 4px 12px rgba(0, 82, 163, 0.1);
+        }
+
+        .metrica-label {
+            color: #1E40AF;
+            font-weight: 800;
+            font-size: 12px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metrica-value {
+            font-size: 24px;
+            font-weight: 900;
+            color: #0052A3;
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+
+        .metrica-unit {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1E40AF;
+        }
+
+        /* TABLA INVERSIÓN */
+        .tabla-inversion {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0, 82, 163, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .tabla-inversion thead {
+            background: linear-gradient(135deg, #0052A3 0%, #1E40AF 100%);
+            color: white;
+        }
+
+        .tabla-inversion th {
+            padding: 16px;
+            font-weight: 800;
+            text-align: left;
+            font-size: 15px;
+        }
+
+        .tabla-inversion td {
+            padding: 16px;
+            border-bottom: 2px solid #e0f2fe;
+            background: white;
+        }
+
+        .tabla-label {
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .total-row {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+            font-weight: 900;
+        }
+
+        .total-row td {
+            background: transparent;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 3px solid #0052A3;
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    
+
+    <div class="container">
+        <!-- PORTADA ESTILO APA -->
+        <div class="portada">
+            <div class="portada-titulo"></div>
+            <div class="portada-subtitulo"></div>
+
+            <div class="portada-info">
+                <div class="portada-field">
+                    <span class="portada-label">Cliente:</span>
+                    <span class="portada-valor">Minera Chinalco S.A.</span>
+                </div>
+                <div class="portada-field">
+                    <span class="portada-label">Código:</span>
+                    <span class="portada-valor">COT-2025-001</span>
+                </div>
+                <div class="portada-field">
+                    <span class="portada-label">Fecha:</span>
+                    <span class="portada-valor">14/02/2026</span>
+                </div>
+            </div>
+
+            <div class="portada-empresa">
+                ⚡ TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.<br>
+                Departamento de Ingeniería y Proyectos
+            </div>
+        </div>
+
+        <!-- RESUMEN EJECUTIVO -->
+        <div class="seccion">
+            <h2 class="seccion-titulo">Resumen Ejecutivo</h2>
+            <div class="seccion-texto">El presente informe detalla las actividades de mantenimiento...</div>
+        </div>
+
+        <!-- MÉTRICAS FINANCIERAS -->
+        <div class="seccion">
+            <h2 class="seccion-titulo">Métricas Financieras</h2>
+            <div class="metricas-grid">
+                <div class="metrica">
+                    <div class="metrica-label">📊 ROI Estimado</div>
+                    <div class="metrica-value">22.5<span class="metrica-unit">%</span></div>
+                </div>
+                <div class="metrica">
+                    <div class="metrica-label">📈 TIR Proyectada</div>
+                    <div class="metrica-value">18.2<span class="metrica-unit">%</span></div>
+                </div>
+                <div class="metrica">
+                    <div class="metrica-label">⏱️ Payback</div>
+                    <div class="metrica-value">14<span class="metrica-unit">meses</span></div>
+                </div>
+                <div class="metrica">
+                    <div class="metrica-label">💰 Ahorro Anual</div>
+                    <div class="metrica-value">S/ 15000.00</div>
+                </div>
+                <div class="metrica">
+                    <div class="metrica-label">⚡ Ahorro Energético</div>
+                    <div class="metrica-value">12500<span class="metrica-unit">kWh/año</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INVERSIÓN TOTAL -->
+        <div class="seccion">
+            <h2 class="seccion-titulo">Desglose de Inversión Total</h2>
+            <table class="tabla-inversion">
+                <thead>
+                    <tr>
+                        <th>Concepto</th>
+                        <th>Monto (S/)</th>
+                        <th>% del Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tabla-label">💼 Equipos y Materiales</td>
+                        <td>S/ 25000.00</td>
+                        <td style="font-weight: 700; color: #0052A3;">
+                            
+                            55.6%
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="tabla-label">👷 Mano de Obra Especializada</td>
+                        <td>S/ 15000.00</td>
+                        <td style="font-weight: 700; color: #0052A3;">
+                            
+                            33.3%
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="tabla-label">💰 Capital de Trabajo</td>
+                        <td>S/ 5000.00</td>
+                        <td style="font-weight: 700; color: #0052A3;">
+                            
+                            11.1%
+                            
+                        </td>
+                    </tr>
+                    <tr class="total-row">
+                        <td class="tabla-label" style="font-size: 18px;">🏆 INVERSIÓN TOTAL</td>
+                        <td style="font-size: 18px; color: #0052A3;">S/ 45000.00</td>
+                        <td style="font-weight: 700; font-size: 16px;">100%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- RECOMENDACIONES -->
+        <div class="seccion">
+            <h2 class="seccion-titulo">Recomendaciones</h2>
+            <div class="seccion-texto">Realizar mantenimiento preventivo cada 6 meses.</div>
+        </div>
+
+        <div class="footer">
+            <div style="font-weight: 700; color: #1E40AF; margin-bottom: 5px;">
+                Documento generado por Ing. Carlos Tovar v3.0
+            </div>
+            <div>
+                14/02/2026 - Sistema de Gestión Tesla Electricidad<br>
+                Formato APA 7th Edition - Confidencial
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

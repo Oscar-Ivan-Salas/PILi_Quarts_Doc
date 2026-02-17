@@ -1,0 +1,5 @@
+# Procfile for Heroku/Railway/Render
+# Process types for deployment
+
+web: uvicorn main:app --host 0.0.0.0 --port $PORT
+release: python scripts/db_migrate.py upgrade

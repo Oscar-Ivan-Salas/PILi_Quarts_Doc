@@ -1,0 +1,53 @@
+{
+  "excel_layout": {
+    "sheet_name": "CUADRO_CARGAS",
+    "static_cells": {
+      "B2": "CUADRO CARGAS"
+    },
+    "dynamic_cells": {
+      "client_name": "C5"
+    },
+    "tables": [
+      {
+        "data_key": "items",
+        "start_row": 8,
+        "columns": {
+          "columns": {
+            "tablero": "B",
+            "circuito": "C",
+            "descripcion": "D",
+            "puntos_salida": "E",
+            "potencia_watts": "F",
+            "factor_demanda": "G",
+            "max_demanda": "H",
+            "tension": "I",
+            "corriente": "J",
+            "breaker": "K",
+            "cable": "L"
+          }
+        }
+      }
+    ]
+  },
+  "word_layout": {
+    "title": "CUADRO CARGAS",
+    "headers": [
+      "Tablero",
+      "Circuito",
+      "Descripci\u00f3n",
+      "Puntos",
+      "Potencia",
+      "F.D",
+      "Max.D",
+      "Tens.",
+      "Corr.",
+      "Brk",
+      "Cbl"
+    ]
+  },
+  "styles": {
+    "colors": {
+      "primary": "#CC0000"
+    }
+  }
+}

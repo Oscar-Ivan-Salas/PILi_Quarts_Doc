@@ -8,6 +8,13 @@
 :root {
   --color-tesla-red: #8B0000;
   --color-tesla-gold: #D4AF37;
+  --color-tesla-blue: #0052A3;
+  /* Azul Tesla - Precisión y Autoridad */
+  --color-tesla-blue-glow: rgba(0, 82, 163, 0.4);
+  --color-energy-red: #DC2626;
+  /* Rojo Energía - Seguridad ITSE */
+  --color-eco-green: #22C55E;
+  /* Verde Ecológico - Saneamiento */
   --color-black: #000000;
   --color-gray-dark: #1f2937;
   --color-gray-light: #f3f4f6;
@@ -72,7 +79,8 @@ code {
    Clases de Utilidad para Scrollbars (Manuales)
    =================================== */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 8px; /* Más fino */
+  width: 8px;
+  /* Más fino */
   height: 8px;
 }
 
@@ -91,6 +99,7 @@ code {
   background: linear-gradient(to bottom, #a855f7, #6366f1);
   border: 1px solid #4c1d95;
 }
+
 .scrollbar-purple::-webkit-scrollbar-track {
   background: rgba(88, 28, 135, 0.2);
 }
@@ -100,6 +109,7 @@ code {
   background: linear-gradient(to bottom, #D4AF37, #b8941f);
   border: 1px solid #713f12;
 }
+
 .scrollbar-gold::-webkit-scrollbar-track {
   background: rgba(31, 41, 55, 0.8);
 }
@@ -112,6 +122,7 @@ code {
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -123,6 +134,7 @@ code {
     transform: translateX(-100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -134,6 +146,7 @@ code {
     transform: translateY(100%);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -144,6 +157,7 @@ code {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -153,15 +167,19 @@ code {
   from {
     width: 100%;
   }
+
   to {
     width: 0%;
   }
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
   }
+
   50% {
     box-shadow: 0 0 40px rgba(212, 175, 55, 0.8);
   }
@@ -303,7 +321,7 @@ code {
     background: white;
     color: black;
   }
-  
+
   .no-print {
     display: none !important;
   }
@@ -316,7 +334,7 @@ code {
   .responsive-text-sm {
     font-size: 0.875rem;
   }
-  
+
   .responsive-padding-sm {
     padding: 1rem;
   }
@@ -355,4 +373,19 @@ code {
   background-color: #D4AF37;
   color: #000000;
 }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } } .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}

@@ -1,0 +1,65 @@
+{
+    "meta": {
+        "name": "Cotización Eléctrica Industrial (R.A.L.F.)",
+        "version": "2.0-Univ"
+    },
+    "excel_layout": {
+        "sheet_name": "Cotización",
+        "static_cells": {
+            "B2": "SOLUCIONES ELÉCTRICAS INDUSTRIALES",
+            "B3": "RUC: 20100000001",
+            "B5": "COTIZACIÓN TÉCNICA"
+        },
+        "dynamic_cells": {
+            "client_name": "C7",
+            "date": "C8",
+            "service_name": "C9",
+            "normativa": "B25",
+            "total_value": "G22"
+        },
+        "tables": [
+            {
+                "data_key": "items",
+                "start_row": 12,
+                "columns": {
+                    "index": "B",
+                    "description": "C",
+                    "unit": "D",
+                    "quantity": "E",
+                    "price": "F",
+                    "total": "G"
+                }
+            }
+        ]
+    },
+    "word_layout": {
+        "title": "COTIZACIÓN TÉCNICA - {{ service_name }}",
+        "headers": [
+            "Item",
+            "Descripción",
+            "Unidad",
+            "Cant",
+            "P. Unit",
+            "Total"
+        ],
+        "table_widths": [
+            1,
+            5,
+            1.5,
+            1.5,
+            2,
+            2
+        ]
+    },
+    "styles": {
+        "colors": {
+            "primary": "#CC0000",
+            "secondary": "#333333",
+            "table_header": "#EEEEEE"
+        },
+        "fonts": {
+            "body": "Arial",
+            "size_pt": 11
+        }
+    }
+}

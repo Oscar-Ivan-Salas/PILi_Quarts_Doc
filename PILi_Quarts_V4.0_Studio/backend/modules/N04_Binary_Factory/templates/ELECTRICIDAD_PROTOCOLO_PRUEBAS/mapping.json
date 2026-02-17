@@ -1,0 +1,45 @@
+{
+  "excel_layout": {
+    "sheet_name": "PROTOCOLO_PRUEBAS",
+    "static_cells": {
+      "B2": "PROTOCOLO PRUEBAS"
+    },
+    "dynamic_cells": {
+      "client_name": "C5"
+    },
+    "tables": [
+      {
+        "data_key": "items",
+        "start_row": 8,
+        "columns": {
+          "columns": {
+            "item": "B",
+            "prueba": "C",
+            "equipo_medicion": "D",
+            "valor_normado": "E",
+            "valor_medido": "F",
+            "resultado": "G",
+            "observaciones": "H"
+          }
+        }
+      }
+    ]
+  },
+  "word_layout": {
+    "title": "PROTOCOLO PRUEBAS",
+    "headers": [
+      "Item",
+      "Prueba",
+      "Equipo",
+      "V.Norm",
+      "V.Med",
+      "Result",
+      "Obs"
+    ]
+  },
+  "styles": {
+    "colors": {
+      "primary": "#CC0000"
+    }
+  }
+}

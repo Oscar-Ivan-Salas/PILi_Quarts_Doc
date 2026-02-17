@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Modelo de Usuario Test</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="header" style="background-color: #0052A3; color: white; padding: 20px;">
+        <h1>COTIZACIÓN PERSONALIZADA</h1>
+        <p>Cliente: {{ client_name }}</p>
+    </div>
+    <div class="content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Desc</th>
+                    <th>Cant</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="footer">
+        <p>Total General: {{ total_value }}</p>
+    </div>
+</body>
+
+</html>

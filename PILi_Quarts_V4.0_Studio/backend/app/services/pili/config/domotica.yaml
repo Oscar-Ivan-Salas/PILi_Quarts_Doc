@@ -1,0 +1,173 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🏠 CONFIGURACIÓN COMPLETA DOMÓTICA - AUTOMATIZACIÓN INTELIGENTE
+# ═══════════════════════════════════════════════════════════════════════════════
+
+service: domotica
+name: "Domótica y Automatización"
+description: "Sistemas de automatización y control inteligente del hogar"
+normativa: "KNX/EIB, Z-Wave Alliance, Zigbee Alliance"
+protocolos: ["WiFi", "Zigbee", "Z-Wave", "KNX", "Matter"]
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🎚️ NIVELES DE AUTOMATIZACIÓN
+# ═══════════════════════════════════════════════════════════════════════════════
+niveles:
+  BASICO:
+    nombre: "Domótica Básica"
+    descripcion: "Control de iluminación y persianas"
+    dispositivos:
+      - "Interruptores inteligentes"
+      - "Sensores de movimiento"
+      - "Control de persianas"
+    precio_m2: 45.00
+  
+  INTERMEDIO:
+    nombre: "Domótica Intermedia"
+    descripcion: "Control de iluminación, clima y seguridad"
+    dispositivos:
+      - "Todo lo básico"
+      - "Termostatos"
+      - "Cámaras IP"
+      - "Cerraduras inteligentes"
+    precio_m2: 85.00
+  
+  AVANZADO:
+    nombre: "Domótica Avanzada"
+    descripcion: "Sistema completo integrado"
+    dispositivos:
+      - "Todo lo intermedio"
+      - "Control de audio/video"
+      - "Riego automático"
+      - "Alarma integrada"
+    precio_m2: 150.00
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 💰 PRECIOS DE DISPOSITIVOS
+# ═══════════════════════════════════════════════════════════════════════════════
+precios:
+  interruptor_inteligente_wifi: 120.00
+  interruptor_inteligente_zigbee: 95.00
+  sensor_movimiento: 80.00
+  sensor_puerta_ventana: 65.00
+  camara_ip_interior: 350.00
+  camara_ip_exterior: 450.00
+  central_domotica_basica: 1500.00
+  central_domotica_avanzada: 2800.00
+  actuador_cortina: 180.00
+  termostato_inteligente: 280.00
+  cerradura_inteligente: 450.00
+  hub_zigbee: 85.00
+  hub_zwave: 120.00
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📝 MENSAJES PROFESIONALES
+# ═══════════════════════════════════════════════════════════════════════════════
+mensajes:
+  presentacion: |
+    ¡Hola! 👋 Soy **Pili**, tu especialista en Domótica de **Tesla Electricidad**.
+    
+    🎯 Te ayudo con:
+    ✅ Automatización inteligente
+    ✅ Control por voz y app
+    ✅ Ahorro energético
+    ✅ Integración total
+    
+    **Selecciona el nivel de automatización:**
+  
+  confirm_nivel: |
+    Perfecto, nivel **{nivel}**.
+    
+    📋 **Incluye:** {dispositivos}
+    💰 **Precio por m²:** S/ {precio_m2}
+    
+    📏 **¿Cuál es el área a automatizar en m²?**
+    
+    _Escribe el número (ejemplo: 150)_
+  
+  ask_dispositivos: |
+    ✅ Área: **{area} m²**
+    
+    🎛️ **¿Cuántos dispositivos quieres automatizar?**
+    (luces, persianas, sensores, etc.)
+    
+    _Escribe el número (ejemplo: 20)_
+  
+  cotizacion: |
+    📊 **COTIZACIÓN DOMÓTICA {nivel}**
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **📋 DATOS DEL PROYECTO:**
+    
+    🏠 Nivel: {nivel}
+    📏 Área: {area} m²
+    🎛️ Dispositivos: {dispositivos}
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **💰 ITEMS CALCULADOS:**
+    
+    {items_detalle}
+    
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    **📈 TOTALES:**
+    
+    Subtotal: S/ {subtotal:.2f}
+    IGV (18%): S/ {igv:.2f}
+    **TOTAL: S/ {total:.2f}**
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    
+    ✅ Incluye: Equipos + Instalación + Configuración
+    ⏱️ Tiempo: 10-12 días hábiles
+    📋 Protocolos: WiFi, Zigbee, Z-Wave
+    🎁 Garantía: 1 año
+    
+    ¿Deseas generar el documento?
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔄 FLUJO DE CONVERSACIÓN
+# ═══════════════════════════════════════════════════════════════════════════════
+documents:
+  cotizacion-simple:
+    etapas:
+      - id: nivel
+        type: buttons
+        message_template: presentacion
+        next: area
+        progress: "1/4"
+        opciones:
+          - text: "🏠 Básico"
+            value: "BASICO"
+          - text: "🏡 Intermedio"
+            value: "INTERMEDIO"
+          - text: "🏰 Avanzado"
+            value: "AVANZADO"
+      
+      - id: area
+        type: input_number
+        message_template: confirm_nivel
+        next: dispositivos
+        progress: "2/4"
+        validacion:
+          min: 10
+          max: 5000
+          type: float
+      
+      - id: dispositivos
+        type: input_number
+        message_template: ask_dispositivos
+        next: quotation
+        progress: "3/4"
+        validacion:
+          min: 1
+          max: 100
+          type: int
+      
+      - id: quotation
+        type: generate_quote
+        message_template: cotizacion
+        calculator: calculate_domotica_quote
+        progress: "4/4"
+        actions:
+          - text: "📄 Generar Cotización"
+            value: "GENERAR"
+          - text: "🔄 Nueva consulta"
+            value: "RESTART"

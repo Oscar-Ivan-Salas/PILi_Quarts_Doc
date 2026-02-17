@@ -1,0 +1,37 @@
+{
+    "meta": {
+        "name": "Modelo Usuario Test",
+        "version": "1.0",
+        "author": "Socio"
+    },
+    "excel_layout": {
+        "sheet_name": "Propuesta",
+        "static_cells": {
+            "B2": "COTIZACIÓN PERSONALIZADA TEST",
+            "B3": "Generado por Motor Universal"
+        },
+        "dynamic_cells": {
+            "client_name": "C5",
+            "total_value": "F20"
+        },
+        "tables": [
+            {
+                "data_key": "items",
+                "start_row": 8,
+                "columns": {
+                    "index": "B",
+                    "description": "C",
+                    "quantity": "D",
+                    "total": "F"
+                },
+                "style": "simple_grid"
+            }
+        ]
+    },
+    "styles": {
+        "colors": {
+            "primary": "#0052A3",
+            "header_text": "#FFFFFF"
+        }
+    }
+}

@@ -1,0 +1,45 @@
+{
+  "services": [
+    {
+      "id": "doc_gen",
+      "nombre": "Generaci\u00f3n de Documentos",
+      "estado": true,
+      "descripcion": "Motor principal de creaci\u00f3n de Word y PDF"
+    },
+    {
+      "id": "pili_brain",
+      "nombre": "PILI Brain (AI)",
+      "estado": true,
+      "descripcion": "An\u00e1lisis inteligente y extracci\u00f3n de datos"
+    },
+    {
+      "id": "database",
+      "nombre": "Conexi\u00f3n Base de Datos",
+      "estado": true,
+      "descripcion": "Acceso a N08 Identity"
+    },
+    {
+      "id": "previsualizacion",
+      "nombre": "Modo Previsualizaci\u00f3n",
+      "estado": true,
+      "descripcion": "Renderizado HTML en tiempo real"
+    }
+  ],
+  "features": [
+    {
+      "id": "advanced_metrics",
+      "nombre": "M\u00e9tricas Avanzadas",
+      "estado": true
+    },
+    {
+      "id": "auto_save",
+      "nombre": "Auto-guardado",
+      "estado": true
+    },
+    {
+      "id": "notifications",
+      "nombre": "Notificaciones Push",
+      "estado": false
+    }
+  ]
+}

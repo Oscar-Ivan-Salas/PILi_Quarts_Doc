@@ -1,0 +1,52 @@
+# Supabase Configuration
+# Backend deployment configuration
+# https://supabase.com/docs
+
+# Project Settings
+name = "pili-quarts-backend"
+org_id = "your-org-id"
+project_id = "your-project-id"
+
+# Database
+[db]
+port = 5432
+major_version = 15
+
+# API
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public"]
+max_rows = 1000
+
+# Auth
+[auth]
+enabled = true
+site_url = "https://your-frontend-url.vercel.app"
+additional_redirect_urls = ["http://localhost:5173"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+
+# Storage
+[storage]
+enabled = true
+file_size_limit = "50MB"
+
+# Edge Functions
+[functions]
+enabled = true
+
+# Realtime
+[realtime]
+enabled = true
+
+# Studio
+[studio]
+enabled = true
+port = 54323

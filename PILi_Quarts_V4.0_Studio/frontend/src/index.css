@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    @apply bg-[#030712] text-white overflow-hidden;
+  }
+
+  /* Magnificent Dark Theme - Studio v4.0 */
+  html.dark {
+    @apply bg-[#030712] text-white;
+    --color-tesla-blue: #0052A3;
+    --color-tesla-blue-glow: rgba(0, 82, 163, 0.4);
+    --color-quarts-gold: #D4AF37;
+    --studio-surface: #0a0a0f;
+    --studio-border: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Glassmorphism Ultra-High-End */
+  .studio-glass {
+    @apply backdrop-blur-[40px] bg-[#030712]/60 border-white/5;
+  }
+
+  .floating-a4 {
+    box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.9),
+      0 0 1px 1px rgba(255, 255, 255, 0.03);
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .floating-a4:hover {
+    transform: translateY(-8px) scale(1.01) rotateX(1deg);
+    box-shadow: 0 60px 120px -30px rgba(0, 0, 0, 1);
+  }
+}
+
+@layer components {
+
+  /* Custom Scrollbar Studio */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #0052A3;
+  }
+
+  /* PILI CORE PULSE */
+  .pili-core-pulse {
+    animation: core-pulse 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes core-pulse {
+
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.8;
+      box-shadow: 0 0 20px rgba(0, 82, 163, 0.2);
+    }
+
+    50% {
+      transform: scale(1.05);
+      opacity: 1;
+      box-shadow: 0 0 40px rgba(0, 82, 163, 0.4);
+    }
+  }
+}
+
+/* perspective helper */
+.perspective-2000 {
+  perspective: 2000px;
+}

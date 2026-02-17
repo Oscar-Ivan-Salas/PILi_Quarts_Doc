@@ -1,0 +1,17 @@
+{
+    "header": {
+        "user_id": "UUID",
+        "service_id": 1,
+        "document_type": 1
+    },
+    "branding": {
+        "logo_b64": "string",
+        "color_hex": "#0052A3"
+    },
+    "payload": {
+        "items": [],
+        "totals": {},
+        "technical_notes": ""
+    },
+    "output_format": "DOCX"
+}
