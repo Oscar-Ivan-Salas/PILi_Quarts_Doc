@@ -1,0 +1,17 @@
+{
+    "type": "cotizacion_simple",
+    "data": {
+        "numero": "TEST-CURL-MANUAL",
+        "cliente": {
+            "nombre": "Cliente Prueba Manual"
+        },
+        "items": [
+            {
+                "descripcion": "Item Manual",
+                "cantidad": 1,
+                "precioUnitario": 100
+            }
+        ]
+    },
+    "user_id": "test-user-manual"
+}

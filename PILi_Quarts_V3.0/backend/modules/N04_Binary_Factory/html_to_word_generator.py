@@ -160,10 +160,13 @@ class HTMLToWordGenerator:
                             if len(celdas) >= 6:
                                 celdas[0].string = str(i).zfill(2)
                                 celdas[1].string = item.get('descripcion', '')
-                                celdas[2].string = f"{item.get('cantidad', 0):.2f}"
+                                celdas[2].string = str(item.get('cantidad', '0'))
                                 celdas[3].string = item.get('unidad', 'und')
-                                celdas[4].string = f"$ {item.get('precio_unitario', 0):,.2f}"
-                                celdas[5].string = f"$ {item.get('cantidad', 0) * item.get('precio_unitario', 0):,.2f}"
+                                precio = float(str(item.get('precio_unitario', 0)).replace(',', '').replace('$', '').strip())
+                                celdas[4].string = f"$ {precio:,.2f}"
+                                cantidad = float(str(item.get('cantidad', 0)).replace(',', ''))
+                                total = cantidad * precio
+                                celdas[5].string = f"$ {total:,.2f}"
                             
                             tbody.append(nueva_fila)
                         
@@ -196,9 +199,26 @@ class HTMLToWordGenerator:
         # Crear instancia de HtmlToDocx
         parser = HtmlToDocx()
 
+        # Configurar Fuente Base en el Documento (Si viene en el HTML style body)
+        # HtmlToDocx no cambia la fuente base del documento facilmente.
+        # Intentaremos detectar font-family en el HTML para ajustar el estilo 'Normal'
+        import re
+        font_match = re.search(r'font-family:\s*[\'"]?([a-zA-Z\s]+)[\'"]?', html)
+        if font_match:
+            font_name = font_match.group(1).strip()
+            # Mapeo seguro
+            font_map = {'Roboto': 'Arial', 'Inter': 'Arial', 'Calibri': 'Calibri', 'Times New Roman': 'Times New Roman'}
+            safe_font = font_map.get(font_name, 'Calibri')
+            
+            try:
+                style = doc.styles['Normal']
+                font = style.font
+                font.name = safe_font
+                logger.info(f"🔤 Fuente Word configurada a: {safe_font}")
+            except Exception as e:
+                logger.warning(f"No se pudo cambiar fuente Word: {e}")
+
         # Parsear HTML y agregar al documento
-        # htmldocx agregará el contenido al final del documento o donde esté el cursor.
-        # El master template suele tener una marca o estar vacío en el body.
         parser.add_html_to_document(html, doc)
 
         # Guardar documento

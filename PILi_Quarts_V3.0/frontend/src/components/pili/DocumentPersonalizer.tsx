@@ -5,6 +5,7 @@ import { Settings, PieChart, Type, FileText, Image as ImageIcon, Upload, CheckCi
 export interface DocumentConfig {
     esquemaColores: string;
     fuenteDocumento: string;
+    tamanoFuente: number;
     mostrarLogo: boolean;
     logoBase64: string | null;
     ocultarIGV: boolean;
@@ -58,8 +59,8 @@ export function DocumentPersonalizer({ config, onChange }: DocumentPersonalizerP
                                 key={theme.id}
                                 onClick={() => onChange({ esquemaColores: theme.id })}
                                 className={`w-full p-3 rounded-xl border transition-all flex items-center gap-3 group ${config.esquemaColores === theme.id
-                                        ? 'bg-gray-800 border-yellow-500 shadow-md'
-                                        : 'bg-transparent border-gray-800 hover:bg-gray-800/50 hover:border-gray-700'
+                                    ? 'bg-gray-800 border-yellow-500 shadow-md'
+                                    : 'bg-transparent border-gray-800 hover:bg-gray-800/50 hover:border-gray-700'
                                     }`}
                             >
                                 <div
@@ -85,20 +86,40 @@ export function DocumentPersonalizer({ config, onChange }: DocumentPersonalizerP
                         <Type className="w-4 h-4" />
                         Tipografía
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2 mb-4">
                         {['Calibri', 'Arial', 'Roboto', 'Times New Roman'].map(font => (
                             <button
                                 key={font}
                                 onClick={() => onChange({ fuenteDocumento: font })}
                                 className={`p-2 text-sm rounded-lg border transition-all ${config.fuenteDocumento === font
-                                        ? 'bg-gray-800 border-yellow-500 text-white'
-                                        : 'bg-gray-900 border-gray-700 text-gray-400 hover:text-white hover:border-gray-500'
+                                    ? 'bg-gray-800 border-yellow-500 text-white'
+                                    : 'bg-gray-900 border-gray-700 text-gray-400 hover:text-white hover:border-gray-500'
                                     }`}
                                 style={{ fontFamily: font }}
                             >
                                 {font}
                             </button>
                         ))}
+                    </div>
+
+                    {/* Tamaño de Fuente */}
+                    <div className="bg-gray-800/50 p-3 rounded-lg border border-gray-800">
+                        <div className="flex justify-between text-xs text-gray-400 mb-2">
+                            <span>Tamaño: {config.tamanoFuente || 11}pt</span>
+                        </div>
+                        <input
+                            type="range"
+                            min="8"
+                            max="16"
+                            step="0.5"
+                            value={config.tamanoFuente || 11}
+                            onChange={(e) => onChange({ tamanoFuente: parseFloat(e.target.value) })}
+                            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500"
+                        />
+                        <div className="flex justify-between text-[10px] text-gray-500 mt-1">
+                            <span>Pequeña</span>
+                            <span>Grande</span>
+                        </div>
                     </div>
                 </section>
 

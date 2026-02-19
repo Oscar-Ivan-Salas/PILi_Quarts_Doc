@@ -7,7 +7,7 @@ import base64
 
 logger = logging.getLogger("N04_PlaywrightGenerator")
 
-def generate_pdf_playwright(data: dict, output_path: str, template_path: str = None) -> str:
+def generate_pdf_playwright(data: dict, output_path: str, template_path: str = None, customization: dict = None) -> str:
     """
     Generates a PDF by rendering an HTML template with Playwright.
     Attributes:
@@ -32,8 +32,102 @@ def generate_pdf_playwright(data: dict, output_path: str, template_path: str = N
             html_content = f.read()
 
         # Replace Placeholders (Data Injection)
+        # Customization Injection (CSS Variables)
+        css_custom = ""
+        if customization:
+            primary = customization.get('esquemaColores', {}).get('color', None) # Asumiendo que recibe objeto o ID
+            # Si recibe solo ID, necesitariamos mapa. Mejor que reciba el HEX directo.
+            # Ajustaremos para que reciba lo que envia el frontend (docConfig)
+            
+            # Mapeo rapido si viene nombre
+            color_map = {
+                'azul-tesla': '#3B82F6', 'rojo-energia': '#EF4444', 
+                'verde-ecologico': '#22C55E', 'personalizado': '#8B5CF6'
+            }
+            color_id = customization.get('esquemaColores', 'azul-tesla')
+            primary_color = color_map.get(color_id, '#3B82F6')
+            
+            # FontSize & Family
+            font_size = customization.get('tamanoFuente', 11)
+            font_name = customization.get('fuenteDocumento', 'Calibri')
+            
+            # Google Fonts Map
+            font_urls = {
+                'Roboto': 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap',
+                'Arial': '', # System font
+                'Calibri': '' # System font
+            }
+            font_import = ""
+            if font_name in font_urls and font_urls[font_name]:
+                font_import = f"@import url('{font_urls[font_name]}');"
+                
+            css_custom = f"""
+            <style>
+                {font_import}
+                :root {{
+                    --primary-color: {primary_color} !important;
+                    --secondary-color: {primary_color} !important; 
+                    --font-size-base: {font_size}pt !important;
+                    --font-family-base: '{font_name}', sans-serif !important;
+                }}
+                body {{ 
+                    font-size: var(--font-size-base) !important; 
+                    font-family: var(--font-family-base) !important;
+                }}
+                .header, .borde-color {{ border-color: var(--primary-color) !important; color: var(--primary-color) !important; }}
+                th {{ background-color: var(--primary-color) !important; }}
+                h1, h2, h3, .text-primary {{ color: var(--primary-color) !important; }}
+                
+                /* Force overrides */
+                *[style*="border-bottom"] {{ border-bottom-color: var(--primary-color) !important; }}
+                *[style*="color: #0052A3"] {{ color: var(--primary-color) !important; }}
+                
+                /* Reemplazo de Logo si es necesario (manejado por HTML directo usualmente) */
+            </style>
+            """
+
+        # Replace Placeholders (Data Injection)
         # Header/Footer
         html_content = html_content.replace("{{NUMERO_COTIZACION}}", data.get("codigo", "COT-0000"))
+        
+        
+        # 🟢 SEARCH & REPLACE BRUTE FORCE (Safety Net for Styles)
+        if customization:
+            try:
+                # Recalculate or use existing primary_color safely
+                # If primary_color is not in local scope (because it was defined in a previous if block that might share scope but let's be safe), recalculate.
+                if 'primary_color' not in locals():
+                     color_id = customization.get('esquemaColores', 'azul-tesla')
+                     # Simple map fallback
+                     color_map_pdf = {
+                        'azul-tesla': '#3B82F6',
+                        'rojo-energia': '#EF4444',
+                        'verde-ecologico': '#10B981',
+                        'dorado-premium': '#F59E0B'
+                     }
+                     target_col = color_map_pdf.get(color_id, '#3B82F6')
+                else:
+                     target_col = primary_color
+
+                common_blues = [
+                    '#3B82F6', '#2563EB', '#1D4ED8', '#0052cc', # Hex
+                    'rgb(59, 130, 246)', 'rgb(37, 99, 235)', 'rgb(29, 78, 216)', 'rgb(0, 82, 204)' # RGB
+                ]
+                
+                for blue in common_blues:
+                    html_content = html_content.replace(blue, target_col)
+                    if blue.startswith('#'):
+                        html_content = html_content.replace(blue.lower(), target_col)
+                        
+                logger.info("🎨 Colores reemplazados en HTML (PDF) por " + target_col)
+            except Exception as e:
+                logger.error(f"⚠️ Error reemplazando colores en PDF (ignorando): {e}")
+
+        # INJECT CSS
+        if "</head>" in html_content:
+            html_content = html_content.replace("</head>", f"{css_custom}</head>")
+        else:
+            html_content = css_custom + html_content
         html_content = html_content.replace("{{CLIENTE}}", data.get("client_info", {}).get("nombre", "CLIENTE GENERAL"))
         html_content = html_content.replace("{{RUC_CLIENTE}}", data.get("client_info", {}).get("ruc", "00000000000"))
         html_content = html_content.replace("{{DIRECCION_CLIENTE}}", data.get("client_info", {}).get("direccion", "Lima, Peru"))

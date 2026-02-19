@@ -103,8 +103,8 @@ export function ProjectComplex({
             }}>
                 <div style={{ padding: '20mm' }}>
                     {/* HEADER */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '20px', borderBottom: `4px solid ${colors.primary}`, marginBottom: '30px' }}>
-                        <div style={{ width: '35%' }}>
+                    <div className="header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '20px', borderBottom: `4px solid ${colors.primary}`, marginBottom: '30px' }}>
+                        <div className="logo-section" style={{ width: '35%' }}>
                             {editableData.emisor?.logo ? (
                                 <img src={editableData.emisor.logo} alt="Logo" style={{ maxWidth: '180px', maxHeight: '80px', objectFit: 'contain' }} />
                             ) : (
@@ -125,10 +125,10 @@ export function ProjectComplex({
                             )}
                             <p style={{ fontSize: '10px', color: '#6B7280', marginTop: '5px' }}>{editableData.emisor?.empresa}</p>
                         </div>
-                        <div style={{ width: '65%', textAlign: 'right' }}>
-                            <div style={{ fontSize: '20px', fontWeight: 'bold', color: colors.primary, marginBottom: '8px', textTransform: 'uppercase' }}>CHART DE PROYECTO PMI</div>
+                        <div className="titulo" style={{ width: '65%', textAlign: 'right' }}>
+                            <div className="subtitulo" style={{ fontSize: '20px', fontWeight: 'bold', color: colors.primary, marginBottom: '8px', textTransform: 'uppercase' }}>CHART DE PROYECTO PMI</div>
                             <div style={{ fontSize: '11px', color: '#4b5563', lineHeight: '1.5' }}>
-                                <div>N° PROY-PMI-{new Date().getFullYear()}-102</div>
+                                <div className="numero-cotizacion">N° PROY-PMI-{new Date().getFullYear()}-102</div>
                                 <div>Estado: En Planificación / Ejecución</div>
                                 <div>Prioridad: Alta</div>
                             </div>
@@ -149,79 +149,84 @@ export function ProjectComplex({
                     </div>
 
                     {/* KPI DASHBOARD PMI */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '30px' }}>
-                        {[
-                            { label: 'SPI (Tiempo)', value: editableData.kpis_pmi?.spi || 0, desc: (editableData.kpis_pmi?.spi || 0) >= 1 ? 'Adelantado' : 'Atrasado', color: (editableData.kpis_pmi?.spi || 0) >= 1 ? '#059669' : '#dc2626' },
-                            { label: 'CPI (Costo)', value: editableData.kpis_pmi?.cpi || 0, desc: (editableData.kpis_pmi?.cpi || 0) >= 1 ? 'Bajo Presup.' : 'Sobre Presup.', color: (editableData.kpis_pmi?.cpi || 0) >= 1 ? '#059669' : '#dc2626' },
-                            { label: 'Avance Físico', value: `${editableData.kpis_pmi?.progreso_fisico || 0}%`, desc: 'Curva S', color: colors.primary },
-                            { label: 'Avance Finan.', value: `${editableData.kpis_pmi?.progreso_financiero || 0}%`, desc: 'Facturado', color: colors.secondary }
-                        ].map((k, i) => (
-                            <div key={i} style={{ padding: '15px', background: 'white', border: `1px solid ${colors.contrast}`, borderRadius: '10px', textAlign: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>
-                                <div style={{ fontSize: '11px', color: '#6B7280', fontWeight: 'bold', marginBottom: '8px' }}>{k.label}</div>
-                                <div style={{ fontSize: '22px', color: k.color, fontWeight: 'bold' }}>{k.value}</div>
-                                <div style={{ fontSize: '10px', color: '#9CA3AF', marginTop: '4px' }}>{k.desc}</div>
-                            </div>
-                        ))}
+                    {/* KPI DASHBOARD PMI */}
+                    <div className="seccion" style={{ marginBottom: '30px' }}>
+                        <div className="kpis-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
+                            {[
+                                { label: 'SPI (Tiempo)', value: editableData.kpis_pmi?.spi || 0, desc: (editableData.kpis_pmi?.spi || 0) >= 1 ? 'Adelantado' : 'Atrasado', color: (editableData.kpis_pmi?.spi || 0) >= 1 ? '#059669' : '#dc2626' },
+                                { label: 'CPI (Costo)', value: editableData.kpis_pmi?.cpi || 0, desc: (editableData.kpis_pmi?.cpi || 0) >= 1 ? 'Bajo Presup.' : 'Sobre Presup.', color: (editableData.kpis_pmi?.cpi || 0) >= 1 ? '#059669' : '#dc2626' },
+                                { label: 'Avance Físico', value: `${editableData.kpis_pmi?.progreso_fisico || 0}%`, desc: 'Curva S', color: colors.primary },
+                                { label: 'Avance Finan.', value: `${editableData.kpis_pmi?.progreso_financiero || 0}%`, desc: 'Facturado', color: colors.secondary }
+                            ].map((k, i) => (
+                                <div key={i} className="kpi-card" style={{ padding: '15px', background: 'white', border: `1px solid ${colors.contrast}`, borderRadius: '10px', textAlign: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>
+                                    <div className="kpi-label" style={{ fontSize: '11px', color: '#6B7280', fontWeight: 'bold', marginBottom: '8px' }}>{k.label}</div>
+                                    <div className="kpi-value" style={{ fontSize: '22px', color: k.color, fontWeight: 'bold' }}>{k.value}</div>
+                                    <div style={{ fontSize: '10px', color: '#9CA3AF', marginTop: '4px' }}>{k.desc}</div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {/* FASES / WBS LEVEL 1 */}
-                    <section style={{ marginBottom: '40px' }}>
+                    <div className="seccion" style={{ marginBottom: '40px' }}>
                         <h2 style={{ fontSize: '18px', color: colors.primary, borderBottom: `2px solid ${colors.primary}`, paddingBottom: '8px', fontWeight: 'bold', textTransform: 'uppercase' }}>I. Desglose de Fases (WBS Lvl 1)</h2>
-                        <div style={{ marginTop: '15px' }}>
+                        <div className="cronograma-box" style={{ marginTop: '15px' }}>
                             {(editableData.fases || []).map((f: any, i: number) => (
-                                <div key={i} style={{ display: 'flex', marginBottom: '15px', background: colors.contrast, borderRadius: '8px', overflow: 'hidden' }}>
+                                <div key={i} className="fase-box" style={{ display: 'flex', marginBottom: '15px', background: colors.contrast, borderRadius: '8px', overflow: 'hidden' }}>
                                     <div style={{ width: '60px', background: colors.primary, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '20px' }}>
                                         0{i + 1}
                                     </div>
                                     <div style={{ padding: '15px', flex: 1 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                                            <span style={{ fontWeight: 'bold', color: colors.primary }}>{f.nombre}</span>
+                                            <span className="fase-nombre" style={{ fontWeight: 'bold', color: colors.primary }}>{f.nombre}</span>
                                             <span style={{ fontWeight: 'bold' }}>$ {f.presupuesto.toLocaleString()}</span>
                                         </div>
-                                        <div style={{ fontSize: '11px', color: '#4b5563' }}>{f.descripcion} | Duración: {f.duracion} semanas</div>
+                                        <div style={{ fontSize: '11px', color: '#4b5563' }}><span className="fase-duracion">Duración: {f.duracion} semanas</span> | {f.descripcion}</div>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                    </section>
+                    </div>
 
                     {/* RACI MATRIX SIMPLIFIED */}
-                    <section style={{ marginBottom: '40px' }}>
+                    <div className="seccion" style={{ marginBottom: '40px' }}>
                         <h2 style={{ fontSize: '18px', color: colors.primary, borderBottom: `2px solid ${colors.primary}`, paddingBottom: '8px', fontWeight: 'bold', textTransform: 'uppercase' }}>II. Matriz de Responsabilidades (RACI)</h2>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px', fontSize: '11px' }}>
-                            <thead>
-                                <tr style={{ background: colors.primary, color: 'white' }}>
-                                    <th style={{ padding: '10px', textAlign: 'left' }}>Entregable / Actividad</th>
-                                    {editableData.profesionales.map((p: any, i: number) => (
-                                        <th key={i} style={{ padding: '10px' }}>{p.cargo}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {[
-                                    { act: 'Diseño de Ingeniería', roles: ['A', 'R'] },
-                                    { act: 'Gestión de Suministros', roles: ['R', 'C'] },
-                                    { act: 'Montaje en Campo', roles: ['C', 'R'] },
-                                    { act: 'Pruebas y QA', roles: ['I', 'A'] }
-                                ].map((row, i) => (
-                                    <tr key={i} style={{ borderBottom: `1px solid ${colors.contrast}`, background: i % 2 === 0 ? 'white' : colors.contrast }}>
-                                        <td style={{ padding: '10px', fontWeight: 'bold' }}>{row.act}</td>
-                                        {row.roles.map((r, ri) => (
-                                            <td key={ri} style={{ padding: '10px', textAlign: 'center', color: colors.primary, fontWeight: 'bold' }}>{r}</td>
+                        <div className="raci-grid">
+                            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px', fontSize: '11px' }}>
+                                <thead>
+                                    <tr style={{ background: colors.primary, color: 'white' }}>
+                                        <th style={{ padding: '10px', textAlign: 'left' }}>Entregable / Actividad</th>
+                                        {editableData.profesionales.map((p: any, i: number) => (
+                                            <th key={i} style={{ padding: '10px' }}>{p.cargo}</th>
                                         ))}
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <p style={{ fontSize: '9px', color: '#6B7280', marginTop: '8px' }}>R: Responsable, A: Accountable, C: Consulted, I: Informed</p>
-                    </section>
+                                </thead>
+                                <tbody>
+                                    {[
+                                        { act: 'Diseño de Ingeniería', roles: ['A', 'R'] },
+                                        { act: 'Gestión de Suministros', roles: ['R', 'C'] },
+                                        { act: 'Montaje en Campo', roles: ['C', 'R'] },
+                                        { act: 'Pruebas y QA', roles: ['I', 'A'] }
+                                    ].map((row, i) => (
+                                        <tr key={i} style={{ borderBottom: `1px solid ${colors.contrast}`, background: i % 2 === 0 ? 'white' : colors.contrast }}>
+                                            <td style={{ padding: '10px', fontWeight: 'bold' }}>{row.act}</td>
+                                            {row.roles.map((r, ri) => (
+                                                <td key={ri} style={{ padding: '10px', textAlign: 'center', color: colors.primary, fontWeight: 'bold' }}>{r}</td>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <p style={{ fontSize: '9px', color: '#6B7280', marginTop: '8px' }}>R: Responsable, A: Accountable, C: Consulted, I: Informed</p>
+                        </div>
+                    </div>
 
                     {/* RISK REGISTER */}
-                    <section style={{ marginBottom: '40px' }}>
+                    <div className="seccion" style={{ marginBottom: '40px' }}>
                         <h2 style={{ fontSize: '18px', color: colors.primary, borderBottom: `2px solid ${colors.primary}`, paddingBottom: '8px', fontWeight: 'bold', textTransform: 'uppercase' }}>III. Registro de Riesgos Críticos</h2>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '15px' }}>
+                        <ul style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '15px', padding: 0, listStyle: 'none' }}>
                             {(editableData.riesgos || []).map((r: any, i: number) => (
-                                <div key={i} style={{ padding: '15px', border: `1px solid ${colors.contrast}`, borderRadius: '8px', position: 'relative' }}>
+                                <li key={i} style={{ padding: '15px', border: `1px solid ${colors.contrast}`, borderRadius: '8px', position: 'relative' }}>
                                     <div style={{ position: 'absolute', top: '10px', right: '10px', fontSize: '10px', padding: '3px 8px', borderRadius: '12px', background: r.probabilidad === 'alta' ? '#fee2e2' : '#fef3c7', color: r.probabilidad === 'alta' ? '#dc2626' : '#d97706', fontWeight: 'bold' }}>
                                         {r.probabilidad.toUpperCase()}
                                     </div>
@@ -229,10 +234,10 @@ export function ProjectComplex({
                                     <div style={{ fontSize: '11px', color: '#4b5563' }}>
                                         <strong>Mitigación:</strong> {r.mitigacion}
                                     </div>
-                                </div>
+                                </li>
                             ))}
-                        </div>
-                    </section>
+                        </ul>
+                    </div>
 
                     {/* FOOTER */}
                     <div style={{ marginTop: '50px', paddingTop: '20px', borderTop: `3px solid ${colors.primary}`, textAlign: 'center', fontSize: '11px', color: '#6B7280' }}>

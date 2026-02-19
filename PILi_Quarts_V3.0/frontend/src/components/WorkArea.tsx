@@ -9,7 +9,8 @@ import ReportsView from './workspace/ReportsView'
 import { ComplexProjectForm } from './ComplexProjectForm'
 // Eliminados componentes antiguos redundantes
 import { type DocumentConfig } from './pili/DocumentPersonalizer'
-import { FocusPersonalizer } from './pili/FocusPersonalizer'
+import { FocusPersonalizer } from './pili/FocusPersonalizer' // ✅ RESTAURADO
+// import { DocumentPersonalizer } from './pili/DocumentPersonalizer' // YA NO SE USA COMO COMPONENTE
 import { ShaderAnimation } from './ui/ShaderAnimation'
 import { AdminDashboard } from './AdminDashboard'
 import { QuoteSimple } from './documents/QuoteSimple'
@@ -19,10 +20,9 @@ import { ProjectComplex } from './documents/ProjectComplex'
 import { ReportTechnical } from './documents/ReportTechnical'
 import { ReportExecutive } from './documents/ReportExecutive'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useWorkspaceStore } from '../store/useWorkspaceStore'
 import { ArrowLeft, Maximize2, Minimize2, Palette, FileText, BarChart3, CheckCircle } from 'lucide-react'
-import { piliApi } from '../services/pili-api'
 import { useDocumentStore } from '../store/useDocumentStore'
 
 export function WorkArea() {
@@ -38,6 +38,7 @@ export function WorkArea() {
     const [docConfig, setDocConfig] = useState<DocumentConfig>({
         esquemaColores: 'azul-tesla',
         fuenteDocumento: 'Calibri',
+        tamanoFuente: 11,
         mostrarLogo: true,
         logoBase64: null,
         ocultarIGV: false,
@@ -75,6 +76,11 @@ export function WorkArea() {
             return updated;
         });
     }
+
+    // Memoize onDataChange to prevent infinite loops (MUST be at component level)
+    const onDataChange = useCallback((newDatos: any) => {
+        setFlowData((prev: any) => ({ ...prev, ...newDatos }));
+    }, []);
 
     const renderContent = () => {
         // --- UNIVERSAL FLOW HANDLING ---
@@ -142,6 +148,8 @@ export function WorkArea() {
                         {/* Full Screen Design Overlay (Focus Mode) */}
                         {isDesigning && (
                             <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex flex-col items-center justify-center animate-in fade-in duration-500">
+
+                                {/* Botón Cerrar */}
                                 <div className="absolute top-8 right-8 z-50">
                                     <button
                                         onClick={() => setIsDesigning(false)}
@@ -150,8 +158,10 @@ export function WorkArea() {
                                         <Minimize2 size={24} />
                                     </button>
                                 </div>
-                                <div className="flex-1 w-full overflow-y-auto p-12 flex justify-center custom-scrollbar">
-                                    <div className="bg-white shadow-[0_0_100px_rgba(255,255,255,0.1)] min-h-[297mm] w-[210mm]">
+
+                                {/* Area de Previsualización (Centrada y amplia) */}
+                                <div className="w-full h-full overflow-y-auto p-12 flex justify-center custom-scrollbar relative">
+                                    <div className="bg-white shadow-[0_0_100px_rgba(255,255,255,0.1)] min-h-[297mm] w-[210mm] transform scale-90 origin-top mt-10">
                                         {/* DOCUMENT TEMPLATE ADAPTER (CLONED FOR FOCUS MODE) */}
                                         {(() => {
                                             const commonProps = {
@@ -159,6 +169,7 @@ export function WorkArea() {
                                                 colorScheme: docConfig.esquemaColores as any,
                                                 logo: docConfig.logoBase64,
                                                 font: docConfig.fuenteDocumento,
+                                                fontSize: docConfig.tamanoFuente,
                                                 onDataChange: (newDatos: any) => setFlowData((prev: any) => ({ ...prev, ...newDatos }))
                                             };
 
@@ -174,7 +185,8 @@ export function WorkArea() {
                                         })()}
                                     </div>
                                 </div>
-                                {/* Floating BOTTOM Toolbar */}
+
+                                {/* Barra de Personalización Flotante (FocusPersonalizer) */}
                                 <FocusPersonalizer
                                     config={docConfig}
                                     onChange={updateConfig}
@@ -210,6 +222,8 @@ export function WorkArea() {
                                                 colorScheme: docConfig.esquemaColores as any,
                                                 logo: docConfig.logoBase64,
                                                 font: docConfig.fuenteDocumento,
+                                                fontSize: docConfig.tamanoFuente,
+                                                editable: true, // ✅ ACTIVAR EDICIÓN EN VISTA PREVIA
                                                 onDataChange: (newDatos: any) => setFlowData((prev: any) => ({ ...prev, ...newDatos }))
                                             };
 
@@ -263,7 +277,7 @@ export function WorkArea() {
                                         logo: docConfig.logoBase64,
                                         font: docConfig.fuenteDocumento,
                                         editable: false,
-                                        onDataChange: (newDatos: any) => setFlowData((prev: any) => ({ ...prev, ...newDatos }))
+                                        onDataChange
                                     };
 
                                     switch (activeSection) {
@@ -303,12 +317,23 @@ export function WorkArea() {
                                     <button
                                         onClick={async () => {
                                             try {
-                                                const response = await fetch('http://localhost:8005/api/generation/excel', {
+                                                console.log('📊 Generando Excel con datos:', flowData);
+
+                                                // ✅ CAPTURAR HTML DE VISTA PREVIA
+                                                const previewElement = document.querySelector('.bg-white.shadow-2xl');
+                                                const htmlContent = previewElement ? previewElement.innerHTML : '';
+
+                                                console.log('🎯 HTML capturado:', htmlContent ? 'Sí' : 'No');
+
+                                                const response = await fetch('http://localhost:8005/api/generate/excel', {
                                                     method: 'POST',
                                                     headers: { 'Content-Type': 'application/json' },
                                                     body: JSON.stringify({
+                                                        html_content: htmlContent,  // ✅ ENVIAR HTML
                                                         title: activeSection || 'Documento',
                                                         data: flowData,
+                                                        user_id: 'default-user',
+                                                        doc_type: activeSection,
                                                         personalizacion: {
                                                             esquemaColores: docConfig.esquemaColores,
                                                             logoBase64: docConfig.logoBase64
@@ -328,10 +353,16 @@ export function WorkArea() {
                                                         document.body.removeChild(a);
                                                         window.URL.revokeObjectURL(url);
                                                     }, 100);
+                                                    console.log('✅ Excel generado exitosamente');
                                                 } else {
-                                                    alert('Error al generar Excel');
+                                                    const errorText = await response.text();
+                                                    console.error('❌ Error del servidor:', errorText);
+                                                    alert('Error al generar Excel: ' + errorText);
                                                 }
-                                            } catch (e: any) { alert('Error: ' + e.message); }
+                                            } catch (e: any) {
+                                                console.error('❌ Error:', e);
+                                                alert('Error: ' + e.message);
+                                            }
                                         }}
                                         className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-white font-medium transition-all shadow-lg flex items-center gap-2"
                                     >
@@ -342,15 +373,25 @@ export function WorkArea() {
                                     <button
                                         onClick={async () => {
                                             try {
-                                                const response = await fetch('http://localhost:8005/api/generation/pdf', {
+                                                console.log('📄 Generando PDF con datos:', flowData);
+
+                                                // ✅ CAPTURAR HTML DE VISTA PREVIA (Igual que Excel)
+                                                const previewElement = document.querySelector('.bg-white.shadow-2xl');
+                                                const htmlContent = previewElement ? previewElement.innerHTML : '';
+
+                                                const response = await fetch('http://localhost:8005/api/generate/pdf', {
                                                     method: 'POST',
                                                     headers: { 'Content-Type': 'application/json' },
                                                     body: JSON.stringify({
+                                                        html_content: htmlContent, // ✅ ENVIAR HTML
                                                         title: activeSection || 'Documento',
                                                         data: flowData,
+                                                        user_id: 'default-user',
                                                         personalizacion: {
                                                             esquemaColores: docConfig.esquemaColores,
-                                                            logoBase64: docConfig.logoBase64
+                                                            logoBase64: docConfig.logoBase64,
+                                                            fuenteDocumento: docConfig.fuenteDocumento,
+                                                            tamanoFuente: docConfig.tamanoFuente
                                                         }
                                                     })
                                                 });
@@ -381,17 +422,25 @@ export function WorkArea() {
                                     <button
                                         onClick={async () => {
                                             try {
-                                                const response = await fetch('http://localhost:8005/api/generation/word', {
+                                                // ✅ CAPTURAR HTML DE VISTA PREVIA (Igual que Excel)
+                                                const previewElement = document.querySelector('.bg-white.shadow-2xl');
+                                                const htmlContent = previewElement ? previewElement.innerHTML : '';
+
+                                                const response = await fetch('http://localhost:8005/api/generate/word', {
                                                     method: 'POST',
                                                     headers: { 'Content-Type': 'application/json' },
                                                     body: JSON.stringify({
+                                                        html_content: htmlContent, // ✅ ENVIAR HTML
                                                         title: activeSection || 'Documento',
                                                         data: flowData,
+                                                        user_id: 'default-user',
                                                         doc_type: activeSection,
                                                         personalizacion: {
                                                             esquemaColores: docConfig.esquemaColores,
                                                             logoBase64: docConfig.logoBase64,
-                                                            ocultarIGV: docConfig.ocultarIGV
+                                                            ocultarIGV: docConfig.ocultarIGV,
+                                                            fuenteDocumento: docConfig.fuenteDocumento,
+                                                            tamanoFuente: docConfig.tamanoFuente
                                                         }
                                                     })
                                                 });

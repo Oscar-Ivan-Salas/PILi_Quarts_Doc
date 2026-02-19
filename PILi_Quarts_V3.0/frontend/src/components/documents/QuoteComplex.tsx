@@ -10,6 +10,7 @@ interface QuoteComplexProps {
     data?: Partial<DocumentData>;
     colorScheme?: ColorScheme;
     font?: string;
+    fontSize?: number;
     onDataChange?: (data: DocumentData) => void;
     editable?: boolean;
 }
@@ -24,6 +25,7 @@ export function QuoteComplex({
     data,
     colorScheme = 'azul-tesla',
     font = 'Calibri',
+    fontSize = 11, // ✅ ADDED
     onDataChange,
     editable = false,
 }: QuoteComplexProps) {
@@ -78,8 +80,9 @@ export function QuoteComplex({
 
     return (
         <div style={{ backgroundColor: '#f3f4f6', padding: '40px 0', minHeight: '100vh' }}>
-            <div style={{
+            <div className="document-paper" style={{
                 fontFamily: font,
+                fontSize: `${fontSize}pt`, // ✅ APLICANDO TAMAÑO DE FUENTE
                 maxWidth: '210mm',
                 margin: '0 auto',
                 background: 'white',
@@ -88,8 +91,8 @@ export function QuoteComplex({
             }}>
                 <div style={{ padding: '20mm' }}>
                     {/* HEADER */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '20px', borderBottom: `4px solid ${colors.primary}`, marginBottom: '30px' }}>
-                        <div style={{ width: '40%' }}>
+                    <div className="header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '20px', borderBottom: `4px solid ${colors.primary}`, marginBottom: '30px' }}>
+                        <div className="logo-section" style={{ width: '40%' }}>
                             {editableData.emisor?.logo ? (
                                 <img src={editableData.emisor.logo} alt="Logo" style={{ maxWidth: '200px', maxHeight: '90px', objectFit: 'contain' }} />
                             ) : (
@@ -109,32 +112,33 @@ export function QuoteComplex({
                                 </div>
                             )}
                         </div>
-                        <div style={{ width: '55%', textAlign: 'right' }}>
-                            <div style={{ fontSize: '24px', fontWeight: '900', color: colors.primary, marginBottom: '5px' }}>COTIZACIÓN CORPORATIVA</div>
-                            <div style={{ fontSize: '13px', color: colors.secondary, fontWeight: 'bold' }}>N° COT-CORP-{new Date().getFullYear()}-{Math.floor(Math.random() * 900) + 100}</div>
+                        <div className="titulo-documento" style={{ width: '55%', textAlign: 'right' }}>
+                            <div className="subtitulo-documento" style={{ fontSize: '24px', fontWeight: '900', color: colors.primary, marginBottom: '5px' }}>COTIZACIÓN CORPORATIVA</div>
+                            <div className="numero-cotizacion" style={{ fontSize: '13px', color: colors.secondary, fontWeight: 'bold' }}>N° COT-CORP-{new Date().getFullYear()}-{Math.floor(Math.random() * 900) + 100}</div>
                             <div style={{ fontSize: '11px', color: '#6B7280' }}>Fecha: {new Date().toLocaleDateString('es-PE')}</div>
                         </div>
                     </div>
 
-                    {/* CLIENT & PROJECT HEADER */}
-                    <section style={{ marginBottom: '30px', display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '20px' }}>
-                        <div style={{ border: `1px solid ${colors.primary}`, padding: '15px', borderRadius: '4px' }}>
+                    {/* CLIENT & PROJECT HEADER - OPTIMIZADO PARA TESLA EXCEL CONVERTER */}
+                    {/* Estructura requerida: .info-section > 2 .info-box > p > .info-label + texto */}
+                    <div className="info-section" style={{ marginBottom: '30px', display: 'flex', gap: '20px' }}>
+                        <div className="info-box" style={{ flex: '1.5', border: `1px solid ${colors.primary}`, padding: '15px', borderRadius: '4px' }}>
                             <h3 style={{ fontSize: '12px', color: colors.primary, fontWeight: 'bold', marginBottom: '10px', textTransform: 'uppercase' }}>Información del Solicitante</h3>
                             <div style={{ fontSize: '11px', lineHeight: '1.8' }}>
-                                <div><strong>Empresa:</strong> <span contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.nombre', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.nombre}</span></div>
-                                <div><strong>ID/RUC:</strong> <span contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.ruc', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.ruc}</span></div>
-                                <div><strong>Ubicación:</strong> <span contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.direccion', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.direccion}</span></div>
-                                <div><strong>Email:</strong> <span contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.email', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.email}</span></div>
+                                <p style={{ margin: '0' }}><span className="info-label"><strong>Empresa:</strong></span> <span className="info-value" contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.nombre', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.nombre}</span></p>
+                                <p style={{ margin: '0' }}><span className="info-label"><strong>ID/RUC:</strong></span> <span className="info-value" contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.ruc', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.ruc}</span></p>
+                                <p style={{ margin: '0' }}><span className="info-label"><strong>Ubicación:</strong></span> <span className="info-value" contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.direccion', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.direccion}</span></p>
+                                <p style={{ margin: '0' }}><span className="info-label"><strong>Email:</strong></span> <span className="info-value" contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.email', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.email}</span></p>
                             </div>
                         </div>
-                        <div style={{ background: colors.contrast, padding: '15px', borderRadius: '4px' }}>
+                        <div className="info-box" style={{ flex: '1', background: colors.contrast, padding: '15px', borderRadius: '4px' }}>
                             <h3 style={{ fontSize: '12px', color: colors.primary, fontWeight: 'bold', marginBottom: '10px' }}>Resumen del Servicio</h3>
                             <div style={{ fontSize: '11px', lineHeight: '1.8' }}>
-                                <div><strong>Alcance:</strong> <span contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('proyecto.nombre', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.proyecto.nombre}</span></div>
-                                <div><strong>Validez:</strong> <span contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('proyecto.duracion', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.proyecto.duracion}</span> días calendario</div>
+                                <p style={{ margin: '0' }}><span className="info-label"><strong>Alcance:</strong></span> <span className="info-value" contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('proyecto.nombre', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.proyecto.nombre}</span></p>
+                                <p style={{ margin: '0' }}><span className="info-label"><strong>Validez:</strong></span> <span className="info-value" contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('proyecto.duracion', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.proyecto.duracion}</span> días calendario</p>
                             </div>
                         </div>
-                    </section>
+                    </div>
 
                     {/* DESCRIPTION */}
                     <div style={{ marginBottom: '30px' }}>
@@ -144,13 +148,14 @@ export function QuoteComplex({
                     </div>
 
                     {/* DETAILED ITEMS */}
-                    <section style={{ marginBottom: '40px' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+                    <div className="tabla-section" style={{ marginBottom: '40px' }}>
+                        <table className="items-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px', fontSize: '11px' }}>
                             <thead>
                                 <tr style={{ background: colors.primary, color: 'white' }}>
                                     <th style={{ padding: '10px', textAlign: 'center' }}>Ítem</th>
                                     <th style={{ padding: '10px', textAlign: 'left' }}>Descripción Detallada</th>
                                     <th style={{ padding: '10px', textAlign: 'center' }}>Cant.</th>
+                                    <th style={{ padding: '10px', textAlign: 'center' }}>Und.</th>
                                     <th style={{ padding: '10px', textAlign: 'right' }}>P.Unit</th>
                                     <th style={{ padding: '10px', textAlign: 'right' }}>Total</th>
                                 </tr>
@@ -161,36 +166,40 @@ export function QuoteComplex({
                                         <td style={{ padding: '10px', textAlign: 'center' }}>{item.item}</td>
                                         <td style={{ padding: '10px' }}>
                                             <div style={{ fontWeight: 'bold', color: colors.primary }}>{item.descripcion}</div>
-                                            <div style={{ fontSize: '9px', color: '#6B7280' }}>Unidad de medida: {item.unidad}</div>
                                         </td>
                                         <td style={{ padding: '10px', textAlign: 'center' }}>{item.cantidad}</td>
+                                        <td style={{ padding: '10px', textAlign: 'center' }}>{item.unidad}</td>
                                         <td style={{ padding: '10px', textAlign: 'right' }}>S/ {item.precioUnitario.toLocaleString()}</td>
                                         <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold' }}>S/ {item.precioTotal.toLocaleString()}</td>
                                     </tr>
                                 ))}
                             </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colSpan={3}></td>
-                                    <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold' }}>Subtotal:</td>
-                                    <td style={{ padding: '10px', textAlign: 'right' }}>S/ {subtotal.toLocaleString()}</td>
-                                </tr>
-                                <tr style={{ background: colors.contrast }}>
-                                    <td colSpan={3}></td>
-                                    <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold' }}>IGV (18%):</td>
-                                    <td style={{ padding: '10px', textAlign: 'right' }}>S/ {igv.toLocaleString()}</td>
-                                </tr>
-                                <tr style={{ fontWeight: 'bold', fontSize: '14px', color: colors.primary }}>
-                                    <td colSpan={3}></td>
-                                    <td style={{ padding: '10px', textAlign: 'right' }}>TOTAL:</td>
-                                    <td style={{ padding: '10px', textAlign: 'right' }}>S/ {total.toLocaleString()}</td>
-                                </tr>
-                            </tfoot>
                         </table>
-                    </section>
+                    </div>
+
+                    {/* TOTALS */}
+                    <div className="totales-section" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '40px' }}>
+                        <table style={{ width: '250px', fontSize: '12px', borderCollapse: 'collapse' }}>
+                            <tbody>
+                                <tr className="totales-row">
+                                    <td className="totales-label" style={{ padding: '8px', borderBottom: `1px solid ${colors.contrast}` }}><strong>Subtotal:</strong></td>
+                                    <td className="totales-valor" style={{ padding: '8px', textAlign: 'right', borderBottom: `1px solid ${colors.contrast}` }}>S/ {subtotal.toLocaleString()}</td>
+                                </tr>
+                                <tr className="totales-row">
+                                    <td className="totales-label" style={{ padding: '8px', borderBottom: `1px solid ${colors.contrast}` }}><strong>IGV (18%):</strong></td>
+                                    <td className="totales-valor" style={{ padding: '8px', textAlign: 'right', borderBottom: `1px solid ${colors.contrast}` }}>S/ {igv.toLocaleString()}</td>
+                                </tr>
+                                <tr className="totales-row" style={{ background: colors.primary, color: 'white' }}>
+                                    <td className="totales-label" style={{ padding: '10px' }}><strong>TOTAL:</strong></td>
+                                    <td className="totales-valor" style={{ padding: '10px', textAlign: 'right', fontWeight: '900', fontSize: '14px' }}>S/ {total.toLocaleString()}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                     {/* ENTREGABLES */}
-                    <section style={{ marginBottom: '30px' }}>
+                    {/* ENTREGABLES */}
+                    <div className="seccion" style={{ marginBottom: '30px' }}>
                         <h2 style={{ fontSize: '14px', color: colors.primary, fontWeight: 'bold', borderBottom: `1px solid ${colors.primary}`, paddingBottom: '5px', marginBottom: '10px' }}>ENTREGABLES Y GARANTÍAS</h2>
                         <ul style={{ fontSize: '11px', lineHeight: '1.8', color: '#4B5563' }}>
                             {editableData.entregables?.map((ent: any, i: number) => (
@@ -198,7 +207,7 @@ export function QuoteComplex({
                             ))}
                             <li>Garantía técnica de 12 meses contra defectos de fábrica.</li>
                         </ul>
-                    </section>
+                    </div>
 
                     {/* FOOTER */}
                     <div style={{ marginTop: '60px', paddingTop: '20px', borderTop: `2px solid ${colors.primary}`, display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#9CA3AF' }}>

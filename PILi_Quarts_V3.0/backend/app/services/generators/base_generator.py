@@ -134,12 +134,16 @@ class BaseDocumentGenerator:
                 run_logo = p_logo.add_run()
                 run_logo.add_picture(str(logo_path), width=Inches(2.0))
             except Exception as e:
-                run_logo = p_logo.add_run('TESLA')
+                # Usar nombre del emisor si no hay logo
+                nombre_emisor = self.datos.get('emisor', {}).get('nombre', 'SIN NOMBRE')
+                run_logo = p_logo.add_run(nombre_emisor)
                 run_logo.font.size = Pt(24)
                 run_logo.font.bold = True
                 run_logo.font.color.rgb = RGBColor(255, 255, 255)
         else:
-            run_logo = p_logo.add_run('TESLA')
+            # Usar nombre del emisor si no hay logo
+            nombre_emisor = self.datos.get('emisor', {}).get('nombre', 'SIN NOMBRE')
+            run_logo = p_logo.add_run(nombre_emisor)
             run_logo.font.size = Pt(24)
             run_logo.font.bold = True
             run_logo.font.color.rgb = RGBColor(255, 255, 255)
@@ -162,15 +166,23 @@ class BaseDocumentGenerator:
         
         p_empresa = cell_info.paragraphs[0]
         p_empresa.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        run_empresa = p_empresa.add_run('TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.')
+        # Usar datos reales del emisor
+        emisor = self.datos.get('emisor', {})
+        nombre_empresa = emisor.get('empresa', emisor.get('nombre', 'SIN NOMBRE'))
+        run_empresa = p_empresa.add_run(nombre_empresa)
         run_empresa.font.size = Pt(12)
         run_empresa.font.bold = True
         run_empresa.font.color.rgb = self.COLOR_PRIMARIO
         
-        cell_info.add_paragraph('RUC: 20601138787').runs[0].font.size = Pt(9)
-        cell_info.add_paragraph('Jr. Las Ágatas Mz B Lote 09, Urb. San Carlos, SJL').runs[0].font.size = Pt(9)
-        cell_info.add_paragraph('Teléfono: 906 315 961').runs[0].font.size = Pt(9)
-        cell_info.add_paragraph('Email: ingenieria.teslaelectricidad@gmail.com').runs[0].font.size = Pt(9)
+        ruc = emisor.get('ruc', '00000000000')
+        direccion = emisor.get('direccion', 'Sin dirección')
+        telefono = emisor.get('telefono', 'Sin teléfono')
+        email = emisor.get('email', 'Sin email')
+        
+        cell_info.add_paragraph(f'RUC: {ruc}').runs[0].font.size = Pt(9)
+        cell_info.add_paragraph(direccion).runs[0].font.size = Pt(9)
+        cell_info.add_paragraph(f'Teléfono: {telefono}').runs[0].font.size = Pt(9)
+        cell_info.add_paragraph(f'Email: {email}').runs[0].font.size = Pt(9)
         
         self.doc.add_paragraph()
     
@@ -180,15 +192,23 @@ class BaseDocumentGenerator:
         
         p_footer = self.doc.add_paragraph()
         p_footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p_footer.add_run('TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.')
+        # Usar datos reales del emisor en footer
+        emisor = self.datos.get('emisor', {})
+        nombre_empresa = emisor.get('empresa', emisor.get('nombre', 'SIN NOMBRE'))
+        run = p_footer.add_run(nombre_empresa)
         run.font.size = Pt(10)
         run.font.bold = True
         run.font.color.rgb = self.COLOR_PRIMARIO
         
+        ruc = emisor.get('ruc', '00000000000')
+        telefono = emisor.get('telefono', 'Sin teléfono')
+        email = emisor.get('email', 'Sin email')
+        direccion = emisor.get('direccion', 'Sin dirección')
+        
         contacto = [
-            'RUC: 20601138787 | Teléfono: 906 315 961',
-            'Email: ingenieria.teslaelectricidad@gmail.com',
-            'Jr. Las Ágatas Mz B Lote 09, Urb. San Carlos, SJL'
+            f'RUC: {ruc} | Teléfono: {telefono}',
+            f'Email: {email}',
+            direccion
         ]
         
         for linea in contacto:

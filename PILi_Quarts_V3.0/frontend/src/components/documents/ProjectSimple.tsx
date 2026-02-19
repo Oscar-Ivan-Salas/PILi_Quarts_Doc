@@ -10,6 +10,7 @@ interface ProjectSimpleProps {
     data?: Partial<DocumentData>;
     colorScheme?: ColorScheme;
     font?: string;
+    fontSize?: number; // ✅ ADDED
     onDataChange?: (data: DocumentData) => void;
     editable?: boolean;
 }
@@ -24,6 +25,7 @@ export function ProjectSimple({
     data,
     colorScheme = 'azul-tesla',
     font = 'Calibri',
+    fontSize = 11, // ✅ ADDED
     onDataChange,
     editable = false,
 }: ProjectSimpleProps) {
@@ -82,8 +84,9 @@ export function ProjectSimple({
 
     return (
         <div style={{ backgroundColor: '#f3f4f6', padding: '40px 0', minHeight: '100vh' }}>
-            <div style={{
+            <div className="document-paper" style={{
                 fontFamily: font,
+                fontSize: `${fontSize}pt`, // ✅ APLICANDO TAMAÑO DE FUENTE
                 maxWidth: '210mm',
                 margin: '0 auto',
                 background: 'white',
@@ -92,8 +95,8 @@ export function ProjectSimple({
             }}>
                 <div style={{ padding: '20mm' }}>
                     {/* HEADER */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '20px', borderBottom: `4px solid ${colors.primary}`, marginBottom: '30px' }}>
-                        <div style={{ width: '35%' }}>
+                    <div className="header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '20px', borderBottom: `4px solid ${colors.primary}`, marginBottom: '30px' }}>
+                        <div className="logo-section" style={{ width: '35%' }}>
                             {editableData.emisor?.logo ? (
                                 <img src={editableData.emisor.logo} alt="Logo" style={{ maxWidth: '180px', maxHeight: '80px', objectFit: 'contain' }} />
                             ) : (
@@ -114,23 +117,24 @@ export function ProjectSimple({
                             )}
                             <p style={{ fontSize: '10px', color: '#6B7280', marginTop: '5px' }}>{editableData.emisor?.empresa}</p>
                         </div>
-                        <div style={{ width: '65%', textAlign: 'right' }}>
-                            <div style={{ fontSize: '20px', fontWeight: 'bold', color: colors.primary, marginBottom: '8px', textTransform: 'uppercase' }}>PLAN DE PROYECTO ESTÁNDAR</div>
+                        <div className="titulo-documento" style={{ width: '65%', textAlign: 'right' }}>
+                            <div className="subtitulo-documento" style={{ fontSize: '20px', fontWeight: 'bold', color: colors.primary, marginBottom: '8px', textTransform: 'uppercase' }}>PLAN DE PROYECTO ESTÁNDAR</div>
                             <div style={{ fontSize: '11px', color: '#4b5563', lineHeight: '1.5' }}>
-                                <div>N° PROY-SIMP-{new Date().getFullYear()}-045</div>
+                                <div className="numero-cotizacion">N° PROY-SIMP-{new Date().getFullYear()}-045</div>
                                 <div>Fecha de Emisión: {new Date().toLocaleDateString('es-PE')}</div>
                             </div>
                         </div>
                     </div>
 
-                    {/* SECTION: CLIENTE */}
-                    <div style={{ marginBottom: '30px', padding: '15px', border: `1px solid ${colors.contrast}`, borderRadius: '6px' }}>
+                    {/* SECTION: CLIENTE - OPTIMIZADO PARA TESLA EXCEL CONVERTER (MODO PROYECTO) */}
+                    {/* El converter espera: .info-grid > .info-card (hasta 4 cards) */}
+                    <div className="info-grid" style={{ marginBottom: '30px', padding: '15px', border: `1px solid ${colors.contrast}`, borderRadius: '6px' }}>
                         <h2 style={{ fontSize: '14px', color: colors.primary, fontWeight: 'bold', borderBottom: `2px solid ${colors.primary}`, paddingBottom: '5px', marginBottom: '10px' }}>INFORMACIÓN DEL CLIENTE</h2>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '12px' }}>
-                            <div><strong>Razón Social:</strong> <span contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.nombre', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.nombre}</span></div>
-                            <div><strong>RUC:</strong> <span contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.ruc', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.ruc}</span></div>
-                            <div><strong>Ubicación:</strong> <span contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('proyecto.ubicacion', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.proyecto.ubicacion}</span></div>
-                            <div><strong>Contacto:</strong> <span contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.email', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.email}</span></div>
+                            <div className="info-card"><span className="info-label"><strong>Razón Social:</strong></span> <span className="info-value" contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.nombre', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.nombre}</span></div>
+                            <div className="info-card"><span className="info-label"><strong>RUC:</strong></span> <span className="info-value" contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.ruc', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.ruc}</span></div>
+                            <div className="info-card"><span className="info-label"><strong>Ubicación:</strong></span> <span className="info-value" contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('proyecto.ubicacion', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.proyecto.ubicacion}</span></div>
+                            <div className="info-card"><span className="info-label"><strong>Contacto:</strong></span> <span className="info-value" contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.email', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.email}</span></div>
                         </div>
                     </div>
 
@@ -157,8 +161,8 @@ export function ProjectSimple({
                     {/* SECTION: FASES */}
                     <section style={{ marginBottom: '30px' }}>
                         <h2 style={{ fontSize: '16px', color: colors.primary, fontWeight: 'bold', marginBottom: '15px', borderLeft: `5px solid ${colors.primary}`, paddingLeft: '10px' }}>CRONOGRAMA DE EJECUCIÓN</h2>
-                        <div style={{ border: `1px solid ${colors.contrast}`, borderRadius: '8px', overflow: 'hidden' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                        <div className="seccion" style={{ border: `1px solid ${colors.contrast}`, borderRadius: '8px', overflow: 'hidden' }}>
+                            <table className="items-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                                 <thead style={{ background: colors.primary, color: 'white' }}>
                                     <tr>
                                         <th style={{ padding: '10px', textAlign: 'left' }}>Descripción de la Fase</th>
@@ -183,7 +187,7 @@ export function ProjectSimple({
                     </section>
 
                     {/* SUMMARY BOX */}
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '20px', marginBottom: '40px' }}>
+                    <div className="seccion" style={{ display: 'flex', justifyContent: 'flex-end', gap: '20px', marginBottom: '40px' }}>
                         <div style={{ textAlign: 'right', padding: '15px', background: colors.contrast, borderRadius: '8px' }}>
                             <div style={{ fontSize: '10px', color: colors.secondary, fontWeight: 'bold' }}>PRESUPUESTO TOTAL ESTIMADO</div>
                             <div style={{ fontSize: '24px', color: colors.primary, fontWeight: '900' }}>S/ {(editableData.fases || []).reduce((acc: number, f: any) => acc + f.presupuesto, 0).toLocaleString()}</div>

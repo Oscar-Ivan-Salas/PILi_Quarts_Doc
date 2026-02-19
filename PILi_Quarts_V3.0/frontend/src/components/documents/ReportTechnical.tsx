@@ -95,8 +95,8 @@ export function ReportTechnical({
             }}>
                 <div style={{ padding: '20mm' }}>
                     {/* HEADER */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '20px', borderBottom: `4px solid ${colors.primary}`, marginBottom: '30px' }}>
-                        <div style={{ width: '35%' }}>
+                    <div className="header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '20px', borderBottom: `4px solid ${colors.primary}`, marginBottom: '30px' }}>
+                        <div className="logo-section" style={{ width: '35%' }}>
                             {editableData.emisor?.logo ? (
                                 <img src={editableData.emisor.logo} alt="Logo" style={{ maxWidth: '180px', maxHeight: '80px', objectFit: 'contain' }} />
                             ) : (
@@ -117,35 +117,35 @@ export function ReportTechnical({
                             )}
                             <p style={{ fontSize: '10px', color: '#6B7280', marginTop: '5px' }}>{editableData.emisor?.nombre}</p>
                         </div>
-                        <div style={{ width: '65%', textAlign: 'right' }}>
-                            <div style={{ fontSize: '18px', fontWeight: 'bold', color: colors.primary, marginBottom: '8px', textTransform: 'uppercase' }}>{editableData.emisor?.empresa}</div>
+                        <div className="titulo-documento" style={{ width: '65%', textAlign: 'right' }}>
+                            <div className="subtitulo-documento" style={{ fontSize: '18px', fontWeight: 'bold', color: colors.primary, marginBottom: '8px', textTransform: 'uppercase' }}>{editableData.emisor?.empresa}</div>
                             <div style={{ fontSize: '11px', color: '#4b5563', lineHeight: '1.5' }}>
-                                <div>RUC: {editableData.emisor?.ruc}</div>
+                                <div className="empresa-detalles">RUC: {editableData.emisor?.ruc}</div>
                                 <div>{editableData.emisor?.direccion}</div>
                             </div>
                         </div>
                     </div>
 
                     {/* TITLE */}
-                    <div style={{ textAlign: 'center', margin: '30px 0', padding: '25px', background: `linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)`, borderLeft: `6px solid ${colors.primary}`, borderRadius: '4px' }}>
-                        <h1 style={{ fontSize: '30px', color: colors.primary, fontWeight: 'bold', margin: '0 0 8px 0' }}>INFORME TÉCNICO</h1>
+                    <div className="titulo-documento" style={{ textAlign: 'center', margin: '30px 0', padding: '25px', background: `linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)`, borderLeft: `6px solid ${colors.primary}`, borderRadius: '4px' }}>
+                        <h1 className="subtitulo-documento" style={{ fontSize: '30px', color: colors.primary, fontWeight: 'bold', margin: '0 0 8px 0' }}>INFORME TÉCNICO</h1>
                         <div style={{ fontSize: '14px', color: colors.secondary, fontWeight: '600' }}>Versión Industrial - Registro de Ingeniería</div>
-                        <div style={{ fontSize: '16px', color: colors.primary, fontWeight: 'bold', marginTop: '10px' }}>N° {new Date().getFullYear()}-{Math.floor(Math.random() * 1000).toString().padStart(3, '0')}</div>
+                        <div className="numero-cotizacion" style={{ fontSize: '16px', color: colors.primary, fontWeight: 'bold', marginTop: '10px' }}>N° {new Date().getFullYear()}-{Math.floor(Math.random() * 1000).toString().padStart(3, '0')}</div>
                     </div>
 
-                    {/* INFO BOXES */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px' }}>
-                        <div style={{ padding: '15px', border: `2px solid ${colors.contrast}`, borderRadius: '6px', background: '#F9FAFB' }}>
+                    {/* INFO BOXES - USANDO ESTRUCTURA DE COTIZACIÓN PARA ROBUSTEZ */}
+                    <div className="info-section" style={{ display: 'flex', gap: '20px', marginBottom: '25px' }}>
+                        <div className="info-box" style={{ flex: '1', padding: '15px', border: `2px solid ${colors.contrast}`, borderRadius: '6px', background: '#F9FAFB' }}>
                             <h3 style={{ fontSize: '14px', color: colors.primary, fontWeight: 'bold', marginBottom: '10px', textTransform: 'uppercase', borderBottom: `2px solid ${colors.primary}`, paddingBottom: '5px' }}>Información del Cliente</h3>
-                            <p style={{ fontSize: '12px', margin: '5px 0' }}><strong style={{ color: colors.secondary }}>Nombre:</strong> <span contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.nombre', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.nombre}</span></p>
-                            <p style={{ fontSize: '12px', margin: '5px 0' }}><strong style={{ color: colors.secondary }}>Proyecto:</strong> <span contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('proyecto.nombre', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.proyecto.nombre}</span></p>
-                            <p style={{ fontSize: '12px', margin: '5px 0' }}><strong style={{ color: colors.secondary }}>Ubicación:</strong> <span contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('proyecto.ubicacion', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.proyecto.ubicacion}</span></p>
+                            <p style={{ fontSize: '12px', margin: '5px 0' }}><span className="info-label" style={{ color: colors.secondary, fontWeight: 'bold' }}>Nombre:</span> <span className="info-value" contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('cliente.nombre', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.cliente.nombre}</span></p>
+                            <p style={{ fontSize: '12px', margin: '5px 0' }}><span className="info-label" style={{ color: colors.secondary, fontWeight: 'bold' }}>Proyecto:</span> <span className="info-value" contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('proyecto.nombre', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.proyecto.nombre}</span></p>
+                            <p style={{ fontSize: '12px', margin: '5px 0' }}><span className="info-label" style={{ color: colors.secondary, fontWeight: 'bold' }}>Ubicación:</span> <span className="info-value" contentEditable={editable} suppressContentEditableWarning onBlur={e => handleTextChange('proyecto.ubicacion', e.currentTarget.textContent || '')} style={{ outline: 'none' }}>{editableData.proyecto.ubicacion}</span></p>
                         </div>
-                        <div style={{ padding: '15px', border: `2px solid ${colors.contrast}`, borderRadius: '6px', background: '#F9FAFB' }}>
+                        <div className="info-box" style={{ flex: '1', padding: '15px', border: `2px solid ${colors.contrast}`, borderRadius: '6px', background: '#F9FAFB' }}>
                             <h3 style={{ fontSize: '14px', color: colors.primary, fontWeight: 'bold', marginBottom: '10px', textTransform: 'uppercase', borderBottom: `2px solid ${colors.primary}`, paddingBottom: '5px' }}>Datos del Informe</h3>
-                            <p style={{ fontSize: '12px', margin: '5px 0' }}><strong style={{ color: colors.secondary }}>Fecha de Actividad:</strong> {editableData.proyecto.fechaInicio}</p>
-                            <p style={{ fontSize: '12px', margin: '5px 0' }}><strong style={{ color: colors.secondary }}>Normativa Aplicable:</strong> Código Nacional de Electricidad</p>
-                            <p style={{ fontSize: '12px', margin: '5px 0' }}><strong style={{ color: colors.secondary }}>Especialidad:</strong> Ingeniería Eléctrica</p>
+                            <p style={{ fontSize: '12px', margin: '5px 0' }}><span className="info-label" style={{ color: colors.secondary, fontWeight: 'bold' }}>Fecha de Actividad:</span> <span className="info-value">{editableData.proyecto.fechaInicio}</span></p>
+                            <p style={{ fontSize: '12px', margin: '5px 0' }}><span className="info-label" style={{ color: colors.secondary, fontWeight: 'bold' }}>Normativa:</span> <span className="info-value">Código Nacional de Electricidad</span></p>
+                            <p style={{ fontSize: '12px', margin: '5px 0' }}><span className="info-label" style={{ color: colors.secondary, fontWeight: 'bold' }}>Especialidad:</span> <span className="info-value">Ingeniería Eléctrica</span></p>
                         </div>
                     </div>
 
@@ -155,7 +155,7 @@ export function ReportTechnical({
                         { title: '2. ANÁLISIS TÉCNICO Y HALLAZGOS', content: editableData.analisis_tecnico },
                         { title: '3. RESULTADOS DE PRUEBAS', content: editableData.resultados }
                     ].map((section, idx) => (
-                        <div key={idx} style={{ margin: '30px 0' }}>
+                        <div key={idx} className="seccion" style={{ margin: '30px 0' }}>
                             <h2 style={{ fontSize: '18px', color: colors.primary, marginBottom: '15px', borderBottom: `2px solid ${colors.primary}`, paddingBottom: '8px', fontWeight: 'bold' }}>{section.title}</h2>
                             <div style={{ fontSize: '13px', lineHeight: '1.8', textAlign: 'justify', color: '#374151' }}>
                                 {section.content}
@@ -164,7 +164,7 @@ export function ReportTechnical({
                     ))}
 
                     {/* CONCLUSIONES STYLED */}
-                    <div style={{ margin: '40px 0', padding: '25px', background: '#F9FAFB', borderLeft: `6px solid ${colors.primary}`, borderRadius: '4px' }}>
+                    <div className="seccion" style={{ margin: '40px 0', padding: '25px', background: '#F9FAFB', borderLeft: `6px solid ${colors.primary}`, borderRadius: '4px' }}>
                         <h3 style={{ fontSize: '18px', color: colors.primary, marginBottom: '15px', fontWeight: 'bold' }}>4. CONCLUSIONES TÉCNICAS</h3>
                         <ul style={{ listStyle: 'none', padding: 0 }}>
                             {(Array.isArray(editableData.conclusiones) ? editableData.conclusiones : [editableData.conclusiones]).map((concl: any, i: number) => (
@@ -177,7 +177,7 @@ export function ReportTechnical({
                     </div>
 
                     {/* RECOMENDACIONES */}
-                    <div style={{ margin: '40px 0' }}>
+                    <div className="seccion" style={{ margin: '40px 0' }}>
                         <h3 style={{ fontSize: '18px', color: colors.primary, marginBottom: '15px', fontWeight: 'bold' }}>5. RECOMENDACIONES</h3>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
                             {(editableData.recomendaciones || []).map((rec: any, i: number) => (

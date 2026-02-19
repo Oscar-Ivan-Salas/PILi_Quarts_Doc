@@ -1,26 +1,27 @@
-import requests
+import urllib.request
 import json
+import datetime
 
-url = "http://localhost:8003/api/generate/excel"
-payload = {
-    "title": "Test Project",
-    "type": "cotizacion-simple",
+url = "http://127.0.0.1:8005/api/generate/excel"
+data = {
+    "type": "cotizacion_simple",
     "data": {
-        "cliente": {"nombre": "Test Client"},
-        "items": []
+        "numero": "TEST-PYTHON-001",
+        "cliente": {"nombre": "Cliente Python"},
+        "items": [{"descripcion": "Item Python", "cantidad": 1, "precioUnitario": 100}]
     },
-    "user_id": "test_script"
+    "user_id": "test-user-python"
 }
 
+req = urllib.request.Request(url)
+req.add_header('Content-Type', 'application/json')
+jsondata = json.dumps(data).encode('utf-8')
+req.add_header('Content-Length', len(jsondata))
+
+print(f"Sending request to {url}...")
 try:
-    response = requests.post(url, json=payload)
-    print(f"Status Code: {response.status_code}")
-    print(f"Headers: {response.headers}")
-    if response.status_code == 200:
-        print("Success: Excel generated")
-        with open("test_output.xlsx", "wb") as f:
-            f.write(response.content)
-    else:
-        print(f"Error: {response.text}")
+    response = urllib.request.urlopen(req, jsondata)
+    print(f"Response Code: {response.getcode()}")
+    print("Response received.")
 except Exception as e:
-    print(f"Connection Failed: {e}")
+    print(f"Error: {e}")

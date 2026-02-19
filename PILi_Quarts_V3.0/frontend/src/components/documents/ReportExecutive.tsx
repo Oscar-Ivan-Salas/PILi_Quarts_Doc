@@ -97,7 +97,7 @@ export function ReportExecutive({
             }}>
 
                 {/* PORTADA APA */}
-                <div style={{
+                <div className="portada-apa" style={{
                     height: '280mm',
                     padding: '25mm',
                     display: 'flex',
@@ -119,7 +119,7 @@ export function ReportExecutive({
                         </h1>
                     </div>
 
-                    <div style={{ marginBottom: '60px', lineHeight: '2' }}>
+                    <div className="portada-info" style={{ marginBottom: '60px', lineHeight: '2' }}>
                         <div style={{ fontWeight: 'bold' }}>Elaborado para:</div>
                         <div>{editableData.cliente.nombre}</div>
                         <div style={{ marginTop: '40px', fontWeight: 'bold' }}>Preparado por:</div>
@@ -135,8 +135,8 @@ export function ReportExecutive({
                 {/* CONTENIDO PRINCIPAL - CONTAINER */}
                 <div style={{ padding: '25mm' }}>
                     {/* HEADER */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '15px', borderBottom: `3px solid ${colors.primary}`, marginBottom: '30px' }}>
-                        <div>
+                    <div className="header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '15px', borderBottom: `3px solid ${colors.primary}`, marginBottom: '30px' }}>
+                        <div className="logo-section">
                             {editableData.emisor?.logo ? (
                                 <img src={editableData.emisor.logo} alt="Logo" style={{ maxWidth: '160px', maxHeight: '70px', objectFit: 'contain' }} />
                             ) : (
@@ -165,7 +165,7 @@ export function ReportExecutive({
                     </div>
 
                     {/* EXECUTIVE SUMMARY BOX */}
-                    <div style={{
+                    <div className="resumen-ejecutivo" style={{
                         padding: '30px',
                         background: `linear-gradient(135deg, ${colors.contrast} 0%, #DBEAFE 100%)`,
                         borderLeft: `8px solid ${colors.primary}`,
@@ -194,7 +194,7 @@ export function ReportExecutive({
                     </div>
 
                     {/* GRANDE PRESUPUESTO */}
-                    <div style={{ textAlign: 'center', padding: '30px', background: colors.contrast, borderRadius: '8px', margin: '25px 0' }}>
+                    <div className="seccion" style={{ textAlign: 'center', padding: '30px', background: colors.contrast, borderRadius: '8px', margin: '25px 0' }}>
                         <div style={{ fontSize: '15px', color: '#6B7280', marginBottom: '10px' }}>INVERSIÓN TOTAL REQUERIDA</div>
                         <div style={{ fontSize: '54px', color: colors.primary, fontWeight: 'bold' }}>$ {editableData.proyecto.presupuesto.toLocaleString()}</div>
                     </div>
@@ -216,7 +216,7 @@ export function ReportExecutive({
                     </div>
 
                     {/* SECCIÓN CONCLUSIONES FIDELIDAD TOTAL */}
-                    <div style={{ padding: '30px', background: `linear-gradient(135deg, ${colors.contrast} 0%, #DBEAFE 100%)`, borderLeft: `8px solid ${colors.primary}`, borderRadius: '6px', margin: '40px 0' }}>
+                    <div className="seccion" style={{ padding: '30px', background: `linear-gradient(135deg, ${colors.contrast} 0%, #DBEAFE 100%)`, borderLeft: `8px solid ${colors.primary}`, borderRadius: '6px', margin: '40px 0' }}>
                         <h3 style={{ fontSize: '18px', color: colors.primary, fontWeight: 'bold', marginBottom: '20px', textAlign: 'center' }}>CONCLUSIONES Y RECOMENDACIONES</h3>
                         <ul style={{ listStyle: 'none', padding: 0 }}>
                             {(Array.isArray(editableData.conclusiones) ? editableData.conclusiones : (editableData.conclusiones ? [editableData.conclusiones] : [])).map((concl: any, i: number) => (

@@ -24,15 +24,14 @@ OUTPUT_DIR = CURRENT_DIR / "output_mirror"
 ASSETS_DIR = CURRENT_DIR / "templates" / "assets"
 LOGO_PATH = ASSETS_DIR / "logo.png"
 
-# Import Generators
+# Import Generators (solo locales)
+from excel_converter import TeslaExcelConverter
+from html_to_word_generator import html_to_word_generator
 try:
-    from excel_converter import TeslaExcelConverter
-    from html_to_word_generator import HTMLToWordGenerator
     from pdf_generator import PDFGenerator
 except ImportError:
-    from modules.N04_Binary_Factory.excel_converter import TeslaExcelConverter
-    from modules.N04_Binary_Factory.html_to_word_generator import HTMLToWordGenerator
-    from modules.N04_Binary_Factory.pdf_generator import PDFGenerator
+    PDFGenerator = None
+    logger.warning("⚠️ PDFGenerator no disponible")
 
 def create_dummy_logo(path):
     try:
@@ -47,16 +46,12 @@ def create_dummy_logo(path):
 class UniversalFactoryValidator:
     def __init__(self):
         self.excel = TeslaExcelConverter()
-        self.word = HTMLToWordGenerator()
-        self.pdf = PDFGenerator()
+        self.word = html_to_word_generator  # Instancia singleton
+        self.pdf = PDFGenerator() if PDFGenerator else None
         
         # Configure Check
         self.excel.assets_dir = ASSETS_DIR
         self.excel.logo_path = LOGO_PATH
-        
-        # Word needs logo b64 sometimes or path? 
-        # HTMLToWord uses Jinja, so assumes images are in HTML or handled.
-        # PDF uses path or b64
         
     def generate_all_formats(self, model_name, data, output_base):
         results = []

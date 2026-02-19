@@ -50,23 +50,151 @@ class ExcelGenerator:
     # ========================================================================
     # 1. COTIZACIÓN SIMPLE
     # ========================================================================
+    # ========================================================================
+    # 1. COTIZACIÓN SIMPLE (MODERNIZADO - HTML DINÁMICO)
+    # ========================================================================
     def generar_cotizacion_simple(self, datos: Dict[str, Any], ruta_salida: str) -> str:
-        ctx = {
-            "NUMERO_COTIZACION": datos.get("numero", "COT-000000"),
-            "CLIENTE_NOMBRE": self._extraer_nombre(datos.get("cliente")),
-            "PROYECTO_NOMBRE": datos.get("proyecto", "Proyecto Demo"),
-            "AREA_M2": datos.get("area_m2", "100"),
-            "FECHA_COTIZACION": datos.get("fecha", datetime.now().strftime("%d/%m/%Y")),
-            "VIGENCIA": datos.get("vigencia", "30 días calendario"),
-            "SERVICIO_NOMBRE": datos.get("servicio_nombre", "Servicio Eléctrico"),
-            "DESCRIPCION_PROYECTO": datos.get("descripcion", "Descripción del proyecto"),
-            "SUBTOTAL": f"{datos.get('subtotal', 0):,.2f}",
-            "IGV": f"{datos.get('igv', 0):,.2f}",
-            "TOTAL": f"{datos.get('total', 0):,.2f}",
-            "NORMATIVA_APLICABLE": datos.get("normativa", "CNE Suministro 2011"),
-            "items": datos.get("items", []) # Dynamic Items
-        }
-        return self._render_and_convert("cotizacion_simple", ctx, ruta_salida)
+        """
+        Genera Cotización Simple construyendo HTML en vuelo para usar el TeslaExcelConverter (N04).
+        Esto garantiza que se usen las reglas de alineación y orden más recientes.
+        """
+        print("!!! EJECUTANDO GENERADOR EXCEL MODERNO (HTML DINAMICO) !!!", flush=True)
+
+        # 1. Extraer Datos
+        numero = datos.get("numero", "COT-000000")
+        fecha = datos.get("fecha", datetime.now().strftime("%d/%m/%Y"))
+        vigencia = datos.get("vigencia", "15 días")
+        
+        # Safe extraction for dicts
+        def get_safe(source, key, default=""):
+            val = source.get(key, default)
+            return val if val else default
+
+        emisor = datos.get("emisor", {})
+        cliente = datos.get("cliente", {})
+        proyecto = datos.get("proyecto", {})
+        items = datos.get("items", [])
+        
+        # 2. Construir HTML "Virtual" (Espejo de QuoteSimple.tsx)
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <body>
+            <!-- HEADER (TeslaExcelConverter: Logo Izq, Título Der) -->
+            <div class="header">
+                <!-- Info Empresa (Izquierda) -->
+                <div class="empresa-detalles">
+                    <div>{get_safe(emisor, 'empresa', 'MI EMPRESA')}</div>
+                    <div>RUC: {get_safe(emisor, 'ruc')}</div>
+                    <div>{get_safe(emisor, 'direccion')}</div>
+                </div>
+                <!-- Título (Derecha) -->
+                <div class="titulo-documento">
+                    <h1>COTIZACIÓN SIMPLE</h1>
+                    <div class="numero-cotizacion">{numero}</div>
+                    <div class="subtitulo-documento">Fecha: {fecha}</div>
+                </div>
+            </div>
+
+            <!-- INFO SECTIONS (TeslaExcelConverter: Grid B-F | H-L) -->
+            <div class="info-section">
+                <!-- Caja 1: Datos Cliente -->
+                <div class="info-box">
+                    <h3>DATOS DEL CLIENTE</h3>
+                    <p><span class="info-label">CLIENTE:</span> {self._extraer_nombre(cliente)}</p>
+                    <p><span class="info-label">RUC:</span> {get_safe(cliente, 'ruc')}</p>
+                    <p><span class="info-label">DIRECCIÓN:</span> {get_safe(cliente, 'direccion')}</p>
+                </div>
+                <!-- Caja 2: Detalles -->
+                <div class="info-box">
+                    <h3>DETALLES GENERALES</h3>
+                    <p><span class="info-label">PROYECTO:</span> {get_safe(proyecto, 'nombre')}</p>
+                    <p><span class="info-label">VIGENCIA:</span> {vigencia}</p>
+                    <p><span class="info-label">FECHA:</span> {fecha}</p>
+                </div>
+            </div>
+
+            <!-- TABLA DE ITEMS (TeslaExcelConverter: Items antes de secciones) -->
+            <div class="tabla-section">
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>ITEM</th>
+                            <th>DESCRIPCIÓN</th>
+                            <th>CANT.</th>
+                            <th>UND.</th>
+                            <th>P. UNIT.</th>
+                            <th>TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        """
+        
+        # Items Loop
+        for i, item in enumerate(items, 1):
+            desc = get_safe(item, 'descripcion')
+            cant = item.get('cantidad', 0)
+            und = get_safe(item, 'unidad', 'und')
+            pu = item.get('precio_unitario', 0) or item.get('precioUnitario', 0)
+            total_item = cant * pu
+            
+            html += f"""
+                        <tr>
+                            <td>{i:02d}</td>
+                            <td>{desc}</td>
+                            <td>{cant}</td>
+                            <td>{und}</td>
+                            <td>{pu:.2f}</td>
+                            <td>{total_item:.2f}</td>
+                        </tr>
+            """
+            
+        html += """
+                    </tbody>
+                </table>
+            </div>
+        """
+        
+        # TOTALES
+        subtotal = float(datos.get('subtotal', 0))
+        igv = float(datos.get('igv', 0))
+        total_gen = float(datos.get('total', 0))
+        
+        html += f"""
+            <div class="totales-section">
+                <div class="totales-row">
+                    <span class="totales-label">SUBTOTAL:</span>
+                    <span class="totales-valor">{subtotal:.2f}</span>
+                </div>
+                <div class="totales-row">
+                    <span class="totales-label">IGV (18%):</span>
+                    <span class="totales-valor">{igv:.2f}</span>
+                </div>
+                <div class="totales-row">
+                    <span class="totales-label">TOTAL:</span>
+                    <span class="totales-valor">{total_gen:.2f}</span>
+                </div>
+            </div>
+        """
+        
+        # CONDICIONES (TeslaExcelConverter: Renderizado al final)
+        html += """
+            <div class="seccion">
+                <h2>CONDICIONES COMERCIALES</h2>
+                <ul>
+                    <li>Forma de pago: Contado contra entrega.</li>
+                    <li>Tiempo de entrega: Inmediato sujeto a disponibilidad.</li>
+                    <li>Los precios incluyen IGV.</li>
+                </ul>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # 3. Disparar Conversión
+        logger.info("🚀 Generando Cotización Simple vía HTML Dinámico (Unificación)")
+        self.converter.convert_html_string(html, ruta_salida)
+        return ruta_salida
 
     # ========================================================================
     # 2. COTIZACIÓN COMPLEJA

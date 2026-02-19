@@ -132,14 +132,16 @@ class CotizacionSimpleGenerator:
                 run_logo = p_logo.add_run()
                 run_logo.add_picture(str(logo_path), width=Inches(2.0))
             except Exception as e:
-                # Fallback a texto si falla la imagen
-                run_logo = p_logo.add_run('TESLA')
+                # Fallback a texto si falla la imagen - usar nombre del emisor
+                nombre_emisor = self.datos.get('emisor', {}).get('nombre', 'SIN NOMBRE')
+                run_logo = p_logo.add_run(nombre_emisor)
                 run_logo.font.size = Pt(24)
                 run_logo.font.bold = True
                 run_logo.font.color.rgb = RGBColor(255, 255, 255)
         else:
-            # Placeholder de texto
-            run_logo = p_logo.add_run('TESLA')
+            # Placeholder de texto - usar nombre del emisor
+            nombre_emisor = self.datos.get('emisor', {}).get('nombre', 'SIN NOMBRE')
+            run_logo = p_logo.add_run(nombre_emisor)
             run_logo.font.size = Pt(24)
             run_logo.font.bold = True
             run_logo.font.color.rgb = RGBColor(255, 255, 255)
@@ -162,16 +164,23 @@ class CotizacionSimpleGenerator:
         
         p_empresa = cell_info.paragraphs[0]
         p_empresa.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        run_empresa = p_empresa.add_run('TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.')
+        # Usar datos reales del emisor
+        emisor = self.datos.get('emisor', {})
+        nombre_empresa = emisor.get('empresa', emisor.get('nombre', 'SIN NOMBRE'))
+        run_empresa = p_empresa.add_run(nombre_empresa)
         run_empresa.font.size = Pt(12)
         run_empresa.font.bold = True
         run_empresa.font.color.rgb = self.COLOR_PRIMARIO
         
-        # Detalles de empresa
+        # Detalles de empresa - usar datos reales
+        ruc = emisor.get('ruc', '00000000000')
+        direccion = emisor.get('direccion', 'Sin dirección')
+        email = emisor.get('email', 'Sin email')
+        
         detalles = [
-            'RUC: 20601138787',
-            'Dpto de diseño GatoMichuy huacacayo peru',
-            'Email: ingenieria.teslaelectricidad@gmail.com'
+            f'RUC: {ruc}',
+            direccion,
+            f'Email: {email}'
         ]
         
         for detalle in detalles:
@@ -387,15 +396,22 @@ class CotizacionSimpleGenerator:
         
         p_footer = self.doc.add_paragraph()
         p_footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p_footer.add_run('TESLA ELECTRICIDAD Y AUTOMATIZACIÓN S.A.C.')
+        # Usar datos reales del emisor en footer
+        emisor = self.datos.get('emisor', {})
+        nombre_empresa = emisor.get('empresa', emisor.get('nombre', 'SIN NOMBRE'))
+        run = p_footer.add_run(nombre_empresa)
         run.font.size = Pt(10)
         run.font.bold = True
         run.font.color.rgb = self.COLOR_PRIMARIO
         
+        ruc = emisor.get('ruc', '00000000000')
+        email = emisor.get('email', 'Sin email')
+        direccion = emisor.get('direccion', 'Sin dirección')
+        
         contacto = [
-            'RUC: 20601138787',
-            'Email: ingenieria.teslaelectricidad@gmail.com',
-            'Dpto de diseño GatoMichuy huacacayo peru'
+            f'RUC: {ruc}',
+            f'Email: {email}',
+            direccion
         ]
         
         for linea in contacto:

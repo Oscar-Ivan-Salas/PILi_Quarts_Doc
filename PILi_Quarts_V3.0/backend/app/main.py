@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import pili, generation
+from .routers import pili, generation, templates  # ✅ AGREGAR templates
 # Force Reload Checkpoint 10940
 from modules.pili.api.router import router as pili_v2_router
 
@@ -16,6 +16,7 @@ app.add_middleware(
 
 app.include_router(pili.router)
 app.include_router(generation.router)
+app.include_router(templates.router)  # ✅ AGREGAR
 app.include_router(pili_v2_router)
 # Include Document Router (Removed - see modules/documents)
 # from routers import documents
