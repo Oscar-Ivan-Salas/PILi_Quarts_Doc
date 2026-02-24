@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotización Corporativa - Tesla Factory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f3f4f6;
+            padding: 40px 0;
+            min-height: 100vh;
+            font-family: 'Calibri', 'Arial', sans-serif;
+        }
+
+        .document-paper {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            color: #1f2937;
+            padding: 20mm;
+        }
+
+        /* Variables de color inyectadas por el generador (Fallback Tesla Azul) */
+        :root {
+            --primary: #0052A3;
+            --secondary: #1E40AF;
+            --accent: #3B82F6;
+            --contrast: #DBEAFE;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 4px solid var(--primary);
+            margin-bottom: 30px;
+        }
+
+        .logo-section {
+            width: 40%;
+        }
+
+        .logo-placeholder {
+            width: 200px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 28px;
+        }
+
+        .titulo-documento {
+            width: 55%;
+            textAlign: right;
+            text-align: right;
+        }
+
+        .subtitulo-documento {
+            fontSize: 24px;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .numero-cotizacion {
+            fontSize: 13px;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .info-section {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .info-box {
+            flex: 1.5;
+            border: 1px solid var(--primary);
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .info-box-contrast {
+            flex: 1;
+            background: var(--contrast);
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .info-box h3 {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 11px;
+        }
+
+        .items-table thead tr {
+            background: var(--primary);
+            color: white;
+        }
+
+        .items-table th {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .items-table th.center {
+            text-align: center;
+        }
+
+        .items-table th.right {
+            text-align: right;
+        }
+
+        .items-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--contrast);
+        }
+
+        .items-table tr.even {
+            background: #F9FAFB;
+        }
+
+        .totales-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 40px;
+        }
+
+        .totales-table {
+            width: 250px;
+            font-size: 12px;
+            border-collapse: collapse;
+        }
+
+        .totales-table td {
+            padding: 8px;
+            border-bottom: 1px solid var(--contrast);
+        }
+
+        .totales-table .total-row {
+            background: var(--primary);
+            color: white;
+            font-weight: 900;
+        }
+
+        .seccion {
+            margin-bottom: 30px;
+        }
+
+        .seccion h2 {
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: bold;
+            border-bottom: 1px solid var(--primary);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        .lista {
+            font-size: 11px;
+            line-height: 1.8;
+            color: #4B5563;
+            padding-left: 20px;
+        }
+
+        .footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 2px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #9CA3AF;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="document-paper" id="document-paper">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="logo-section">
+                <!-- <image: {{emisor_logo}}> -->
+                <div class="logo-placeholder">{{emisor_nombre_corto}}</div>
+            </div>
+            <div class="titulo-documento">
+                <div class="subtitulo-documento">COTIZACIÓN CORPORATIVA</div>
+                <div class="numero-cotizacion">N° {{numero_cotizacion}}</div>
+                <div style="font-size: 11px; color: #6B7280;">Fecha: {{fecha}}</div>
+            </div>
+        </div>
+
+        <!-- INFO SECTION -->
+        <div class="info-section">
+            <div class="info-box">
+                <h3>Información del Solicitante</h3>
+                <div style="font-size: 11px; line-height: 1.8;">
+                    <p><span class="info-label"><strong>Empresa:</strong></span> <span
+                            class="info-value">{{cliente_nombre}}</span></p>
+                    <p><span class="info-label"><strong>ID/RUC:</strong></span> <span
+                            class="info-value">{{cliente_ruc}}</span></p>
+                    <p><span class="info-label"><strong>Ubicación:</strong></span> <span
+                            class="info-value">{{cliente_direccion}}</span></p>
+                    <p><span class="info-label"><strong>Email:</strong></span> <span
+                            class="info-value">{{cliente_email}}</span></p>
+                </div>
+            </div>
+            <div class="info-box-contrast">
+                <h3>Resumen del Servicio</h3>
+                <div style="font-size: 11px; line-height: 1.8;">
+                    <p><span class="info-label"><strong>Alcance:</strong></span> <span
+                            class="info-value">{{proyecto_nombre}}</span></p>
+                    <p><span class="info-label"><strong>Validez:</strong></span> <span
+                            class="info-value">{{proyecto_duracion}}</span> días calendario</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div style="margin-bottom: 30px;">
+            <p style="font-size: 13px; line-height: 1.6; color: #374151; text-align: justify;">
+                Presentamos la siguiente propuesta técnica-económica diseñada para satisfacer los requerimientos
+                específicos de su organización, garantizando los más altos estándares de calidad y seguridad industrial.
+            </p>
+        </div>
+
+        <!-- ITEMS TABLE -->
+        <div class="tabla-section">
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th class="center">Ítem</th>
+                        <th>Descripción Detallada</th>
+                        <th class="center">Cant.</th>
+                        <th class="center">Und.</th>
+                        <th class="right">P.Unit</th>
+                        <th class="right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{items_rows}}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TOTALS -->
+        <div class="totales-section">
+            <table class="totales-table">
+                <tbody>
+                    <tr>
+                        <td><strong>Subtotal:</strong></td>
+                        <td style="text-align: right;">S/ {{subtotal}}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>IGV (18%):</strong></td>
+                        <td style="text-align: right;">S/ {{igv}}</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td style="padding: 10px;"><strong>TOTAL:</strong></td>
+                        <td style="text-align: right; padding: 10px; font-size: 14px;">S/ {{total}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ENTREGABLES -->
+        <div class="seccion">
+            <h2>ENTREGABLES Y GARANTÍAS</h2>
+            <ul class="lista">
+                {{entregables_list}}
+                <li>Garantía técnica de 12 meses contra defectos de fábrica.</li>
+            </ul>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div>
+                <strong>{{emisor_empresa}}</strong><br />
+                RUC: {{emisor_ruc}} | {{emisor_direccion}}
+            </div>
+            <div style="text-align: right;">
+                Aceptado por: _________________________<br />
+                Fecha: ____/____/2026
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -170,7 +170,7 @@ export function WorkArea() {
                                                 logo: docConfig.logoBase64,
                                                 font: docConfig.fuenteDocumento,
                                                 fontSize: docConfig.tamanoFuente,
-                                                onDataChange: (newDatos: any) => setFlowData((prev: any) => ({ ...prev, ...newDatos }))
+                                                onDataChange: onDataChange
                                             };
 
                                             switch (activeSection) {
@@ -224,7 +224,7 @@ export function WorkArea() {
                                                 font: docConfig.fuenteDocumento,
                                                 fontSize: docConfig.tamanoFuente,
                                                 editable: true, // ✅ ACTIVAR EDICIÓN EN VISTA PREVIA
-                                                onDataChange: (newDatos: any) => setFlowData((prev: any) => ({ ...prev, ...newDatos }))
+                                                onDataChange: onDataChange
                                             };
 
                                             switch (activeSection) {

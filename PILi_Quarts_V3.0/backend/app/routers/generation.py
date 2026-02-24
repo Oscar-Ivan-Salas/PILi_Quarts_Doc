@@ -27,14 +27,12 @@ try:
 except ImportError:
     pdf_generator_v2 = None
 
-# IMPORT N04 BINARY FACTORY GENERATORS (New Engine)
+# IMPORT N04 SOVEREIGN BINARY FACTORY (Protocolo R.A.L.F.T.H. V2)
 try:
-    from modules.N04_Binary_Factory import html_to_word_generator
-    from modules.N04_Binary_Factory import excel_converter
+    from modules.N04_Binary_Factory.index import binary_factory
 except ImportError as e:
-    logger.error(f"Failed to import N04 Generators: {e}")
-    html_to_word_generator = None
-    excel_converter = None
+    logger.error(f"Failed to import N04 Sovereign Factory: {e}")
+    binary_factory = None
 
 logger = logging.getLogger(__name__)
 
@@ -91,162 +89,58 @@ async def generate_excel(request: DocumentRequest):
 
 
 def _generate_excel_from_html(html_content: str, output_path: str, filename: str) -> str:
-    """Genera Excel ESPEJO del HTML usando TeslaExcelConverter (Código Probado)"""
+    """Genera Excel ESPEJO usando el Nodo N04 Soberano"""
     try:
-        from modules.N04_Binary_Factory.excel_converter import TeslaExcelConverter
+        if not binary_factory:
+            raise ImportError("N04 Binary Factory not available")
+            
+        logger.info(f"📊 Generando Excel ESPEJO (N04 Sovereign Engine)")
+        result = binary_factory.generate_document(html_content, output_path, "excel")
         
-        logger.info(f"📊 Generando Excel ESPEJO desde HTML (TeslaExcelConverter)")
-        logger.info(f"📏 Tamaño HTML: {len(html_content)} caracteres")
-        
-        # ✅ USAR CÓDIGO PROBADO que genera espejos perfectos
-        converter = TeslaExcelConverter()
-        converter.convert_html_string(html_content, output_path)
-        
-        if not Path(output_path).exists():
-            raise Exception("Failed to generate Excel from HTML")
-        
-        file_size = Path(output_path).stat().st_size
-        logger.info(f"✅ Excel ESPEJO generado: {filename} ({file_size} bytes)")
+        if not result.get("success"):
+            raise Exception(result.get("error"))
+            
         return output_path
-        
     except Exception as e:
-        logger.error(f"Error generating Excel from HTML: {e}", exc_info=True)
+        logger.error(f"Error generating Excel via N04: {e}")
         raise e
 
 
 
 
 def _generate_pdf_from_html(html_content: str, output_path: str, filename: str, customization: dict = None, request_data: dict = None) -> str:
-    """Genera PDF directamente desde HTML de vista previa"""
+    """Genera PDF ESPEJO usando el Nodo N04 Soberano"""
     try:
-        logger.info(f"📄 Generando PDF desde HTML directo (Mirror)")
-        
-        # 0. RENDERIZADO DE VARIABLES (Fidelidad Espejo)
-        try:
-            from modules.N04_Binary_Factory import html_to_word_generator
-            # Usar datos del request para el reemplazo
-            data_to_inject = request_data if request_data else {}
-            # Reemplazar variables {{...}} e Imágenes IA <image:...>
-            html_content = html_to_word_generator.html_to_word_generator._reemplazar_variables(html_content, data_to_inject)
-            logger.info("✅ Variables e Imágenes IA renderizadas en el HTML del PDF.")
-        except Exception as e:
-            logger.warning(f"⚠️ Error renderizando variables en PDF: {e}")
-
-        # Guardar HTML temporal
-        tmp_html = Path(tempfile.gettempdir()) / f"temp_{filename}.html"
-        with open(tmp_html, 'w', encoding='utf-8') as f:
-            f.write(html_content)
-        
-        # Intentar con LibreOffice primero
-        try:
-            from app.services.pdf_generator_v2 import pdf_generator_v2
-            if pdf_generator_v2:
-                # Convertir HTML a PDF con LibreOffice
-                pdf_path = pdf_generator_v2.convertir_html_a_pdf(tmp_html)
-                if pdf_path and Path(pdf_path).exists():
-                    # Mover a output_path
-                    import shutil
-                    shutil.move(str(pdf_path), output_path)
-                    logger.info(f"✅ PDF generado con LibreOffice: {filename}")
-                    return output_path
-        except Exception as e:
-            logger.warning(f"LibreOffice no disponible: {e}")
-        
-        # Fallback: Playwright
-        try:
-            from modules.N04_Binary_Factory.generators.html_to_pdf_generator import generate_pdf_playwright
+        if not binary_factory:
+            raise ImportError("N04 Binary Factory not available")
             
-            # generate_pdf_playwright espera template_path, pero podemos pasar el HTML temporal
-            # PASAR CUSTOMIZATION A PLAYWRIGHT
-            pdf_path = generate_pdf_playwright({}, output_path, template_path=str(tmp_html), customization=customization)
-            
-            if Path(pdf_path).exists():
-                logger.info(f"✅ PDF generado con Playwright: {filename}")
-                return pdf_path
-        except Exception as e:
-            logger.error(f"Playwright también falló: {e}")
-            raise Exception("No PDF generator available")
+        logger.info(f"📄 Generando PDF ESPEJO (N04 Sovereign Engine)")
+        result = binary_factory.generate_document(html_content, output_path, "pdf")
         
+        if not result.get("success"):
+            raise Exception(result.get("error"))
+            
+        return output_path
     except Exception as e:
-        logger.error(f"Error generating PDF from HTML: {e}", exc_info=True)
+        logger.error(f"Error generating PDF via N04: {e}")
         raise e
 
 
-def _generate_word_from_html(html_content: str, output_path: str, filename: str, customization: dict = None, request_data: dict = None) -> str:
-    """Genera Word directamente desde HTML de vista previa (Fidelidad Espejo)"""
+def _generate_word_from_html(html_content: str, output_path: str, filename: str) -> str:
+    """Genera Word ESPEJO usando el Nodo N04 Soberano"""
     try:
-        if not html_to_word_generator:
-            raise ImportError("html_to_word_generator not available")
+        if not binary_factory:
+            raise ImportError("N04 Binary Factory not available")
             
-        logger.info(f"📄 Generando Word desde HTML directo (RALFTH)")
+        logger.info(f"📄 Generando Word ESPEJO (N04 Sovereign Engine)")
+        result = binary_factory.generate_document(html_content, output_path, "word")
         
-        # 0. Personalización de HTML (Estilos forzados)
-        if customization:
-            try:
-                # Mapa de colores para fallback
-                color_map = {
-                    'azul-tesla': '#3B82F6',
-                    'rojo-energia': '#EF4444',
-                    'verde-ecologico': '#10B981',
-                    'dorado-premium': '#F59E0B'
-                }
-                
-                # Obtener color primario
-                color_id = customization.get('esquemaColores', 'azul-tesla')
-                primary_color = color_map.get(color_id, '#3B82F6')
-                
-                # 1. Reemplazo de Colores (Brute Force)
-                target_colors = [
-                    '#3B82F6', '#2563EB', '#1D4ED8', '#0052cc', # Hex
-                    'rgb(59, 130, 246)', 'rgb(37, 99, 235)', 'rgb(29, 78, 216)', 'rgb(0, 82, 204)' # RGB
-                ]
-                
-                html_modified = html_content
-                for color in target_colors:
-                    html_modified = html_modified.replace(color, primary_color)
-                    if color.startswith('#'):
-                         html_modified = html_modified.replace(color.lower(), primary_color)
-                
-                html_content = html_modified
-                logger.info(f"🎨 Colores Word reemplazados por {primary_color}")
-
-            except Exception as e:
-                logger.error(f"⚠️ Error aplicando estilos a Word (continuando): {e}")
-
-        # 0. RENDERIZADO DE VARIABLES (Fidelidad Espejo)
-        try:
-            from modules.N04_Binary_Factory.index import binary_factory
-            # Si el endpoint principal nos pasó el request.data, lo usamos
-            # Pero _generate_word_from_html no recibe 'request', así que asumimos que 
-            # para RALFTH, el HTML debería venir ya renderizado o usamos un fallback si tenemos datos
-            # Reemplazar variables {{...}} con los datos reales de la personalización
-            data_to_use = request_data if request_data else (customization or {})
-            html_content = html_to_word_generator.html_to_word_generator._reemplazar_variables(html_content, data_to_use)
-            logger.info("✅ Variables renderizadas en el HTML del Word.")
-        except Exception as e:
-            logger.warning(f"⚠️ No se pudieron renderizar todas las variables en Word: {e}")
-
-        # 1. Instanciar Generador
-        # IMPORTANTE: HTMLToWordGenerator es una clase
-        generator = html_to_word_generator.HTMLToWordGenerator()
-        
-        # 2. Convertir
-        output_path_obj = Path(output_path)
-        # Asegurar directorio
-        output_path_obj.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Usar metodo interno del generador (Sincronizado con N04 Profesional)
-        # use_master=False garantiza que NO use el template viejo de Tesla
-        generator._convertir_html_a_word(html_content, output_path_obj, use_master=False)
-        
-        if output_path_obj.exists():
-            logger.info(f"✅ Word generado exitosamente: {filename}")
-            return str(output_path_obj)
-        else:
-            raise Exception("Word file not created")
+        if not result.get("success"):
+            raise Exception(result.get("error"))
             
+        return output_path
     except Exception as e:
-        logger.error(f"Error generating Word from HTML: {e}", exc_info=True)
+        logger.error(f"Error generating Word via N04: {e}")
         raise e
 
 
@@ -325,14 +219,7 @@ async def generate_word(request: DocumentRequest):
         # ✅ PRIORIDAD 1: Si viene HTML directo, usar N04 Mirror
         if request.html_content:
             logger.info("🎯 Usando HTML directo de vista previa (RALFTH)")
-            # Nota: request.data contiene los valores para reemplazar {{...}}
-            final_path = _generate_word_from_html(
-                request.html_content, 
-                filepath, 
-                filename, 
-                customization=request.personalizacion,
-                request_data=request.data
-            )
+            final_path = _generate_word_from_html(request.html_content, filepath, filename)
         else:
             # FALLBACK: Método legacy
             logger.info("📝 Usando método legacy (sin HTML)")
@@ -371,13 +258,7 @@ async def generate_pdf(request: DocumentRequest):
         # ✅ PRIORIDAD 1: Si viene HTML directo, usar N04 Mirror
         if request.html_content:
             logger.info("🎯 Usando HTML directo de vista previa (RALFTH)")
-            final_path = _generate_pdf_from_html(
-                request.html_content, 
-                pdf_path, 
-                pdf_filename, 
-                customization=request.personalizacion,
-                request_data=request.data
-            )
+            final_path = _generate_pdf_from_html(request.html_content, pdf_path, pdf_filename)
             
             return FileResponse(
                 path=final_path,

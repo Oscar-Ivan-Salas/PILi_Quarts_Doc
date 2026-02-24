@@ -1,74 +1,79 @@
 
-from docxtpl import DocxTemplate
-from pathlib import Path
 import logging
-from datetime import datetime
+import os
+from pathlib import Path
+from typing import Dict, Any, Optional
+from docxtpl import DocxTemplate
+from html_parser import html_parser
 
-logger = logging.getLogger("N04_Binary_Factory")
+logger = logging.getLogger(__name__)
 
 class WordMasterGenerator:
-    def __init__(self):
-        self.templates_dir = Path(__file__).parent / "templates"
-        self.master_template = self.templates_dir / "master_tesla.docx"
+    """
+    Generador de Alta Fidelidad usando DocxTemplate y Masters de 38KB.
+    Preserva el diseño original inyectando datos directamente.
+    """
+    
+    BASE_DIR = Path(__file__).parent
+    MASTERS_DIR = BASE_DIR / "templates" / "word_masters"
+    
+    # Mapeo de tipos de documento a archivos master
+    MASTER_MAPPING = {
+        "cotizacion_compleja": "master_cotizacion_compleja.docx",
+        "cotizacion_simple": "master_cotizacion_simple.docx",
+        "informe_ejecutivo_apa": "master_informe_ejecutivo_apa.docx",
+        "informe_tecnico": "master_informe_tecnico.docx",
+        "proyecto_complejo_pmi": "master_proyecto_complejo_pmi.docx",
+        "proyecto_simple": "master_proyecto_simple.docx"
+    }
 
-    def generate_document(self, data: dict, output_path: Path) -> Path:
+    def generate(self, html_content: str, output_path: str, doc_type: str) -> Dict[str, Any]:
         """
-        Generates a Word document by injecting data into the Master Tesla Template (docxtpl)
-        Protocol: Mirror Perfect
+        Genera un Word (.docx) basado en un master.
         """
         try:
-            if not self.master_template.exists():
-                raise FileNotFoundError(f"CRITICAL: Master Template not found at {self.master_template}")
+            # 1. Identificar el master
+            master_file = self.MASTER_MAPPING.get(doc_type.lower())
+            if not master_file:
+                # Intento de búsqueda por coincidencia parcial si falla el exacto
+                for key, val in self.MASTER_MAPPING.items():
+                    if key in doc_type.lower():
+                        master_file = val
+                        break
             
-            doc = DocxTemplate(self.master_template)
+            if not master_file:
+                 return {"success": False, "error": f"Tipo de documento '{doc_type}' no mapeado a un master."}
+
+            master_path = self.MASTERS_DIR / master_file
+            if not master_path.exists():
+                return {"success": False, "error": f"Archivo master no encontrado en {master_path}"}
+
+            # 2. Parsear el HTML para obtener el contexto (datos)
+            context = html_parser.parsear_html_editado(html_content, doc_type)
+            if context.get("error"):
+                return {"success": False, "error": f"Error parseando HTML: {context.get('mensaje')}"}
+
+            # Estandarizar tags a minúsculas (docxtpl suele usarlos así)
+            # El context ya viene mayormente en minúsculas desde html_parser
             
-            # Prepare Context (Flattened for Jinja2 in Docx)
-            # data comes from N04 which is already reasonably structured, but let's ensure mapping.
-            
-            # Header / Metadata
-            context = {
-                "TITULO_DOCUMENTO": data.get("titulo", "DOCUMENTO TÉCNICO"),
-                "CLIENTE_NOMBRE": data.get("cliente", "CLIENTE GENERAL"),
-                "PROYECTO_NOMBRE": data.get("proyecto", "PROYECTO GENERAL"),
-                "FECHA": data.get("fecha", datetime.now().strftime("%d/%m/%Y")),
-                "SUBTOTAL": f"{data.get('subtotal', 0):,.2f}",
-                "IGV": f"{data.get('igv', 0):,.2f}",
-                "TOTAL": f"{data.get('total', 0):,.2f}",
-                "items": []
-            }
-            
-            # Additional keys if present in data
-            for k, v in data.items():
-                if k not in context and isinstance(v, (str, int, float)):
-                    context[k] = v
-            
-            # Items Loop
-            input_items = data.get("items", [])
-            for idx, item in enumerate(input_items, 1):
-                params_item = {
-                    "index": idx,
-                    "descripcion": item.get("descripcion", ""),
-                    "unidad": item.get("unidad", "UND"),
-                    "cantidad": item.get("cantidad", 0),
-                    "precio": f"{item.get('precio_unitario', 0):,.2f}",
-                    "total": f"{item.get('total', 0):,.2f}"
-                }
-                context["items"].append(params_item)
-            
-            # Render
-            logger.info(f"Injecting {len(context['items'])} items into Master Template...")
+            # 3. Renderizar con DocxTemplate
+            logger.info(f"✨ Renderizando master {master_file} con docxtpl...")
+            doc = DocxTemplate(str(master_path))
             doc.render(context)
             
-            # Save
-            output_path.parent.mkdir(parents=True, exist_ok=True)
+            # 4. Guardar resultado
             doc.save(output_path)
             
-            logger.info(f"✅ Word Document Generated: {output_path.name}")
-            return output_path
+            logger.info(f"✅ Documento generado exitosamente: {output_path}")
+            return {
+                "success": True, 
+                "path": output_path,
+                "type": doc_type,
+                "master_used": master_file
+            }
 
         except Exception as e:
-            logger.error(f"WordMasterGenerator Failed: {e}", exc_info=True)
-            raise
+            logger.error(f"❌ Error crítico en WordMasterGenerator: {e}")
+            return {"success": False, "error": str(e)}
 
-# Singleton
 word_master_generator = WordMasterGenerator()

@@ -13,6 +13,10 @@ import {
 import { useWorkspaceStore } from '../store/useWorkspaceStore';
 import EditableCotizacionSimple from './EditableCotizacionSimple';
 import EditableCotizacionCompleja from './EditableCotizacionCompleja';
+import { StitchDashboard } from './stitch/StitchDashboard';
+import { StitchWorkspace } from './stitch/StitchWorkspace';
+import { StitchAdminDashboard } from './stitch/StitchAdminDashboard';
+import { StitchServiceMatrixMain } from './stitch/StitchServiceMatrixMain';
 
 export function WorkArea() {
     const { activeSection } = useWorkspaceStore();
@@ -89,57 +93,87 @@ export function WorkArea() {
 
             {/* Main Studio Viewport */}
             <div className="flex-1 flex justify-center items-center relative z-10 overflow-hidden">
-                <div
-                    className="w-full h-full flex items-center justify-center p-20 overflow-y-auto custom-scrollbar"
-                    style={{ perspective: '2500px' }}
-                >
-                    <motion.div
-                        animate={{
-                            rotateX: isFullscreen ? 0 : viewAngle.x,
-                            rotateY: isFullscreen ? 0 : viewAngle.y,
-                            scale: isFullscreen ? 1 : 0.85
-                        }}
-                        transition={{ duration: 0.8, cubicBezier: [0.16, 1, 0.3, 1] }}
-                        className="floating-a4 bg-white min-h-[297mm] w-[210mm] relative rounded-[2px] overflow-hidden"
-                    >
-                        {/* Realistic Paper Finish Overlay */}
-                        <div className="absolute inset-0 pointer-events-none opacity-[0.03] scanlines" />
-                        <div
-                            className="absolute inset-0 pointer-events-none opacity-[0.01]"
-                            style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")' }}
-                        />
 
-                        {/* Document Content Wrapper */}
-                        <div className="p-12">
-                            <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={activeSection}
-                                    initial={{ opacity: 0, scale: 0.98 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 1.02 }}
-                                    transition={{ duration: 0.4 }}
-                                >
-                                    {activeSection === 'cotizacion-simple' ? (
-                                        <EditableCotizacionSimple
-                                            datos={flowData}
-                                            esquemaColores={docConfig.esquemaColores}
-                                            onDatosChange={(newDatos: any) => setFlowData({ ...flowData, ...newDatos })}
-                                        />
-                                    ) : (
-                                        <EditableCotizacionCompleja
-                                            datos={{
-                                                cliente: flowData?.cliente,
-                                                proyecto: flowData?.proyecto,
-                                                items: flowData?.items || []
-                                            }}
-                                            esquemaColores="azul"
-                                        />
-                                    )}
-                                </motion.div>
-                            </AnimatePresence>
-                        </div>
-                    </motion.div>
-                </div>
+                {/* VIEW CONTROLLER: Switches between Fullscreen Dashboards and Document Editor */}
+                {/* DEFAULT & WORKSPACE View - Chat + Preview */}
+                {activeSection === 'stitch-workspace' || activeSection === 'stitch-dashboard' || activeSection === 'dashboard' ? (
+                    <div className="w-full h-full p-4 overflow-auto animate-in fade-in zoom-in duration-500">
+                        <StitchWorkspace />
+                    </div>
+                ) : activeSection === 'stitch-admin' ? (
+                    /* ADMIN CONSOLE - Metrics + Services */
+                    <div className="w-full h-full p-4 overflow-auto animate-in fade-in zoom-in duration-500">
+                        <StitchAdminDashboard />
+                    </div>
+                ) : activeSection === 'stitch-service-matrix' ? (
+                    /* FALLBACK / LEGACY MATRIX */
+                    <div className="w-full h-full p-4 overflow-auto animate-in fade-in zoom-in duration-500">
+                        <StitchServiceMatrixMain />
+                    </div>
+                ) : (
+                    /* DOCUMENT EDITOR MODE (A4 Paper) */
+                    <div
+                        className="w-full h-full flex items-center justify-center p-20 overflow-auto custom-scrollbar"
+                        style={{ perspective: '2500px' }}
+                    >
+                        <motion.div
+                            animate={{
+                                rotateX: isFullscreen ? 0 : viewAngle.x,
+                                rotateY: isFullscreen ? 0 : viewAngle.y,
+                                scale: isFullscreen ? 1 : 0.85
+                            }}
+                            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                            className="floating-a4 bg-white min-h-[297mm] w-[210mm] relative rounded-[2px] overflow-hidden shadow-2xl"
+                        >
+                            {/* Realistic Paper Finish Overlay */}
+                            <div className="absolute inset-0 pointer-events-none opacity-[0.03] scanlines" />
+                            <div
+                                className="absolute inset-0 pointer-events-none opacity-[0.01]"
+                                style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")' }}
+                            />
+
+                            {/* Document Content Wrapper */}
+                            <div className="p-12">
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={activeSection}
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 1.02 }}
+                                        transition={{ duration: 0.4 }}
+                                    >
+                                        {activeSection === 'cotizacion-simple' ? (
+                                            <EditableCotizacionSimple
+                                                datos={flowData}
+                                                esquemaColores={docConfig.esquemaColores}
+                                                onDatosChange={(newDatos: any) => setFlowData({ ...flowData, ...newDatos })}
+                                            />
+                                        ) : activeSection === 'cotizacion-compleja' ? (
+                                            <EditableCotizacionCompleja
+                                                datos={{
+                                                    cliente: flowData?.cliente,
+                                                    proyecto: flowData?.proyecto,
+                                                    items: flowData?.items || []
+                                                }}
+                                                esquemaColores="azul"
+                                            />
+                                        ) : (
+                                            // Fallback to Dashboard if state is weird, or just an empty state?
+                                            // Actually, verify useWorkspaceStore default. It is 'dashboard'.
+                                            // If 'dashboard', we should probably show StitchDashboard?
+                                            // Re-checking the logic above.
+                                            // If activeSection is 'dashboard' (from store default), it falls through here?
+                                            // Wait, I should handle 'dashboard' as StitchDashboard too.
+                                            <div className="flex items-center justify-center h-full text-gray-400">
+                                                Select a document type...
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                </AnimatePresence>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
             </div>
 
             {/* Floating Action HUD */}

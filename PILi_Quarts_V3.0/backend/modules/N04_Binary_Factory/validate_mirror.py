@@ -93,11 +93,10 @@ class UniversalFactoryValidator:
             results.append(f"DOCX: FAIL ({e})")
             logger.error(f"DOCX Error: {e}")
 
-        # 3. PDF
-        try:
-            pdf_path = output_base.with_suffix('.pdf')
-            logger.info(f"   Generating PDF: {pdf_path.name}")
-            
+            if not self.pdf:
+                results.append("PDF: SKIP (No Generator)")
+                return results
+
             # PDF Generator uses specific methods too
             # generar_cotizacion, generar_informe_proyecto, generar_informe_simple
             if "Cotizacion" in model_name:

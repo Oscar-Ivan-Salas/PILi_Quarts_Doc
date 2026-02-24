@@ -30,7 +30,12 @@ class TeslaExcelConverter:
         self.gris_fondo = "F9FAFB"
         self.gris_texto = "374151"
         self.blanco = "FFFFFF"
-        self.borde_gris = "E5E7EB"
+        self.color_borde_gris = "E5E7EB"
+        self.color_borde_azul = self.azul_primario
+        
+        # Objetos Side (Inicializados con los colores por defecto)
+        self.side_gris = Side(border_style='thin', color=self.color_borde_gris)
+        self.side_azul = Side(border_style='medium', color=self.color_borde_azul)
         
         self.base_size = 11
         
@@ -108,61 +113,6 @@ class TeslaExcelConverter:
 
         return font_color, font_size
 
-    def _parse_color(self, color_str):
-        """Convierte colores CSS (Hex, RGB) a Hex para OpenPyXL (AARRGGBB o RRGGBB)"""
-        if not color_str: return None
-        
-        color_str = color_str.strip().lower()
-        
-        # 1. Hex
-        if color_str.startswith('#'):
-             hex_val = color_str.lstrip('#').upper()
-             if len(hex_val) == 3: # #ABC -> #AABBCC
-                 hex_val = ''.join([c*2 for c in hex_val])
-             return hex_val
-
-        # 2. RGB
-        if color_str.startswith('rgb'):
-            try:
-                # Extraer números
-                import re
-                nums = re.findall(r'\d+', color_str)
-                if len(nums) >= 3:
-                    r, g, b = int(nums[0]), int(nums[1]), int(nums[2])
-                    return f"{r:02X}{g:02X}{b:02X}"
-            except Exception:
-                pass
-                
-        return None
-
-    def _parse_style(self, elem):
-        """Helper para extraer estilos inline (color, font-size) del elemento HTML"""
-        style = elem.get('style', '')
-        if not style:
-            return None, None
-
-        font_color = None
-        font_size = None
-
-        # Parsear estilos básicos
-        styles = [s.strip() for s in style.split(';') if s.strip()]
-        for s in styles:
-            if ':' in s:
-                key, val = s.split(':', 1)
-                key = key.strip().lower()
-                val = val.strip()
-
-                if key == 'color':
-                    font_color = self._parse_color(val)
-                elif key == 'font-size':
-                    # Extraer número (pt o px)
-                    import re
-                    match = re.search(r'(\d+(\.\d+)?)', val)
-                    if match:
-                        font_size = float(match.group(1))
-
-        return font_color, font_size
-
     def clean_numeric(self, text):
         if not text: return 0.0
         clean = re.sub(r'[^\d.-]', '', text.replace(',', ''))
@@ -172,7 +122,14 @@ class TeslaExcelConverter:
             return 0.0
 
     def set_border(self, cell, style='thin'):
-        side = Side(border_style=style, color=self.borde_gris)
+        # Usar el objeto Side ya pre-configurado o crear uno nuevo si el estilo cambia
+        if style == 'thin':
+            side = self.side_gris
+        elif style == 'medium':
+            side = self.side_azul
+        else:
+            side = Side(border_style=style, color=self.color_borde_gris)
+            
         cell.border = Border(left=side, right=side, top=side, bottom=side)
 
     def convert_cotizacion(self, soup, ws):
@@ -229,10 +186,11 @@ class TeslaExcelConverter:
             logging.info(f"🎨 Aplicando Color Global detectado: #{global_color}")
             self.azul_primario = global_color
             self.azul_secundario = global_color 
+            self.color_borde_azul = global_color
             
-            # Actualizar bordes (Usando primary_color dinámico)
-            self.borde_azul = Side(border_style='medium', color=self.azul_primario)
-            self.borde_gris = Side(border_style='thin', color="CCCCCC")
+            # Actualizar objetos Side dinámicos
+            self.side_azul = Side(border_style='medium', color=self.color_borde_azul)
+            self.side_gris = Side(border_style='thin', color="CCCCCC") # Gris más oscuro para contraste
 
         if global_size or global_font:
             # FORCE GLOBAL FONT SIZE & FAMILY
@@ -703,7 +661,7 @@ class TeslaExcelConverter:
                     ws.merge_cells(start_row=row, start_column=curr_col, end_row=row, end_column=curr_col+col_span-1)
                     c = ws.cell(row=row, column=curr_col, value=td.get_text(strip=True))
                     c.alignment = Alignment(wrap_text=True, vertical='center')
-                    c.border = Border(bottom=Side(style='thin', color=self.borde_gris))
+                    self.set_border(c)
                     curr_col += col_span
                 row += 1
                 

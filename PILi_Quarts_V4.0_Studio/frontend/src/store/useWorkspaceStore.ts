@@ -89,7 +89,7 @@ const API_URL = 'http://localhost:8005/api/documents'
 
 export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
     // Initial UI State
-    activeSection: 'dashboard', // Set to start at empty/dashboard
+    activeSection: 'stitch-workspace', // Set to start at empty/dashboard
     setActiveSection: (section) => set({ activeSection: section }),
 
     theme: 'dark', // Default Dark Mode

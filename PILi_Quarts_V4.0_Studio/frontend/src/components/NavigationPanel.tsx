@@ -2,19 +2,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
     FileText,
     FolderOpen,
-    BarChart3,
-    ChevronDown,
-    ChevronRight,
+    Workflow,
     Zap,
-    Calculator,
-    LayoutDashboard,
     Globe,
     Cpu,
-    Workflow
+    ChevronDown,
+    ChevronRight
 } from 'lucide-react'
 import { useState } from 'react'
 import { useWorkspaceStore } from '../store/useWorkspaceStore'
 import { ProfessionalFooter } from './ProfessionalFooter'
+import { ServiceMatrix } from './stitch/ServiceMatrix'
+import { AdminDashboardStats } from './stitch/AdminDashboardStats'
 
 interface NavSection {
     id: string
@@ -74,14 +73,44 @@ export function NavigationPanel() {
             {/* Subtle Vertical Scanning Line */}
             <div className="absolute right-0 top-0 w-[0.5px] h-full bg-gradient-to-b from-transparent via-[#0052A3]/40 to-transparent animate-tech-pulse" />
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
-                {/* System Nodes Section */}
-                <div className="space-y-6">
-                    <div className="px-2">
-                        <h3 className="text-[9px] font-black text-white/20 tracking-[0.4em] uppercase mb-6">
-                            System Node Control
-                        </h3>
+            {/* STITCH HEADER INTEGRATION */}
+            <div className="p-6 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors" onClick={() => setActiveSection('stitch-workspace')}>
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                            <span className="font-bold text-white text-lg">P</span>
+                        </div>
+                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-black"></div>
                     </div>
+                    <div>
+                        <h1 className="font-bold text-white text-lg tracking-tight">PILI Quarts</h1>
+                        <p className="text-[10px] text-blue-400 font-mono tracking-widest uppercase">Studio Edition v4.0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+
+                {/* 1. STITCH SERVICE MATRIX (Now points to Admin Console) */}
+                <div className="mt-4 px-2">
+                    <div
+                        className="px-3 mb-2 flex items-center justify-between cursor-pointer group"
+                        onClick={() => setActiveSection('stitch-admin')}
+                    >
+                        <span className="text-[9px] font-black text-white/40 tracking-[0.2em] uppercase group-hover:text-white transition-colors">Admin Console</span>
+                        <span className="text-[9px] bg-blue-500/10 text-blue-400 px-1.5 rounded font-mono group-hover:bg-blue-500 group-hover:text-white transition-colors">System Active</span>
+                    </div>
+                    {/* Tiny Matrix Preview or Just the Link? Keeping Matrix for visual density but maybe make it link too */}
+                    <div onClick={() => setActiveSection('stitch-admin')} className="cursor-pointer">
+                        <ServiceMatrix />
+                    </div>
+                </div>
+
+                {/* 2. LEGACY NAVIGATION (Redesigned) */}
+                <div className="mt-8 px-4 space-y-2">
+                    <h3 className="text-[9px] font-black text-white/20 tracking-[0.4em] uppercase mb-4 px-2">
+                        System Node Control
+                    </h3>
 
                     {navSections.map((section) => {
                         const Icon = section.icon
@@ -89,19 +118,17 @@ export function NavigationPanel() {
                         const isSectionActive = section.subsections?.some(s => s.id === activeSection)
 
                         return (
-                            <div key={section.id} className="space-y-2">
+                            <div key={section.id} className="space-y-1">
                                 <motion.button
                                     whileHover={{ backgroundColor: "rgba(255,255,255,0.02)" }}
                                     onClick={() => toggleSection(section.id)}
-                                    className={`w-full flex items-center justify-between px-3 py-3 rounded-lg transition-all group ${isSectionActive
+                                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all group ${isSectionActive
                                         ? 'bg-white/5 text-white'
                                         : 'text-white/40 hover:text-white'
                                         }`}
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <div className={`p-1.5 rounded-md border transition-all ${isSectionActive ? 'border-[#0052A3]/50 bg-[#0052A3]/10' : 'border-white/5 bg-white/5'}`}>
-                                            <Icon className={`w-3.5 h-3.5 ${isSectionActive ? 'text-[#0052A3]' : 'text-white/20'}`} strokeWidth={1.5} />
-                                        </div>
+                                    <div className="flex items-center gap-3">
+                                        <Icon className={`w-3.5 h-3.5 ${isSectionActive ? 'text-[#0052A3]' : 'text-white/20'}`} strokeWidth={1.5} />
                                         <span className="text-[10px] font-black tracking-[0.2em] uppercase">{section.label}</span>
                                     </div>
                                     <AnimatePresence mode="wait">
@@ -125,27 +152,22 @@ export function NavigationPanel() {
                                             initial={{ height: 0, opacity: 0 }}
                                             animate={{ height: 'auto', opacity: 1 }}
                                             exit={{ height: 0, opacity: 0 }}
-                                            className="ml-6 pl-5 border-l border-[#0052A3]/10 space-y-1 overflow-hidden"
+                                            className="ml-4 pl-4 border-l border-[#0052A3]/10 space-y-1 overflow-hidden"
                                         >
                                             {section.subsections?.map((subsection) => (
                                                 <motion.button
                                                     key={subsection.id}
                                                     whileHover={{ x: 4, color: "#fff" }}
                                                     onClick={() => setActiveSection(subsection.id)}
-                                                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-[9px] transition-all uppercase tracking-[0.15em] ${activeSection === subsection.id
+                                                    className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-[9px] transition-all uppercase tracking-[0.15em] ${activeSection === subsection.id
                                                         ? 'text-[#0052A3] font-black'
                                                         : 'text-white/30 font-bold hover:text-white/60'
                                                         }`}
                                                 >
-                                                    <div className="flex items-center gap-3">
+                                                    <div className="flex items-center gap-2">
                                                         <div className={`w-1 h-1 rounded-full ${activeSection === subsection.id ? 'bg-[#0052A3] shadow-[0_0_5px_#0052A3]' : 'bg-transparent'}`} />
                                                         <span>{subsection.label}</span>
                                                     </div>
-                                                    {subsection.badge && (
-                                                        <span className="text-[8px] font-mono text-white/20 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
-                                                            {subsection.badge}
-                                                        </span>
-                                                    )}
                                                 </motion.button>
                                             ))}
                                         </motion.div>
@@ -156,32 +178,9 @@ export function NavigationPanel() {
                     })}
                 </div>
 
-                {/* Operations Layer */}
-                <div className="pt-8 border-t border-white/5">
-                    <h3 className="text-[9px] font-black text-white/20 tracking-[0.4em] uppercase mb-6 px-2">
-                        Execution Layer
-                    </h3>
-                    <div className="space-y-4 px-2">
-                        <motion.button
-                            whileHover={{ scale: 1.02, backgroundColor: "#0052A3" }}
-                            whileTap={{ scale: 0.98 }}
-                            className="w-full flex items-center justify-center gap-3 py-4 rounded-xl bg-[#0052A3]/80 text-white text-[10px] font-black tracking-[0.3em] shadow-[0_15px_30px_rgba(0,82,163,0.3)] transition-all uppercase"
-                        >
-                            <Zap className="w-4 h-4" />
-                            DEPLOY V4
-                        </motion.button>
-
-                        <div className="grid grid-cols-2 gap-3 mt-4">
-                            <button className="flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all gap-2 group">
-                                <Globe className="w-4 h-4 text-white/20 group-hover:text-[#0052A3]" />
-                                <span className="text-[8px] text-white/40 font-black uppercase">Net</span>
-                            </button>
-                            <button className="flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all gap-2 group">
-                                <Cpu className="w-4 h-4 text-white/20 group-hover:text-[#0052A3]" />
-                                <span className="text-[8px] text-white/40 font-black uppercase">Proc</span>
-                            </button>
-                        </div>
-                    </div>
+                {/* 3. STITCH ADMIN DASHBOARD STATS */}
+                <div className="mt-8 px-2 border-t border-white/5 pt-4 cursor-pointer hover:bg-white/5 rounded-xl transition-colors" onClick={() => setActiveSection('stitch-admin')}>
+                    <AdminDashboardStats />
                 </div>
             </div>
 
