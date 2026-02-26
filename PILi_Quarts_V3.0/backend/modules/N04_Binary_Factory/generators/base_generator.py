@@ -32,18 +32,30 @@ class BaseDocumentGenerator:
         """
         self.datos = datos
         self.opciones = opciones or {}
-        self.doc = Document()
         
-        # 🔍 DEBUG: Logging de opciones recibidas
+        # 📂 SMART MASTER LOADING: Cargar plantilla si existe
+        template_dir = Path(__file__).parent.parent / "templates" / "word_masters"
+        mode = self.opciones.get('mode', 'cotizacion_simple')
+        template_path = template_dir / f"master_{mode}.docx"
+        
         import logging
         logger = logging.getLogger(__name__)
-        logger.info(f"🎨 BaseDocumentGenerator.__init__() - Opciones recibidas: {self.opciones}")
-        
+
+        if template_path.exists():
+            logger.info(f"📑 Cargando Plantilla Maestra: {template_path}")
+            self.doc = Document(str(template_path))
+            self.using_master = True
+        else:
+            logger.warning(f"⚠️ Plantilla Maestra no encontrada en {template_path}. Usando documento en blanco.")
+            self.doc = Document()
+            self.using_master = False
+            
         # Aplicar esquema de colores personalizado
         self._aplicar_colores()
         
-        # Configurar márgenes
-        self._configurar_margenes()
+        # Configurar márgenes (solo si no hay master, para no romper el diseño del maestro)
+        if not self.using_master:
+            self._configurar_margenes()
     
     def _rgb_to_hex(self, rgb_color):
         """Convierte RGBColor a string hexadecimal"""
@@ -117,6 +129,10 @@ class BaseDocumentGenerator:
     
     def _agregar_header_basico(self):
         """Agrega header profesional en la sección de encabezado de Word"""
+        # 📂 SI USAMOS MASTER, NO SOBREESCRIBIR EL HEADER DEL MAESTRO
+        if getattr(self, 'using_master', False):
+            return
+
         # Verificar si se debe mostrar el logo
         if not self.opciones.get('mostrar_logo', True):
             return
@@ -199,6 +215,10 @@ class BaseDocumentGenerator:
     
     def _agregar_footer_basico(self):
         """Agrega pie de página básico"""
+        # 📂 SI USAMOS MASTER, NO SOBREESCRIBIR EL FOOTER DEL MAESTRO
+        if getattr(self, 'using_master', False):
+            return
+
         self.doc.add_paragraph()
         
         p_footer = self.doc.add_paragraph()

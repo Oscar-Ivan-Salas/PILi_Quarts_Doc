@@ -20,13 +20,14 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({ code, onChange }) => {
                     <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
                 </div>
             </div>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden relative">
                 <Editor
                     height="100%"
                     defaultLanguage="html"
                     theme="vs-dark"
                     value={code}
                     onChange={onChange}
+                    loading={<div className="flex items-center justify-center h-full text-zinc-600 font-mono text-xs animate-pulse">Cargando Motor de Código Soberano...</div>}
                     options={{
                         minimap: { enabled: false },
                         fontSize: 14,
@@ -43,6 +44,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({ code, onChange }) => {
                     }}
                 />
             </div>
+
         </div>
     );
 };

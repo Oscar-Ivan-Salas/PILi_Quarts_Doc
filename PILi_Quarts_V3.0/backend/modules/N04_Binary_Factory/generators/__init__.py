@@ -4,12 +4,20 @@ Enruta las solicitudes al generador correcto según el tipo de documento
 """
 
 from pathlib import Path
-from .cotizacion_simple_generator import generar_cotizacion_simple
-from .cotizacion_compleja_generator import generar_cotizacion_compleja
-from .proyecto_simple_generator import generar_proyecto_simple
-from .proyecto_complejo_pmi_generator import generar_proyecto_complejo_pmi
-from .informe_tecnico_generator import generar_informe_tecnico
-from .informe_ejecutivo_apa_generator import generar_informe_ejecutivo_apa
+try:
+    from .cotizacion_simple_generator import generar_cotizacion_simple
+    from .cotizacion_compleja_generator import generar_cotizacion_compleja
+    from .proyecto_simple_generator import generar_proyecto_simple
+    from .proyecto_complejo_pmi_generator import generar_proyecto_complejo_pmi
+    from .informe_tecnico_generator import generar_informe_tecnico
+    from .informe_ejecutivo_apa_generator import generar_informe_ejecutivo_apa
+except (ImportError, ValueError):
+    from cotizacion_simple_generator import generar_cotizacion_simple
+    from cotizacion_compleja_generator import generar_cotizacion_compleja
+    from proyecto_simple_generator import generar_proyecto_simple
+    from proyecto_complejo_pmi_generator import generar_proyecto_complejo_pmi
+    from informe_tecnico_generator import generar_informe_tecnico
+    from informe_ejecutivo_apa_generator import generar_informe_ejecutivo_apa
 
 
 # Mapeo de tipos de documento a generadores

@@ -1,17 +1,26 @@
-# 🏭 N04_Binary_Factory (La Caja Negra)
+# 🏭 N04_Binary_Factory (La Caja Negra - SOBERANO V10)
+# =======================================================
 
-Este módulo es la implementación operativa del Skill **`@binary-factory`**.
+Este módulo es una implementación **Soberana e Independiente** del corazón de generación de documentos de PILi.
 
 ## 🚀 Propósito
-Es el corazón de generación de documentos de PILi. Utiliza tecnología de micro-agentes para transformar datos en documentos DOCX, XLSX y PDF de alta fidelidad.
+Transformar datos técnicos en documentos **DOCX, XLSX y PDF** de alta fidelidad. Este nodo funciona como un micro-servicio autónomo, sin dependencias externas del Core, facilitando su integración como módulo en cualquier aplicación web.
 
-## 🛡️ Protocolo
-Este módulo debe mantenerse como una "Caja Negra" operativa. Cualquier modificación en el comportamiento de los generadores debe estar guiada por las reglas definidas en el Skill local:
-`/.agent/skills/binary-factory/SKILL.md`
+## 🛡️ Estatus Soberano (V10)
+- **Independencia Total**: No importa archivos fuera de su directorio.
+- **Motores Locales**: Incluye `excel_generator.py` y `html_parser.py` dentro de su carpeta.
+- **Protocolo RALFTH**: Blindaje contra errores de índice y validación estricta de contrato via Pydantic.
 
-## 📂 Componentes
-- `index.py`: Orquestador de micro-agentes.
-- `generators/`: Motores binarios (Word, Excel, PDF) optimizados.
-- `templates/html/`: La interfaz editable del sistema.
+## 📂 Estructura Modular
+- `index.py`: Orquestador y Puente de Compatibilidad (Bridge Mode).
+- `studio_api.py`: API FastAPI independiente (Puerto 8005).
+- `generators/`: Motores binarios locales.
+- `studio/`: Frontend React para pruebas y diseño vivo (Puerto 5173).
+- `templates/html/`: Capa de presentación editable.
 
-**NO MODIFICAR LA LÓGICA DE GENERADORES PROBADOS.** Priorizar siempre la edición de los templates HTML para cambios visuales.
+## 🛠️ Ejecución Independiente
+1. Instalar requisitos: `pip install -r requirements_N04.txt`
+2. Levantar API: `python studio_api.py` (Puerto 8005)
+3. Levantar Studio: `cd studio && npm run dev` (Puerto 5173)
+
+**MANTENER LA SOBERANÍA: NO IMPORTAR DESDE EL CORE EXTERNO.**

@@ -5,7 +5,10 @@ Proyecto con cronograma, fases y recursos
 100% fidelidad al HTML profesional aprobado
 """
 
-from .base_generator import BaseDocumentGenerator
+try:
+    from .base_generator import BaseDocumentGenerator
+except (ImportError, ValueError):
+    from base_generator import BaseDocumentGenerator
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn

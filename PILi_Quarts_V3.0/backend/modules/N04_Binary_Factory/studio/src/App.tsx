@@ -36,7 +36,7 @@ function App() {
     const handleSelectTemplate = async (name: string) => {
         try {
             setSelectedTemplate(name);
-            const response = await axios.get(`http://127.0.0.1:8004/api/studio/template/${name}`);
+            const response = await axios.get(`http://localhost:8004/api/studio/template/${name}`);
             setHtmlCode(response.data.content);
         } catch (error) {
             console.error("Error loading template:", error);
@@ -49,7 +49,7 @@ function App() {
         setIsGenerating(format);
         try {
             const response = await axios.post(
-                'http://127.0.0.1:8004/api/studio/generate',
+                'http://localhost:8004/api/studio/generate',
                 {
                     html: htmlCode,
                     format: format,

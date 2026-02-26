@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,13 +27,33 @@
         }
 
         /* Colores Tesla Azul */
-        .color-primario { color: #0052A3; }
-        .color-secundario { color: #1E40AF; }
-        .color-acento { color: #3B82F6; }
-        .bg-primario { background-color: #0052A3; }
-        .bg-secundario { background-color: #1E40AF; }
-        .bg-acento { background-color: #3B82F6; }
-        .bg-claro { background-color: #EFF6FF; }
+        .color-primario {
+            color: #0052A3;
+        }
+
+        .color-secundario {
+            color: #1E40AF;
+        }
+
+        .color-acento {
+            color: #3B82F6;
+        }
+
+        .bg-primario {
+            background-color: #0052A3;
+        }
+
+        .bg-secundario {
+            background-color: #1E40AF;
+        }
+
+        .bg-acento {
+            background-color: #3B82F6;
+        }
+
+        .bg-claro {
+            background-color: #EFF6FF;
+        }
 
         /* Cabecera */
         .header {
@@ -51,15 +72,20 @@
         .logo-placeholder {
             width: 180px;
             height: 80px;
-            background: linear-gradient(135deg, #0052A3 0%, #1E40AF 100%);
+            background: #f8fafc;
+            border: 2px dashed #0052A3;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            margin-bottom: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .logo-placeholder img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
 
         .empresa-info {
@@ -316,21 +342,38 @@
         }
 
         /* Utilidades */
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
-        .font-bold { font-weight: bold; }
-        .mb-2 { margin-bottom: 10px; }
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        .mb-2 {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <!-- CABECERA -->
         <div class="header">
             <div class="logo-section">
                 <div class="logo-placeholder">
-                    TESLA
+                    {% if logo_url %}
+                    <img src="{{ logo_url }}" alt="Logo">
+                    {% else %}
+                    <div style="font-weight: bold; color: #0052A3;">{{ NOMBRE_EMISOR|default('TESLA') }}</div>
+                    {% endif %}
                 </div>
-                <p style="font-size: 10px; color: #6B7280;">Electricidad y Automatización</p>
+                <p style="font-size: 10px; color: #6B7280;">{{ SUBTITULO_DOCUMENTO|default('Electricidad y
+                    Automatización') }}</p>
             </div>
 
             <div class="empresa-info">
@@ -348,8 +391,8 @@
 
         <!-- TÍTULO DOCUMENTO -->
         <div class="titulo-documento">
-            <h1>COTIZACIÓN DE SERVICIOS</h1>
-            <div class="numero-cotizacion">N° {{NUMERO_COTIZACION}}</div>
+            <h1>{{ TITULO_DOCUMENTO|default('COTIZACIÓN DE SERVICIOS') }}</h1>
+            <div class="numero-cotizacion">N° {{ CODIGO_DOC|default('N04-S-2026') }}</div>
         </div>
 
         <!-- INFORMACIÓN GENERAL -->
@@ -391,51 +434,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- ITEM 1 -->
+                    <!-- ITEMS DINÁMICOS JINJA2 SOBERANOS -->
+                    {% for item in items %}
                     <tr>
-                        <td>01</td>
-                        <td>Tablero eléctrico monofásico 12 circuitos</td>
-                        <td class="text-right">1.00</td>
-                        <td class="text-right">und</td>
-                        <td class="text-right">$ 450.00</td>
-                        <td class="text-right">$ 450.00</td>
+                        <td>{{ loop.index|format_number|default(item.item) }}</td>
+                        <td>{{ item.descripcion }}</td>
+                        <td class="text-right">{{ item.cantidad }}</td>
+                        <td class="text-right">{{ item.unidad }}</td>
+                        <td class="text-right">{{ MONEDA_SIMBOLO }} {{ item.precio_unitario|format_currency }}</td>
+                        <td class="text-right">{{ MONEDA_SIMBOLO }} {{ item.total|format_currency }}</td>
                     </tr>
-                    <!-- ITEM 2 -->
-                    <tr>
-                        <td>02</td>
-                        <td>Circuitos eléctricos (cable THW + tubería PVC)</td>
-                        <td class="text-right">6.00</td>
-                        <td class="text-right">cto</td>
-                        <td class="text-right">$ 120.00</td>
-                        <td class="text-right">$ 720.00</td>
-                    </tr>
-                    <!-- ITEM 3 -->
-                    <tr>
-                        <td>03</td>
-                        <td>Puntos de iluminación LED</td>
-                        <td class="text-right">10.00</td>
-                        <td class="text-right">pto</td>
-                        <td class="text-right">$ 45.00</td>
-                        <td class="text-right">$ 450.00</td>
-                    </tr>
-                    <!-- ITEM 4 -->
-                    <tr>
-                        <td>04</td>
-                        <td>Tomacorrientes dobles con toma tierra</td>
-                        <td class="text-right">7.00</td>
-                        <td class="text-right">pto</td>
-                        <td class="text-right">$ 35.00</td>
-                        <td class="text-right">$ 245.00</td>
-                    </tr>
-                    <!-- ITEM 5 -->
-                    <tr>
-                        <td>05</td>
-                        <td>Sistema de puesta a tierra</td>
-                        <td class="text-right">1.00</td>
-                        <td class="text-right">glb</td>
-                        <td class="text-right">$ 850.00</td>
-                        <td class="text-right">$ 850.00</td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -445,15 +454,15 @@
             <div class="totales-box">
                 <div class="totales-row">
                     <span class="totales-label">SUBTOTAL:</span>
-                    <span class="totales-valor">$ {{SUBTOTAL}}</span>
+                    <span class="totales-valor">{{ MONEDA_SIMBOLO }} {{ SUBTOTAL|format_currency }}</span>
                 </div>
                 <div class="totales-row">
                     <span class="totales-label">IGV (18%):</span>
-                    <span class="totales-valor">$ {{IGV}}</span>
+                    <span class="totales-valor">{{ MONEDA_SIMBOLO }} {{ IGV|format_currency }}</span>
                 </div>
                 <div class="totales-row">
                     <span class="totales-label">TOTAL:</span>
-                    <span class="totales-valor">$ {{TOTAL}}</span>
+                    <span class="totales-valor">{{ MONEDA_SIMBOLO }} {{ TOTAL|format_currency }}</span>
                 </div>
             </div>
         </div>
@@ -462,13 +471,15 @@
         <div class="observaciones">
             <h3>Observaciones Técnicas</h3>
             <ul>
-                <li>Trabajos ejecutados según {{NORMATIVA_APLICABLE}}</li>
+                <li>Trabajos ejecutados según {{ NORMATIVA_APLICABLE|default('CNE - Código Nacional de Electricidad') }}
+                </li>
                 <li>Materiales de primera calidad con certificación</li>
                 <li>Mano de obra especializada</li>
                 <li>Garantía de 12 meses en mano de obra</li>
-                <li>Precios en dólares americanos (USD)</li>
+                <li>Precios en {{ MONEDA_NOMBRE|default('Dólares Americanos') }} ({{ MONEDA_SIMBOLO|default('USD') }})
+                </li>
                 <li>Forma de pago: 50% adelanto, 50% contra entrega</li>
-                <li>Cotización válida por {{VIGENCIA}}</li>
+                <li>Cotización válida por {{ VIGENCIA|default('30 días') }}</li>
             </ul>
         </div>
 
@@ -481,4 +492,5 @@
         </div>
     </div>
 </body>
+
 </html>

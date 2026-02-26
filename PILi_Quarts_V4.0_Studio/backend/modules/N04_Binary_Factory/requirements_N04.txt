@@ -1,0 +1,29 @@
+# REQUISITOS TÉCNICOS - N04 BINARY FACTORY (SOBREANO)
+# =======================================================
+# Este nodo es independiente y requiere las siguientes librerías para funcionar.
+
+# Web Framework & API
+fastapi
+uvicorn
+python-multipart
+
+# Modelado y Validación de Datos
+pydantic
+
+# Renderizado de Plantillas
+jinja2
+beautifulsoup4
+lxml
+
+# Generación de Documentos (Motores Nativos)
+python-docx
+openpyxl
+htmldocx
+fpdf
+
+# Generación de PDF (Alta Fidelidad)
+playwright
+
+# Utilidades
+requests
+python-dotenv

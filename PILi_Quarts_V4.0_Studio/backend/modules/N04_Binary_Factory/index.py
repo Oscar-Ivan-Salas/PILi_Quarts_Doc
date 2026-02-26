@@ -2,28 +2,60 @@ import logging
 import base64
 import json
 import os
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
 from pydantic import ValidationError
-from .models import BinaryFactoryInput
+try:
+    from .models import BinaryFactoryInput
+except (ImportError, ValueError, ModuleNotFoundError):
+    from models import BinaryFactoryInput
 
 # Native Generators Imports
-from .generators.cotizacion_simple_generator import generar_cotizacion_simple
-from .generators.cotizacion_compleja_generator import generar_cotizacion_compleja
-from .generators.proyecto_simple_generator import generar_proyecto_simple
-from .generators.proyecto_complejo_pmi_generator import generar_proyecto_complejo_pmi
-from .generators.informe_tecnico_generator import generar_informe_tecnico
-from .generators.informe_ejecutivo_apa_generator import generar_informe_ejecutivo_apa
+try:
+    from .generators.cotizacion_simple_generator import generar_cotizacion_simple
+    from .generators.cotizacion_compleja_generator import generar_cotizacion_compleja
+    from .generators.proyecto_simple_generator import generar_proyecto_simple
+    from .generators.proyecto_complejo_pmi_generator import generar_proyecto_complejo_pmi
+    from .generators.informe_tecnico_generator import generar_informe_tecnico
+    from .generators.informe_ejecutivo_apa_generator import generar_informe_ejecutivo_apa
+except (ImportError, ValueError, ModuleNotFoundError):
+    from generators.cotizacion_simple_generator import generar_cotizacion_simple
+    from generators.cotizacion_compleja_generator import generar_cotizacion_compleja
+    from generators.proyecto_simple_generator import generar_proyecto_simple
+    from generators.proyecto_complejo_pmi_generator import generar_proyecto_complejo_pmi
+    from generators.informe_tecnico_generator import generar_informe_tecnico
+    from generators.informe_ejecutivo_apa_generator import generar_informe_ejecutivo_apa
 # Binary Factory Entry Point - Restored to V9 "The Mirror" Engine
-
 
 logger = logging.getLogger("N04_Binary_Factory")
 
+# Importar Generador de Excel Profesional Soberano
+try:
+    from .generators.excel_generator import ExcelGenerator
+except (ImportError, ValueError, ModuleNotFoundError):
+    try:
+        from generators.excel_generator import ExcelGenerator
+    except ImportError:
+        ExcelGenerator = None
+        logger.warning("⚠️ ExcelGenerator profesional no encontrado en N04. El nodo no es 100% soberano si falta este archivo.")
+
 class BinaryFactory:
+    def __init__(self):
+        self.excel_gen = ExcelGenerator() if ExcelGenerator else None
+        
     def process_request(self, input_data: dict) -> dict:
         """
         Procesa una solicitud de generación de documento validando contra contrato.
         """
         try:
+            # [TRACE] Depuración de Contrato
+            logger.info(f"🔍 [TRACE] process_request input keys: {list(input_data.keys())}")
+            if "payload" in input_data:
+                logger.info(f"🔍 [TRACE] Payload keys: {list(input_data['payload'].keys())}")
+                logger.info(f"🔍 [TRACE] technical_notes: '{input_data['payload'].get('technical_notes')}' (type: {type(input_data['payload'].get('technical_notes'))})")
+            
             # 1. Validación Estricta (Contract First con Pydantic)
             try:
                 validated_input = BinaryFactoryInput(**input_data)
@@ -370,14 +402,14 @@ class BinaryFactory:
 
     def _generate_excel(self, header, branding, payload):
         """
-        Delegates to V9 Mirror Strategy (HTML -> Excel Converter)
-        This ensures 100% fidelity with the HTML templates.
+        Usa el Generador de Excel Profesional Original (Engineering Engine).
+        Esto asegura celdas nativas, fórmulas y estructura perfecta.
         """
         try:
-            from .html_to_word_generator import html_to_word_generator
-            from .excel_converter import TeslaExcelConverter
-            
-            # 1. Map Document Type to Template Mode (Same as Word/PDF)
+            if not self.excel_gen:
+                return {"success": False, "error": "ExcelGenerator no disponible"}
+
+            # Mapear tipo de documento al método del generador profesional
             doc_type_map = {
                 1: "cotizacion_simple",
                 2: "cotizacion_compleja",
@@ -385,98 +417,119 @@ class BinaryFactory:
                 4: "proyecto_complejo",
                 5: "informe_tecnico",
                 6: "informe_ejecutivo",
-                "ELECTRICIDAD_COTIZACION_SIMPLE": "cotizacion_simple",
-                "ELECTRICIDAD_COT_COMPLEJA": "cotizacion_compleja",
-                "ELECTRICIDAD_PROYECTO_SIMPLE": "proyecto_simple",
                 "ELECTRICIDAD_PROYECTO_COMPLEJO": "proyecto_complejo",
                 "ELECTRICIDAD_INFORME_TECNICO": "informe_tecnico",
-                "ELECTRICIDAD_INFORME_EJECUTIVO": "informe_ejecutivo"
+                "ELECTRICIDAD_INFORME_EJECUTIVO": "informe_ejecutivo",
+                # Mapeo Directo (Studio N04)
+                "COTIZACION_SIMPLE": "cotizacion_simple",
+                "COTIZACION_COMPLEJA": "cotizacion_compleja",
+                "PROYECTO_SIMPLE": "proyecto_simple",
+                "PROYECTO_COMPLEJO_PMI": "proyecto_complejo",
+                "PROYECTO_COMPLEJO": "proyecto_complejo",
+                "INFORME_TECNICO": "informe_tecnico",
+                "INFORME_EJECUTIVO_APA": "informe_ejecutivo",
+                "INFORME_EJECUTIVO": "informe_ejecutivo"
             }
             
             mode = doc_type_map.get(header.document_type)
-             # Fallback logic for string keys
             if not mode:
-                str_type = str(header.document_type)
-                if "COTIZACION_SIMPLE" in str_type: mode = "cotizacion_simple"
-                elif "COT_COMPLEJA" in str_type or "COTIZACION_COMPLEJA" in str_type: mode = "cotizacion_compleja"
-                elif "PROYECTO_SIMPLE" in str_type: mode = "proyecto_simple"
-                elif "PROYECTO_COMPLEJO" in str_type: mode = "proyecto_complejo"
-                elif "INFORME_TECNICO" in str_type: mode = "informe_tecnico"
-                elif "INFORME_EJECUTIVO" in str_type: mode = "informe_ejecutivo"
-                else:
-                    mode = "cotizacion_simple" # Default Fallback
+                mode = "cotizacion_simple" # Fallback
 
-            # 2. Prepare Data for Injection (Same as Word)
-            input_data = {
+            # Preparar datos para el generador original
+            datos = {
                 "numero": f"DOC-{header.user_id}-{header.service_id}",
                 "cliente": payload.client_info,
                 "proyecto": f"Proyecto Serv.{header.service_id}",
                 "fecha": payload.client_info.get("fecha", ""),
-                "servicio_nombre": f"Servicio {header.service_id}",
                 "items": payload.items,
+                "totales": payload.totals,
                 "subtotal": payload.totals.get("subtotal", 0),
                 "igv": payload.totals.get("igv", 0),
                 "total": payload.totals.get("total", 0),
-                "branding_color": branding.color_hex,
-                "technical_notes": payload.technical_notes,
-                "user_id": header.user_id,
-                 # Extra fields for specific templates
-                "presupuesto": payload.totals.get("total", 0), # Alias
-                "codigo": f"DOC-{header.service_id}"
+                "normativa": "CNE", # Fallback
+                "settings": payload.settings if hasattr(payload, 'settings') else {},
+                "branding": branding.dict()
             }
 
-            # 3. Render HTML (The "Mirror" Source)
-            html_content = html_to_word_generator.render_html(mode, input_data)
-            
-            # 4. Convert HTML String to Excel Native
-            converter = TeslaExcelConverter()
-            
-            # Define Output Path
-            svc_id_fmt = str(header.service_id).zfill(4)
-            final_name = f"{mode.upper()}_{svc_id_fmt}_TESLA.xlsx"
-            
             import tempfile
             from pathlib import Path
-            tmp_dir = Path(tempfile.gettempdir())
-            output_path = tmp_dir / final_name
             
-            converter.convert_html_string(html_content, str(output_path))
-            
-            # 5. Read back B64
-            with open(output_path, "rb") as f:
+            svc_id_fmt = str(header.service_id).zfill(4)
+            final_name = f"{mode.upper()}_{svc_id_fmt}_TESLA.xlsx"
+            tmp_path = Path(tempfile.gettempdir()) / final_name
+
+            # Logotipo dinámico (ADN Visual)
+            logo_path = None
+            if branding.logo_b64:
+                try:
+                    logo_data = base64.b64decode(branding.logo_b64.split(",")[-1])
+                    logo_tmp = Path(tempfile.gettempdir()) / f"logo_{header.user_id}_{header.service_id}.png"
+                    with open(logo_tmp, "wb") as f:
+                        f.write(logo_data)
+                    logo_path = str(logo_tmp)
+                    logger.info(f"🎨 Excel Logo extracted to: {logo_path}")
+                except Exception as e:
+                    logger.error(f"Failed to extract logo for Excel: {e}")
+
+            # Aplicar ADN Visual al Generador
+            if self.excel_gen:
+                branding_dict = branding.dict()
+                if logo_path:
+                    branding_dict['logo_path'] = logo_path
+                self.excel_gen.apply_branding(branding_dict)
+
+            # Ejecutar generador profesional
+            if mode == "cotizacion_simple":
+                self.excel_gen.generate_cotizacion(datos, str(tmp_path))
+            elif mode == "proyecto_simple":
+                self.excel_gen.generate_proyecto_simple(datos, str(tmp_path))
+            elif mode == "proyecto_complejo":
+                self.excel_gen.generate_proyecto_complejo(datos, str(tmp_path))
+            elif mode == "informe_tecnico":
+                self.excel_gen.generate_informe_tecnico(datos, str(tmp_path))
+            else:
+                self.excel_gen.generate_cotizacion(datos, str(tmp_path))
+
+            # Leer archivo generado
+            with open(tmp_path, "rb") as f:
                 b64_data = base64.b64encode(f.read()).decode('utf-8')
                 
             return {
                 "success": True,
                 "filename": final_name,
                 "file_b64": b64_data,
-                "mime_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                "engine": "HTML-to-Excel (V9 Mirror)"
+                "engine": "Professional Excel Native Engine (Alta Fidelidad)"
             }
+
+        except Exception as e:
+            logger.error(f"Excel Generation Error (Native): {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
 
         except Exception as e:
             logger.error(f"V9 Mirror Excel Gen Error: {e}", exc_info=True)
             return {"success": False, "error": str(e)}
             
     def _generate_word(self, header, branding, payload):
-        """Delegates to HTML-to-Word Generator Strategy (The 'Black Box' - HTML Fidelity)"""
         try:
-            from .html_to_word_generator import html_to_word_generator
+            try:
+                from .html_to_word_generator import html_to_word_generator
+            except (ImportError, ValueError, ModuleNotFoundError):
+                from html_to_word_generator import html_to_word_generator
             
             # Map Document Type ID/String to HTML Generator Method
             doc_type_map = {
-                1: "cotizacion_simple",
-                2: "cotizacion_compleja",
-                3: "proyecto_simple",
-                4: "proyecto_complejo",
-                5: "informe_tecnico",
-                6: "informe_ejecutivo",
-                "ELECTRICIDAD_COTIZACION_SIMPLE": "cotizacion_simple",
-                "ELECTRICIDAD_COT_COMPLEJA": "cotizacion_compleja",
-                "ELECTRICIDAD_PROYECTO_SIMPLE": "proyecto_simple",
                 "ELECTRICIDAD_PROYECTO_COMPLEJO": "proyecto_complejo",
                 "ELECTRICIDAD_INFORME_TECNICO": "informe_tecnico",
-                "ELECTRICIDAD_INFORME_EJECUTIVO": "informe_ejecutivo"
+                "ELECTRICIDAD_INFORME_EJECUTIVO": "informe_ejecutivo",
+                # Mapeo Directo (Studio N04)
+                "COTIZACION_SIMPLE": "cotizacion_simple",
+                "COTIZACION_COMPLEJA": "cotizacion_compleja",
+                "PROYECTO_SIMPLE": "proyecto_simple",
+                "PROYECTO_COMPLEJO_PMI": "proyecto_complejo",
+                "PROYECTO_COMPLEJO": "proyecto_complejo",
+                "INFORME_TECNICO": "informe_tecnico",
+                "INFORME_EJECUTIVO_APA": "informe_ejecutivo",
+                "INFORME_EJECUTIVO": "informe_ejecutivo"
             }
             
             mode = doc_type_map.get(header.document_type)
@@ -510,7 +563,9 @@ class BinaryFactory:
                 "total": totals.get("total", 0),
                 "branding_color": branding.color_hex,
                 "technical_notes": payload.technical_notes,
-                "user_id": header.user_id
+                "user_id": header.user_id,
+                "settings": payload.settings if hasattr(payload, 'settings') else {},
+                "branding": branding.dict()
             }
             
             # STRICT NAMING CONVENTION: INFORME_TECNICO_0001_TESLA.DOCX
@@ -547,9 +602,9 @@ class BinaryFactory:
                         with open(logo_tmp, "wb") as f:
                             f.write(logo_data)
                         logo_path = str(logo_tmp)
-                        logger.info(f"🎨 Logo extracted to: {logo_path}")
+                        logger.info(f"🎨 Word Logo extracted to: {logo_path}")
                     except Exception as e:
-                        logger.error(f"Failed to extract logo: {e}")
+                        logger.error(f"Failed to extract logo for Word: {e}")
                 
                 # Fallback to local default logo if exists
                 if not logo_path and default_logo.exists():
@@ -558,7 +613,10 @@ class BinaryFactory:
 
                 options = {
                     "esquema_colores": "azul-tesla",
-                    "logo_path": logo_path
+                    "logo_path": logo_path,
+                    "mode": mode,
+                    "primaryColor": branding.color_hex,
+                    "secondaryColor": payload.settings.get('secondaryColor') if hasattr(payload, 'settings') and payload.settings else None
                 }
 
 
@@ -579,7 +637,7 @@ class BinaryFactory:
                 
                 # Execution with Options
                 path = gen_fn(input_data, str(output_path), opciones=options)
-                engine_used = "Native Word Generator (Legacy V8-V9 Perfect)"
+                engine_used = "Native Word Generator (Alta Fidelidad - V10 Trasplanted)"
             except Exception as e:
                 import traceback
                 logger.error(f"FATAL ERROR in native generator {mode}: {e}")
@@ -617,12 +675,18 @@ class BinaryFactory:
                 4: "proyecto_complejo",
                 5: "informe_tecnico",
                 6: "informe_ejecutivo",
-                "ELECTRICIDAD_COTIZACION_SIMPLE": "cotizacion_simple",
-                "ELECTRICIDAD_COT_COMPLEJA": "cotizacion_compleja",
-                "ELECTRICIDAD_PROYECTO_SIMPLE": "proyecto_simple",
                 "ELECTRICIDAD_PROYECTO_COMPLEJO": "proyecto_complejo",
                 "ELECTRICIDAD_INFORME_TECNICO": "informe_tecnico",
-                "ELECTRICIDAD_INFORME_EJECUTIVO": "informe_ejecutivo"
+                "ELECTRICIDAD_INFORME_EJECUTIVO": "informe_ejecutivo",
+                # Mapeo Directo (Studio N04)
+                "COTIZACION_SIMPLE": "cotizacion_simple",
+                "COTIZACION_COMPLEJA": "cotizacion_compleja",
+                "PROYECTO_SIMPLE": "proyecto_simple",
+                "PROYECTO_COMPLEJO_PMI": "proyecto_complejo",
+                "PROYECTO_COMPLEJO": "proyecto_complejo",
+                "INFORME_TECNICO": "informe_tecnico",
+                "INFORME_EJECUTIVO_APA": "informe_ejecutivo",
+                "INFORME_EJECUTIVO": "informe_ejecutivo"
             }
             
             mode = doc_type_map.get(header.document_type)
@@ -672,7 +736,8 @@ class BinaryFactory:
                 "document_type": header.document_type,
                 "technical_notes": payload.technical_notes,
                 "client_info": payload.client_info, # Pass full info
-                "totals": payload.totals # Ensure totals dict is passed correctly
+                "totals": payload.totals, # Ensure totals dict is passed correctly
+                "settings": payload.settings if hasattr(payload, 'settings') else {}
             }
             
             doc_label = mode.upper()
@@ -699,6 +764,249 @@ class BinaryFactory:
 
         except Exception as e:
             logger.error(f"Playwright PDF Generation Failed: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
+
+    def _generate_mirror_pdf(self, html_content: str, output_path: str, settings: dict = None) -> dict:
+        """
+        Generates a 100% fidelity PDF from raw HTML using Playwright.
+        Inyecta estilos dinámicos de ADN Visual si están disponibles.
+        """
+        try:
+            processed_html = html_content
+            if settings:
+                primary = settings.get('primaryColor', '#3b82f6')
+                secondary = settings.get('secondaryColor', '#1e40af')
+                font = settings.get('fontFamily', 'Inter')
+                size = settings.get('fontSize', 12)
+                
+                style_block = f"""
+                <style id="adn-visual-mirror">
+                    :root {{
+                        --pili-primary: {primary};
+                        --pili-secondary: {secondary};
+                        --pili-font: "{font}", serif;
+                        --pili-font-size: {size}pt;
+                    }}
+                    body {{ 
+                        font-family: var(--pili-font), sans-serif !important; 
+                        font-size: var(--pili-font-size) !important;
+                    }}
+                    /* Forzar Color Primario en todos los Títulos y Textos de Marca */
+                    .color-primario, h1, h2, h3, h4, 
+                    .empresa-nombre, .cotizacion-titulo, .titulo-documento,
+                    .title, .subtitle, .header-text, .totales-label {{ 
+                        color: var(--pili-primary) !important; 
+                    }}
+                    
+                    /* Forzar Color Secundario */
+                    .color-secundario, .text-secondary, .info-card-label {{ 
+                        color: var(--pili-secondary) !important; 
+                    }}
+                    
+                    /* Backgrounds de Marca */
+                    .bg-primario, thead, .fase-numero, .fase-duracion,
+                    .totales-row:last-child, .header-main, .logo-placeholder {{ 
+                        background-color: var(--pili-primary) !important; 
+                        background-image: none !important; 
+                        color: white !important;
+                    }}
+                    
+                    /* Bordes de Marca */
+                    .border-primario, .header, .info-box h3, 
+                    .titulo-documento, .tabla-section h2, .seccion h2,
+                    table, th, td, .info-card, .recurso-card {{ 
+                        border-color: var(--pili-primary) !important; 
+                    }}
+                    
+                    /* Ajustes de impresión */
+                    @media print {{
+                        .no-print {{ display: none !important; }}
+                    }}
+                </style>
+                """
+                if "</head>" in processed_html:
+                    processed_html = processed_html.replace("</head>", f"{style_block}</head>")
+                else:
+                    processed_html = f"<html><head>{style_block}</head><body>{processed_html}</body></html>"
+
+            # 1. Create temporary HTML file
+            with tempfile.NamedTemporaryFile(suffix=".html", delete=False, mode="w", encoding="utf-8") as tmp:
+                tmp.write(processed_html)
+                html_tmp_path = tmp.name
+            
+            try:
+                # 2. Invoke specialized CLI (Playwright should be installed in venv)
+                cli_path = Path(__file__).parent / "generators" / "playwright_pdf_cli.py"
+                result = subprocess.run(
+                    [sys.executable, str(cli_path), html_tmp_path, str(output_path)],
+                    capture_output=True,
+                    text=True
+                )
+                
+                if result.returncode != 0 or "ERROR:" in result.stdout:
+                    logger.error(f"Mirror PDF CLI Error: {result.stdout} {result.stderr}")
+                    return {"success": False, "error": f"CLI Error: {result.stdout}"}
+                
+                # 3. Read back file
+                if os.path.exists(output_path):
+                    with open(output_path, "rb") as f:
+                        b64_data = base64.b64encode(f.read()).decode('utf-8')
+                    
+                    return {
+                        "success": True,
+                        "filename": os.path.basename(output_path),
+                        "file_b64": b64_data,
+                        "engine": "Playwright Mirror V10"
+                    }
+                else:
+                    return {"success": False, "error": "Output PDF not found after CLI execution"}
+                    
+            finally:
+                if os.path.exists(html_tmp_path):
+                    os.remove(html_tmp_path)
+                    
+        except Exception as e:
+            logger.error(f"Mirror PDF Generation Crash: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
+
+    async def generate_document(self, html_content: str, output_path: str, format_type: str, doc_type: str, options: dict = None) -> dict:
+        """
+        Bridge method for V3 Compatibility.
+        Parses HTML and then calls the V10 process_request.
+        """
+        try:
+            try:
+                from .html_parser import html_parser
+            except (ImportError, ValueError, ModuleNotFoundError):
+                from html_parser import html_parser
+            
+            # 1. Parse HTML to structured Data
+            logger.info(f"🔍 Parsing HTML for {doc_type} in Studio Bridge...")
+            
+            # PRO-TIP: Si el HTML tiene tags de Jinja {{ }}, intentamos renderizarlos con las opciones
+            if "{{" in html_content or "{%" in html_content:
+                try:
+                    from jinja2 import Template
+                    template = Template(html_content)
+                    # Inyectar data de settings/options (Studio context)
+                    # Sincronizamos con los nombres que espera la plantilla
+                    render_data = options.get("data", {}) if options else {}
+                    
+                    # Totales y Moneda
+                    totals = extracted_data if extracted_data else {}
+                    currency = options.get("currency", "PEN")
+                    simbolo = "S/" if currency == "PEN" else "$" if currency == "USD" else "€"
+                    
+                    # Enriquecer datos para Jinja2
+                    render_data.update({
+                        "SUBTOTAL": totals.get("subtotal", 0),
+                        "IGV": totals.get("igv", 0),
+                        "TOTAL": totals.get("total", 0),
+                        "MONEDA_SIMBOLO": simbolo,
+                        "items": extracted_data.get("items", [])
+                    })
+                    
+                    html_content = template.render(**render_data)
+                    logger.info(f"✨ Jinja2 Rendering Applied. Keys: {list(render_data.keys())}")
+                    
+                    # Limpieza absoluta de placeholders no resuelvos
+                    import re
+                    html_content = re.sub(r'\{\{.*?\}\}', '', html_content)
+                    html_content = re.sub(r'\{%.*?%\}', '', html_content)
+                except Exception as je:
+                    logger.warning(f"Jinja2 failure (ignoring): {je}")
+
+            extracted_data = html_parser.parsear_html_editado(html_content, doc_type)
+            
+            if extracted_data.get("error"):
+                logger.error(f"❌ HTML Parsing Error: {extracted_data.get('mensaje')}")
+                return {"success": False, "error": extracted_data.get("mensaje")}
+
+            # 2. Map to V10 BinaryFactoryInput structure
+            normalized_doc_type = doc_type.upper().replace(" ", "_").replace("-", "_")
+            
+            # Convertir logo Base64 a archivo temporal si existe
+            logo_path = None
+            logo_b64 = options.get("logo") if options else None
+            if logo_b64 and isinstance(logo_b64, str) and logo_b64.startswith("data:image"):
+                try:
+                    # Extraer datos base64 del data URL
+                    import re
+                    match = re.match(r'data:image/[^;]+;base64,(.+)', logo_b64)
+                    if match:
+                        logo_data = base64.b64decode(match.group(1))
+                        # Crear archivo temporal PNG
+                        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_logo:
+                            tmp_logo.write(logo_data)
+                            logo_path = tmp_logo.name
+                            logger.info(f"🎨 Logo convertido a archivo temporal: {logo_path}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Error convirtiendo logo Base64: {e}")
+            
+            input_dict = {
+                "header": {
+                    "user_id": extracted_data.get("emisor_nombre") or "Studio_User",
+                    "service_id": 1, 
+                    "document_type": normalized_doc_type
+                },
+                "branding": {
+                    "logo_b64": logo_b64,
+                    "logo_path": logo_path,  # Ruta del archivo temporal para generadores
+                    "color_hex": options.get("primaryColor", "#0052A3") if options else "#0052A3"
+                },
+                "payload": {
+                    # Propagar ADN Visual completo a los generadores
+                    "settings": {
+                        "primaryColor": options.get("primaryColor", "#0052A3") if options else "#0052A3",
+                        "secondaryColor": options.get("secondaryColor", "#1E40AF") if options else "#1E40AF",
+                        "fontFamily": options.get("fontFamily", "Calibri") if options else "Calibri",
+                        "fontSize": options.get("fontSize", 11) if options else 11,
+                        "currency": options.get("currency", "PEN") if options else "PEN",
+                        "logo": logo_b64,
+                        "logo_path": logo_path  # Para compatibilidad con generadores
+                    } if options else {},
+                    "items": extracted_data.get("items", []),
+                    "totals": {
+                        "subtotal": extracted_data.get("subtotal", 0),
+                        "igv": extracted_data.get("igv", 0),
+                        "total": extracted_data.get("total", 0)
+                    },
+                    "technical_notes": "",
+                    "client_info": {
+                        "nombre": extracted_data.get("cliente", ""),
+                        "ruc": extracted_data.get("cliente_ruc", ""),
+                        "direccion": extracted_data.get("cliente_direccion", ""),
+                        "fecha": extracted_data.get("fecha", "")
+                    }
+                },
+                "output_format": format_type.upper().replace("WORD", "DOCX").replace("EXCEL", "XLSX")
+            }
+            
+            # 3. Dispatch
+            target_format = format_type.upper()
+            logger.info(f"🔍 [TRACE] generate_document: format={target_format}, normalized_doc_type={normalized_doc_type}")
+            
+            if target_format == "PDF":
+                logger.info("🎨 Applying High-Fidelity PDF Mirror Strategy (Playwright)...")
+                # Ensure output_path is absolute for CLI
+                result = self._generate_mirror_pdf(html_content, str(output_path), settings=options)
+            else:
+                logger.info(f"🏛️ Using Native Engineering Engine for {target_format}")
+                result = self.process_request(input_dict)
+            
+            # 4. Handle output path for V3 compatibility
+            if result.get("success") and "file_b64" in result:
+                file_data = base64.b64decode(result["file_b64"])
+                os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                with open(output_path, "wb") as f:
+                    f.write(file_data)
+                logger.info(f"✅ Bridge Success: File written to {output_path}")
+                return {"success": True, "filename": os.path.basename(output_path)}
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"❌ Error in Bridge: {e}", exc_info=True)
             return {"success": False, "error": str(e)}
 
 # Singleton Instance

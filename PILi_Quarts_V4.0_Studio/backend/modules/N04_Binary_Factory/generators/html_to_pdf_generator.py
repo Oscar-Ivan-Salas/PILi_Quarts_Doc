@@ -31,18 +31,59 @@ def generate_pdf_playwright(data: dict, output_path: str, template_path: str = N
         with open(template_path, "r", encoding="utf-8") as f:
             html_content = f.read()
 
-        # Replace Placeholders (Data Injection)
-        # Header/Footer
-        html_content = html_content.replace("{{NUMERO_COTIZACION}}", data.get("codigo", "COT-0000"))
-        html_content = html_content.replace("{{CLIENTE}}", data.get("client_info", {}).get("nombre", "CLIENTE GENERAL"))
-        html_content = html_content.replace("{{RUC_CLIENTE}}", data.get("client_info", {}).get("ruc", "00000000000"))
-        html_content = html_content.replace("{{DIRECCION_CLIENTE}}", data.get("client_info", {}).get("direccion", "Lima, Peru"))
+        # 2. Motor de Reemplazo Universal (Flatten Data)
+        def flatten_dict(d, prefix=''):
+            res = {}
+            for k, v in d.items():
+                key = f"{prefix}{k.upper()}"
+                if isinstance(v, dict):
+                    res.update(flatten_dict(v, f"{key}_"))
+                else:
+                    res[key] = v
+            return res
+
+        flat_data = flatten_dict(data)
+        flat_data["NUMERO_COTIZACION"] = data.get("numero") or data.get("codigo", "DOC-000")
+        flat_data["CLIENTE"] = data.get("client_info", {}).get("nombre", "CLIENTE")
         
-        # Totals
-        totals = data.get("totals", {})
-        html_content = html_content.replace("{{SUBTOTAL}}", f"{float(totals.get('subtotal', 0)):,.2f}")
-        html_content = html_content.replace("{{IGV}}", f"{float(totals.get('igv', 0)):,.2f}")
-        html_content = html_content.replace("{{TOTAL}}", f"{float(totals.get('total', 0)):,.2f}")
+        # Totals and Currency
+        settings = data.get("settings", {})
+        currency_code = settings.get("currency", "PEN")
+        simbolos = {'PEN': 'S/', 'USD': '$', 'EUR': '€'}
+        simbolo = simbolos.get(currency_code, 'S/')
+        
+        # Reemplazar placeholders dinámicamente
+        for k, v in flat_data.items():
+            placeholder = "{{" + k + "}}"
+            if placeholder in html_content:
+                if isinstance(v, (int, float)) and any(x in k for x in ['TOTAL', 'SUBTOTAL', 'IGV', 'PRESUPUESTO']):
+                    val_str = f"{simbolo} {float(v):,.2f}"
+                else:
+                    val_str = str(v)
+                html_content = html_content.replace(placeholder, val_str)
+
+        # Inyectar ADN Visual (Colores)
+        branding = data.get("branding", {})
+        primary_color = branding.get("color") or "#0052A3"
+        adn_style = f"""
+        <style>
+            :root {{
+                --color-primario: {primary_color};
+            }}
+            .color-primario, .empresa-nombre, .titulo-documento h1, .info-box h3, 
+            .tabla-section h2, .totales-label, .totales-valor, .footer-empresa {{
+                color: {primary_color} !important;
+            }}
+            .bg-primario, thead, .totales-row:last-child {{
+                background: {primary_color} !important;
+            }}
+            .header, .titulo-documento, .info-box h3, .tabla-section h2, .totales-box, .footer {{
+                border-color: {primary_color} !important;
+            }}
+        </style>
+        """
+        if "</head>" in html_content:
+            html_content = html_content.replace("</head>", adn_style + "</head>")
 
         # Items - Dynamic Construction
         # We need to find the `<tbody>` and inject rows.
@@ -56,8 +97,8 @@ def generate_pdf_playwright(data: dict, output_path: str, template_path: str = N
                         <td>{item.get('descripcion', '')}</td>
                         <td class="text-right">{float(item.get('cantidad', 0)):.2f}</td>
                         <td class="text-right">{item.get('unidad', 'und')}</td>
-                        <td class="text-right">$ {float(item.get('precio', 0)):,.2f}</td>
-                        <td class="text-right">$ {float(item.get('total', 0)):,.2f}</td>
+                        <td class="text-right">{simbolo} {float(item.get('precio', item.get('precio_unitario', 0))):,.2f}</td>
+                        <td class="text-right">{simbolo} {float(item.get('total', 0)):,.2f}</td>
                     </tr>
              """
              items_html += row
@@ -73,22 +114,35 @@ def generate_pdf_playwright(data: dict, output_path: str, template_path: str = N
             _, post_items = rest.split("</tbody>", 1)
             html_content = pre_items + items_html + "</tbody>" + post_items
         
-        # 3. Render PDF with Playwright
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
+        # 3. Render PDF with Playwright (Isolated Subprocess to avoid Event Loop issues)
+        import subprocess
+        import sys
+        import tempfile
+        
+        # Create temp HTML file for the CLI
+        with tempfile.NamedTemporaryFile(suffix=".html", delete=False, mode="w", encoding="utf-8") as tmp:
+            tmp.write(html_content)
+            tmp_path = tmp.name
             
-            # Set Content
-            page.set_content(html_content)
+        try:
+            cli_path = Path(__file__).parent / "playwright_pdf_cli.py"
+            # Use current python executable
+            result = subprocess.run(
+                [sys.executable, str(cli_path), tmp_path, output_path],
+                capture_output=True,
+                text=True
+            )
             
-            # Print to PDF
-            page.pdf(path=output_path, format="A4", margin={"top": "2cm", "bottom": "2cm", "left": "2cm", "right": "2cm"}, print_background=True)
+            if result.returncode != 0 or "ERROR:" in result.stdout:
+                raise RuntimeError(f"CLI PDF Failed: {result.stdout} {result.stderr}")
+                
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
             
-            browser.close()
-            
-        logger.info(f"✅ PDF Generated via Playwright: {output_path}")
+        logger.info(f"✅ PDF Generated via Isolated Playwright: {output_path}")
         return output_path
 
     except Exception as e:
-        logger.error(f"Playwright Generation Failed: {e}", exc_info=True)
+        logger.error(f"Isolated Playwright Generation Failed: {e}", exc_info=True)
         raise e

@@ -72,15 +72,20 @@
         .logo-placeholder {
             width: 180px;
             height: 80px;
-            background: linear-gradient(135deg, #0052A3 0%, #1E40AF 100%);
+            background: #f8fafc;
+            border: 2px dashed #0052A3;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            margin-bottom: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .logo-placeholder img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
 
         .empresa-info {
@@ -476,9 +481,14 @@
         <div class="header">
             <div class="logo-section">
                 <div class="logo-placeholder">
-                    TESLA
+                    {% if logo_url %}
+                    <img src="{{ logo_url }}" alt="Logo">
+                    {% else %}
+                    <div style="font-weight: bold; color: #0052A3;">{{ NOMBRE_EMISOR|default('TESLA') }}</div>
+                    {% endif %}
                 </div>
-                <p style="font-size: 10px; color: #6B7280;">Electricidad y Automatización</p>
+                <p style="font-size: 10px; color: #6B7280;">{{ SUBTITULO_DOCUMENTO|default('Electricidad y
+                    Automatización') }}</p>
             </div>
 
             <div class="empresa-info">
@@ -496,9 +506,10 @@
 
         <!-- TÍTULO DOCUMENTO -->
         <div class="titulo-documento">
-            <h1>COTIZACIÓN PROFESIONAL</h1>
-            <div class="subtitulo-documento">Versión Completa con Ingeniería de Detalle</div>
-            <div class="numero-cotizacion">N° {{NUMERO_COTIZACION}}</div>
+            <h1>{{ TITULO_DOCUMENTO|default('COTIZACIÓN PROFESIONAL') }}</h1>
+            <div class="subtitulo-documento">{{ SUBTITULO_DOCUMENTO|default('Versión Completa con Ingeniería de
+                Detalle') }}</div>
+            <div class="numero-cotizacion">N° {{ CODIGO_DOC|default('N04-P-2026') }}</div>
         </div>
 
         <!-- INFORMACIÓN GENERAL -->
@@ -552,15 +563,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- ITEMS DINÁMICOS JINJA2 -->
-                    {% for item in ITEMS_LIST %}
+                    <!-- ITEMS DINÁMICOS JINJA2 SOBERANOS -->
+                    {% for item in items %}
                     <tr>
-                        <td>{{ loop.index }}</td>
-                        <td>{{ item.description }}</td>
-                        <td class="text-right">{{ item.quantity }}</td>
-                        <td class="text-right">{{ item.unit }}</td>
-                        <td class="text-right">$ {{ item.price_unit }}</td>
-                        <td class="text-right">$ {{ item.total }}</td>
+                        <td>{{ loop.index|format_number|default(item.item) }}</td>
+                        <td>{{ item.descripcion }}</td>
+                        <td class="text-right">{{ item.cantidad }}</td>
+                        <td class="text-right">{{ item.unidad }}</td>
+                        <td class="text-right">{{ MONEDA_SIMBOLO }} {{ item.precio_unitario|format_currency }}</td>
+                        <td class="text-right">{{ MONEDA_SIMBOLO }} {{ item.total|format_currency }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -572,15 +583,15 @@
             <div class="totales-box">
                 <div class="totales-row">
                     <span class="totales-label">SUBTOTAL:</span>
-                    <span class="totales-valor">$ {{SUBTOTAL}}</span>
+                    <span class="totales-valor">{{ MONEDA_SIMBOLO }} {{ SUBTOTAL|format_currency }}</span>
                 </div>
                 <div class="totales-row">
                     <span class="totales-label">IGV (18%):</span>
-                    <span class="totales-valor">$ {{IGV}}</span>
+                    <span class="totales-valor">{{ MONEDA_SIMBOLO }} {{ IGV|format_currency }}</span>
                 </div>
                 <div class="totales-row">
                     <span class="totales-label">TOTAL:</span>
-                    <span class="totales-valor">$ {{TOTAL}}</span>
+                    <span class="totales-valor">{{ MONEDA_SIMBOLO }} {{ TOTAL|format_currency }}</span>
                 </div>
             </div>
         </div>
@@ -645,15 +656,17 @@
         <div class="seccion-completa">
             <h2>Observaciones Técnicas</h2>
             <ul class="lista-styled">
-                <li>Trabajos ejecutados según {{NORMATIVA_APLICABLE}}</li>
+                <li>Trabajos ejecutados según {{ NORMATIVA_APLICABLE|default('CNE - Código Nacional de Electricidad') }}
+                </li>
                 <li>Materiales de primera calidad con certificación internacional</li>
                 <li>Mano de obra especializada y certificada</li>
                 <li>Incluye transporte de materiales</li>
                 <li>Pruebas y puesta en marcha incluidas</li>
                 <li>Capacitación al personal del cliente</li>
                 <li>Documentación técnica completa (planos as-built, protocolos, certificados)</li>
-                <li>Precios en dólares americanos (USD)</li>
-                <li>Cotización válida por {{VIGENCIA}}</li>
+                <li>Precios en {{ MONEDA_NOMBRE|default('Dólares Americanos') }} ({{ MONEDA_SIMBOLO|default('USD') }})
+                </li>
+                <li>Cotización válida por {{ VIGENCIA|default('30 días') }}</li>
             </ul>
         </div>
 

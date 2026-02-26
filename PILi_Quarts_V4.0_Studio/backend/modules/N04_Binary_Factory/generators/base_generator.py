@@ -11,6 +11,8 @@ from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 from datetime import datetime
 from pathlib import Path
+from PIL import Image as PILImage
+import logging
 
 
 class BaseDocumentGenerator:
@@ -32,19 +34,40 @@ class BaseDocumentGenerator:
         """
         self.datos = datos
         self.opciones = opciones or {}
-        self.doc = Document()
         
-        # 🔍 DEBUG: Logging de opciones recibidas
+        # 📂 SMART MASTER LOADING: Cargar plantilla si existe
+        template_dir = Path(__file__).parent.parent / "templates" / "word_masters"
+        mode = self.opciones.get('mode', 'cotizacion_simple')
+        template_path = template_dir / f"master_{mode}.docx"
+        
         import logging
         logger = logging.getLogger(__name__)
-        logger.info(f"🎨 BaseDocumentGenerator.__init__() - Opciones recibidas: {self.opciones}")
-        
+
+        if template_path.exists():
+            logger.info(f"📑 Cargando Plantilla Maestra: {template_path}")
+            self.doc = Document(str(template_path))
+            self.using_master = True
+        else:
+            logger.warning(f"⚠️ Plantilla Maestra no encontrada en {template_path}. Usando documento en blanco.")
+            self.doc = Document()
+            self.using_master = False
+            
         # Aplicar esquema de colores personalizado
         self._aplicar_colores()
         
-        # Configurar márgenes
-        self._configurar_margenes()
+        # Configurar márgenes (solo si no hay master, para no romper el diseño del maestro)
+        if not self.using_master:
+            self._configurar_margenes()
     
+    def _hex_to_rgb(self, hex_color):
+        """Convierte string hexadecimal (#RRGGBB) a tupla (R, G, B)"""
+        if not hex_color:
+            return None
+        hex_color = hex_color.lstrip('#')
+        if len(hex_color) == 6:
+            return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+        return None
+
     def _rgb_to_hex(self, rgb_color):
         """Convierte RGBColor a string hexadecimal"""
         if hasattr(rgb_color, '_color'):
@@ -53,18 +76,49 @@ class BaseDocumentGenerator:
             g = (color_int >> 8) & 0xFF
             b = color_int & 0xFF
         else:
-            r, g, b = self.color_primario_rgb
+            r, g, b = getattr(self, 'color_primario_rgb', (0, 0, 0))
         return '{:02X}{:02X}{:02X}'.format(r, g, b)
     
     def _aplicar_colores(self):
-        """Aplica esquema de colores según opciones"""
-        esquema = self.opciones.get('esquema_colores', 'azul-tesla')
-        
-        # 🔍 DEBUG: Logging de esquema aplicado
+        """Aplica esquema de colores y fuentes según opciones"""
         import logging
         logger = logging.getLogger(__name__)
-        logger.info(f"🎨 BaseDocumentGenerator._aplicar_colores() - Esquema: {esquema}")
-        logger.info(f"🎨 BaseDocumentGenerator._aplicar_colores() - self.opciones: {self.opciones}")
+        
+        # Prioridad 1: ADN Visual dinámico (del Studio)
+        color_primario_hex = self.opciones.get('primaryColor') or self.opciones.get('color_primario_hex')
+        color_secundario_hex = self.opciones.get('secondaryColor')
+        font_family = self.opciones.get('fontFamily', 'Calibri')
+        font_size = self.opciones.get('fontSize', 11)
+        
+        # Guardar fuente para uso en todo el documento
+        self.font_family = font_family
+        self.font_size = font_size
+        
+        if color_primario_hex:
+            logger.info(f"🎨 Aplicando ADN Visual Dinámico: {color_primario_hex} | Fuente: {font_family} {font_size}pt")
+            rgb_primario = self._hex_to_rgb(color_primario_hex)
+            if rgb_primario:
+                self.color_primario_rgb = rgb_primario
+                # Derivar secundario si no viene
+                self.color_secundario_rgb = self._hex_to_rgb(color_secundario_hex) if color_secundario_hex else (
+                    max(0, rgb_primario[0] - 30),
+                    max(0, rgb_primario[1] - 30),
+                    max(0, rgb_primario[2] - 30)
+                )
+                self.color_acento_rgb = (
+                    min(255, rgb_primario[0] + 50),
+                    min(255, rgb_primario[1] + 50),
+                    min(255, rgb_primario[2] + 50)
+                )
+                
+                self.COLOR_PRIMARIO = RGBColor(*self.color_primario_rgb)
+                self.COLOR_SECUNDARIO = RGBColor(*self.color_secundario_rgb)
+                self.COLOR_ACENTO = RGBColor(*self.color_acento_rgb)
+                return
+
+        # Prioridad 2: Esquemas estáticos
+        esquema = self.opciones.get('esquema_colores', 'azul-tesla')
+        logger.info(f"🎨 Aplicando Esquema Estático: {esquema} | Fuente: {font_family} {font_size}pt")
         
         esquemas = {
             'azul-tesla': {
@@ -96,7 +150,7 @@ class BaseDocumentGenerator:
         
         colores = esquemas.get(esquema, esquemas['azul-tesla'])
         
-        # Guardar como tuplas RGB para conversión a hex
+        # Guardar como tuplas RGB
         self.color_primario_rgb = colores['primario']
         self.color_secundario_rgb = colores['secundario']
         self.color_acento_rgb = colores['acento']
@@ -114,62 +168,83 @@ class BaseDocumentGenerator:
             section.bottom_margin = Inches(0.8)
             section.left_margin = Inches(0.8)
             section.right_margin = Inches(0.8)
+
+    def _obtener_simbolo_moneda(self):
+        """Retorna el símbolo de moneda basado en config o datos"""
+        moneda = self.datos.get('settings', {}).get('currency', 'PEN')
+        simbolos = {
+            'PEN': 'S/',
+            'USD': '$',
+            'EUR': '€'
+        }
+        return simbolos.get(moneda, 'S/')
     
     def _agregar_header_basico(self):
-        """Agrega header profesional en la sección de encabezado de Word"""
-        # Verificar si se debe mostrar el logo
-        if not self.opciones.get('mostrar_logo', True):
+        """Agrega header profesional con Smart Scale (PIL) y Ghost Headers"""
+        if getattr(self, 'using_master', False):
             return
 
         section = self.doc.sections[0]
         header = section.header
         
-        # Limpiar párrafos existentes en el header y prepararlos
         if len(header.paragraphs) > 0:
             p_first = header.paragraphs[0]
-            # No podemos eliminar el único párrafo de un header fácil, pero podemos usarlo
-            # Sin embargo, add_table suele añadir un nuevo párrafo o bloquearse.
-            # La mejor forma es usar el primer párrafo para el logo si no usamos tabla, 
-            # pero para 2 columnas necesitamos tabla.
             p_first.text = ""
             p_first.paragraph_format.space_after = Pt(0)
-            p_first.paragraph_format.line_spacing = 1.0
 
-        # Agregar tabla al header
+        # Agregar tabla al header (GHOST TABLE - Sin bordes)
         table = header.add_table(rows=1, cols=2, width=Inches(7.2))
         table.autofit = False
-        table.allow_autofit = False
         
-        # Columna izquierda: Logo
+        # Eliminar bordes de la tabla (Inspirado en Prototipo Raíz)
+        # Esto evita que aparezcan líneas negras en Word/PDF
+        tbl = table._element
+        tblPr = tbl.xpath('w:tblPr')[0]
+        tblBorders = OxmlElement('w:tblBorders')
+        for tag in ['w:top', 'w:left', 'w:bottom', 'w:right', 'w:insideH', 'w:insideV']:
+            edge = OxmlElement(tag)
+            edge.set(qn('w:val'), 'none')
+            tblBorders.append(edge)
+        tblPr.append(tblBorders)
+
+        # Columna izquierda: Logo con Smart Scale
         cell_logo = table.rows[0].cells[0]
         cell_logo.width = Inches(3.2)
         p_logo = cell_logo.paragraphs[0]
         p_logo.alignment = WD_ALIGN_PARAGRAPH.LEFT
         
-        # Intentar cargar logo si existe
-        logo_path = self.opciones.get('logo_path') if self.opciones else None
+        logo_path = self.opciones.get('logo_path') or self.datos.get('branding', {}).get('logo_path')
         
         if logo_path and Path(logo_path).exists():
             try:
+                # [SMART SCALE] Detectar dimensiones reales para evitar deformación
+                with PILImage.open(logo_path) as img:
+                    w, h = img.size
+                    aspect = w / h
+                    
+                    # Máximo deseado: ancho 2.0" o alto 0.6"
+                    target_h = 0.6
+                    target_w = target_h * aspect
+                    
+                    if target_w > 2.5: # Si es muy ancho, limitar por ancho
+                        target_w = 2.5
+                        target_h = target_w / aspect
+                
                 run_logo = p_logo.add_run()
-                # Aumentar un poco el tamaño para visibilidad
-                run_logo.add_picture(str(logo_path), width=Inches(2.5))
+                run_logo.add_picture(str(logo_path), height=Inches(target_h), width=Inches(target_w))
             except Exception as e:
-                import logging
-                logger = logging.getLogger(__name__)
-                logger.error(f"Error insertando imagen de logo: {e}")
+                logger.error(f"Error Smart Scale: {e}")
                 run_logo = p_logo.add_run('TESLA')
-                run_logo.font.size = Pt(26)
+                run_logo.font.size = Pt(24)
                 run_logo.font.bold = True
                 run_logo.font.color.rgb = self.COLOR_PRIMARIO
         else:
-            # Fallback visualmente notable si no hay imagen
-            run_logo = p_logo.add_run('TESLA ELECTRICIDAD')
-            run_logo.font.size = Pt(22)
+            run_logo = p_logo.add_run('TESLA')
+            run_logo.font.size = Pt(24)
             run_logo.font.bold = True
             run_logo.font.color.rgb = self.COLOR_PRIMARIO
         
-        # Columna derecha: Datos de empresa
+        # Columna derecha: ADN Winner Info
         cell_info = table.rows[0].cells[1]
         cell_info.width = Inches(4.0)
         
@@ -181,15 +256,15 @@ class BaseDocumentGenerator:
         run_empresa.font.color.rgb = self.COLOR_PRIMARIO
         
         info_lines = [
-            'RUC: 20601138787',
-            'ingenieria.teslaelectricidad@gmail.com'
+            f"RUC: {self.empresa_info.get('ruc', '20601138787')}",
+            self.empresa_info.get('email', 'ingenieria.teslaelectricidad@gmail.com')
         ]
         
         for linea in info_lines:
             p = cell_info.add_paragraph(linea)
             p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
             p.runs[0].font.size = Pt(8)
-            p.runs[0].font.color.rgb = RGBColor(100, 100, 100)
+            p.runs[0].font.color.rgb = self.COLOR_PRIMARIO # Inyectar ADN en líneas info
             p.paragraph_format.space_after = Pt(0)
 
         # Tratar de eliminar el espacio extra que deja Word bajo la tabla
@@ -199,6 +274,10 @@ class BaseDocumentGenerator:
     
     def _agregar_footer_basico(self):
         """Agrega pie de página básico"""
+        # 📂 SI USAMOS MASTER, NO SOBREESCRIBIR EL FOOTER DEL MAESTRO
+        if getattr(self, 'using_master', False):
+            return
+
         self.doc.add_paragraph()
         
         p_footer = self.doc.add_paragraph()
@@ -220,6 +299,29 @@ class BaseDocumentGenerator:
             p.runs[0].font.size = Pt(8)
             p.runs[0].font.color.rgb = RGBColor(107, 114, 128)
     
+    def _set_cell_border(self, cell, **kwargs):
+        """
+        Set cell border
+        Usage: _set_cell_border(cell, top={"sz": 12, "val": "single", "color": "#FF0000"})
+        """
+        tc = cell._element
+        tcPr = tc.get_or_add_tcPr()
+
+        # check for tag existence, if none create it
+        for edge in ('top', 'left', 'bottom', 'right', 'insideH', 'insideV'):
+            edge_data = kwargs.get(edge)
+            if edge_data:
+                tag = 'w:{}'.format(edge)
+                element = tcPr.find(qn(tag))
+                if element is None:
+                    element = OxmlElement(tag)
+                    tcPr.append(element)
+
+                # assign attributes
+                for key in ["sz", "val", "color", "space", "shadow"]:
+                    if key in edge_data:
+                        element.set(qn('w:{}'.format(key)), str(edge_data[key]))
+
     def generar(self, ruta_salida):
         """
         Método abstracto - debe ser implementado por clases hijas

@@ -19,6 +19,7 @@ class Payload(BaseModel):
     totals: Dict[str, Any] = {}
     technical_notes: Optional[str] = ""
     client_info: Optional[Dict[str, Any]] = {} # Added for generated docs context
+    settings: Optional[Dict[str, Any]] = {} # Added for ADN Visual sync
 
 class BinaryFactoryInput(BaseModel):
     header: Header

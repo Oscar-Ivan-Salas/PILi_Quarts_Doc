@@ -113,6 +113,10 @@ class CotizacionSimpleGenerator:
     
     def _agregar_header(self):
         """Agrega header profesional en la sección de encabezado de Word"""
+        # 📂 SI USAMOS MASTER, NO SOBREESCRIBIR EL HEADER DEL MAESTRO
+        if getattr(self, 'using_master', False):
+            return
+
         # Verificar si se debe mostrar el logo
         if not self.opciones.get('mostrar_logo', True):
             return
@@ -383,6 +387,10 @@ class CotizacionSimpleGenerator:
     
     def _agregar_footer(self):
         """Agrega pie de página"""
+        # 📂 SI USAMOS MASTER, NO SOBREESCRIBIR EL FOOTER DEL MAESTRO
+        if getattr(self, 'using_master', False):
+            return
+
         self.doc.add_paragraph()
         
         p_footer = self.doc.add_paragraph()

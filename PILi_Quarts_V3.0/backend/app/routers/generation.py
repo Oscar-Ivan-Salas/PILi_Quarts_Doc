@@ -126,14 +126,14 @@ def _generate_pdf_from_html(html_content: str, output_path: str, filename: str, 
         raise e
 
 
-def _generate_word_from_html(html_content: str, output_path: str, filename: str) -> str:
+def _generate_word_from_html(html_content: str, output_path: str, filename: str, doc_type: str = "cotizacion_simple") -> str:
     """Genera Word ESPEJO usando el Nodo N04 Soberano"""
     try:
         if not binary_factory:
             raise ImportError("N04 Binary Factory not available")
             
-        logger.info(f"📄 Generando Word ESPEJO (N04 Sovereign Engine)")
-        result = binary_factory.generate_document(html_content, output_path, "word")
+        logger.info(f"📄 Generando Word ESPEJO (N04 Sovereign Engine) para {doc_type}")
+        result = binary_factory.generate_document(html_content, output_path, "word", doc_type)
         
         if not result.get("success"):
             raise Exception(result.get("error"))
@@ -219,7 +219,8 @@ async def generate_word(request: DocumentRequest):
         # ✅ PRIORIDAD 1: Si viene HTML directo, usar N04 Mirror
         if request.html_content:
             logger.info("🎯 Usando HTML directo de vista previa (RALFTH)")
-            final_path = _generate_word_from_html(request.html_content, filepath, filename)
+            doc_type = request.doc_type or request.type
+            final_path = _generate_word_from_html(request.html_content, filepath, filename, doc_type)
         else:
             # FALLBACK: Método legacy
             logger.info("📝 Usando método legacy (sin HTML)")

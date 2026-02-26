@@ -377,9 +377,9 @@
             </div>
         </div>
 
-        <!-- BODY CONTENT AREA (Aquí se inyectan las tablas o textos específicos) -->
+        <!-- BODY CONTENT AREA (Aquí se inyectan los bloques específicos de cada modelo) -->
         <div class="main-content">
-            {{ BODY_CONTENT }}
+            {% block body_content %}{% endblock %}
         </div>
 
         <!-- FOOTER SOBERANO -->

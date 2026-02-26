@@ -30,21 +30,14 @@ class TeslaExcelConverter:
         self.gris_fondo = "F9FAFB"
         self.gris_texto = "374151"
         self.blanco = "FFFFFF"
-        self.color_borde_gris = "E5E7EB"
-        self.color_borde_azul = self.azul_primario
-        
-        # Objetos Side (Inicializados con los colores por defecto)
-        self.side_gris = Side(border_style='thin', color=self.color_borde_gris)
-        self.side_azul = Side(border_style='medium', color=self.color_borde_azul)
-        
-        self.base_size = 11
+        self.borde_gris = "E5E7EB"
         
         # Fuentes
-        self.font_header = Font(name='Calibri', size=self.base_size, bold=True, color=self.blanco)
+        self.font_header = Font(name='Calibri', size=11, bold=True, color=self.blanco)
         self.font_title = Font(name='Calibri', size=20, bold=True, color=self.azul_primario)
         self.font_section = Font(name='Calibri', size=12, bold=True, color=self.azul_primario)
-        self.font_label = Font(name='Calibri', size=self.base_size, bold=True, color=self.azul_secundario)
-        self.font_text = Font(name='Calibri', size=self.base_size, color=self.gris_texto)
+        self.font_label = Font(name='Calibri', size=11, bold=True, color=self.azul_secundario)
+        self.font_text = Font(name='Calibri', size=11, color=self.gris_texto)
 
         # Zoning Constants
         self.ZONE_1_END = 9
@@ -55,64 +48,6 @@ class TeslaExcelConverter:
         self.assets_dir = Path(__file__).parent / "templates" / "assets"
         self.logo_path = self.assets_dir / "logo.png"
 
-    def _parse_color(self, value):
-        if not value: return None
-        import re
-        value = value.strip().lower()
-        
-        # Hex
-        if value.startswith('#'):
-            hex_val = value.lstrip('#').upper()
-            if len(hex_val) == 3:
-                hex_val = ''.join([c*2 for c in hex_val])
-            if len(hex_val) == 6:
-                return "FF" + hex_val 
-            if len(hex_val) == 8:
-                return hex_val
-            return None
-            
-        # RGB/RGBA
-        if value.startswith('rgb'):
-             match = re.search(r'rgba?\((\d+),\s*(\d+),\s*(\d+)', value)
-             if match:
-                 r, g, b = map(int, match.groups())
-                 return "FF{:02X}{:02X}{:02X}".format(r, g, b)
-        
-        # Fallback names (basic)
-        colors = {
-            'red': 'FFFF0000', 'blue': 'FF0000FF', 'green': 'FF008000', 
-            'black': 'FF000000', 'white': 'FFFFFFFF', 'gray': 'FF808080'
-        }
-        return colors.get(value)
-
-    def _parse_style(self, elem):
-        """Helper para extraer estilos inline (color, font-size) del elemento HTML"""
-        style = elem.get('style', '')
-        if not style:
-            return None, None
-
-        font_color = None
-        font_size = None
-
-        # Parsear estilos básicos
-        styles = [s.strip() for s in style.split(';') if s.strip()]
-        for s in styles:
-            if ':' in s:
-                key, val = s.split(':', 1)
-                key = key.strip().lower()
-                val = val.strip()
-
-                if key == 'color':
-                    font_color = self._parse_color(val)
-                elif key == 'font-size':
-                    # Extraer número (pt o px)
-                    import re
-                    match = re.search(r'(\d+(\.\d+)?)', val)
-                    if match:
-                        font_size = float(match.group(1))
-
-        return font_color, font_size
-
     def clean_numeric(self, text):
         if not text: return 0.0
         clean = re.sub(r'[^\d.-]', '', text.replace(',', ''))
@@ -122,14 +57,7 @@ class TeslaExcelConverter:
             return 0.0
 
     def set_border(self, cell, style='thin'):
-        # Usar el objeto Side ya pre-configurado o crear uno nuevo si el estilo cambia
-        if style == 'thin':
-            side = self.side_gris
-        elif style == 'medium':
-            side = self.side_azul
-        else:
-            side = Side(border_style=style, color=self.color_borde_gris)
-            
+        side = Side(border_style=style, color=self.borde_gris)
         cell.border = Border(left=side, right=side, top=side, bottom=side)
 
     def convert_cotizacion(self, soup, ws):
@@ -152,148 +80,25 @@ class TeslaExcelConverter:
         
         # ZONE 3: BODY (Start Row 17+)
         curr_row = max(curr_row, self.ZONE_3_START)
-        
-        # ✅ APLICAR ESTILO AL BODY GLOBAL
-        # 1. Buscar wrapper principal "document-paper" (Frontend V4)
-        body_div = soup.find(class_='document-paper')
-        if not body_div:
-            # 2. Fallback: Primer div con estilo
-            body_div = soup.find('div', style=True)
-            
-        global_color, global_size = self._parse_style(body_div) if body_div else (None, None)
-        
-        # EXTRACT FONT FAMILY TOO
-        global_font = "Calibri" # Default
-        if body_div and body_div.get('style'):
-            import re
-            style = body_div.get('style')
-            # Buscar font-family: 'Roboto', sans-serif;
-            font_match = re.search(r'font-family:\s*[\'"]?([a-zA-Z\s]+)[\'"]?', style)
-            if font_match:
-                font_name = font_match.group(1).strip()
-                # Map common web fonts to Excel safe fonts
-                font_map = {
-                    'Roboto': 'Arial', # Roboto might not be on all PCs, Arial is safe
-                    'Inter': 'Arial',
-                    'Arial': 'Arial',
-                    'Calibri': 'Calibri',
-                    'Times New Roman': 'Times New Roman'
-                }
-                global_font = font_map.get(font_name, 'Calibri')
-
-        if global_color:
-            # FORCE GLOBAL PRIMARY COLOR
-            logging.info(f"🎨 Aplicando Color Global detectado: #{global_color}")
-            self.azul_primario = global_color
-            self.azul_secundario = global_color 
-            self.color_borde_azul = global_color
-            
-            # Actualizar objetos Side dinámicos
-            self.side_azul = Side(border_style='medium', color=self.color_borde_azul)
-            self.side_gris = Side(border_style='thin', color="CCCCCC") # Gris más oscuro para contraste
-
-        if global_size or global_font:
-            # FORCE GLOBAL FONT SIZE & FAMILY
-            if global_size:
-                logging.info(f"📏 Aplicando Tamaño Fuente Global detectado: {global_size}pt")
-                self.base_size = int(global_size)
-            
-            logging.info(f"🔤 Aplicando Fuente Global detectada: {global_font}")
-            
-            # Regenerar fuentes base con nuevo tamaño y familia
-            self.font_header = Font(name=global_font, size=self.base_size + 2, bold=True, color='FFFFFF') # Header Tabla
-            self.font_label  = Font(name=global_font, size=self.base_size, bold=True, color=self.azul_secundario) # Info Labels
-            self.font_text   = Font(name=global_font, size=self.base_size, color='000000') # Texto General
-            self.font_title  = Font(name=global_font, size=self.base_size + 8, bold=True, color=self.azul_primario) # Título Doc
-            
-            if global_color:
-                 self.font_text = Font(name='Calibri', size=self.base_size, color=global_color)
-        
         self._render_zone_3_body(soup, ws, curr_row)
 
     def _render_zone_1_branding(self, soup, ws):
-        """Renderiza Logo, Empresa y Título en filas 1-9 con Soporte CSS"""
-        
-        # 0. DETECT LOGO FROM HTML (Base64 Priority)
-        logo_source_path = self.logo_path # Default
-        temp_logo_created = False
-        
-        try:
-             # Buscar imagen de logo en el HTML
-             logo_img = soup.find('img')
-             if logo_img and logo_img.get('src', '').startswith('data:image'):
-                 import base64
-                 import tempfile
-                 
-                 # Extraer base64
-                 header, encoded = logo_img['src'].split(",", 1)
-                 data = base64.b64decode(encoded)
-                 
-                 # Guardar temporalmente
-                 ext = "png" if "png" in header else "jpg"
-                 tmp_logo = Path(tempfile.gettempdir()) / f"temp_logo_excel.{ext}"
-                 with open(tmp_logo, "wb") as f:
-                     f.write(data)
-                     
-                 logo_source_path = tmp_logo
-                 temp_logo_created = True
-                 logging.info("🖼️ Logo Base64 detectado y procesado desde HTML")
-        except Exception as e:
-            logging.warning(f"Error procesando logo base64: {e}")
-
-        # Logo (B2) - REDIMENSIONADO CON PIL
-        if HAS_IMAGE_SUPPORT and logo_source_path and logo_source_path.exists():
+        """Renderiza Logo, Empresa y Título en filas 1-9"""
+        # Logo (B2)
+        if HAS_IMAGE_SUPPORT and self.logo_path.exists():
             try:
-                from PIL import Image as PILImage
-                import tempfile
-                
-                # ✅ REDIMENSIONAR LOGO con PIL (openpyxl no respeta img.width/height)
-                max_width = 150
-                max_height = 60
-                
-                # Abrir imagen original
-                pil_img = PILImage.open(str(logo_source_path))
-                original_size = pil_img.size
-                
-                # Calcular nuevo tamaño manteniendo proporción
-                if pil_img.width > max_width or pil_img.height > max_height:
-                    width_ratio = max_width / pil_img.width
-                    height_ratio = max_height / pil_img.height
-                    ratio = min(width_ratio, height_ratio)
-                    
-                    new_width = int(pil_img.width * ratio)
-                    new_height = int(pil_img.height * ratio)
-                    
-                    # Redimensionar
-                    pil_img = pil_img.resize((new_width, new_height), PILImage.Resampling.LANCZOS)
-                    logger.info(f"🔧 Logo redimensionado: {original_size} → {pil_img.size}")
-                
-                # Guardar temporalmente (final resized)
-                temp_logo_final = Path(tempfile.gettempdir()) / "logo_excel_final.png"
-                pil_img.save(temp_logo_final, "PNG")
-                
-                # Insertar en Excel
-                img = XLImage(str(temp_logo_final))
+                img = XLImage(str(self.logo_path))
+                # Resize logic if needed, usually generic logo fits well in 2-3 rows space
                 ws.add_image(img, 'B2')
-                logger.info(f"✅ Logo insertado: {pil_img.size[0]}x{pil_img.size[1]}px")
-                
             except Exception as e:
                 logger.warning(f"Could not load logo: {e}")
-                
-                # Fallback Logo (Estilo Manual o CSS si existiera)
-                ws.merge_cells('B2:C3')
-                c = ws['B2']
-                c.value = "TESLA"
-                c.fill = PatternFill(start_color=self.azul_primario, end_color=self.azul_primario, fill_type="solid")
-                c.font = Font(name='Arial Black', size=24, bold=True, color='FFFFFF')
-                c.alignment = Alignment(horizontal='center', vertical='center')
+                ws['B2'] = "TESLA" 
         else:
-             # Sin logo: Texto "TESLA"
              ws.merge_cells('B2:C3')
              c = ws['B2']
              c.value = "TESLA"
              c.fill = PatternFill(start_color=self.azul_primario, end_color=self.azul_primario, fill_type="solid")
-             c.font = Font(name='Arial Black', size=24, bold=True, color='FFFFFF')
+             c.font = Font(name='Arial Black', size=24, bold=True, color=self.blanco)
              c.alignment = Alignment(horizontal='center', vertical='center')
 
         # Company Info (H2 - aligned right in Grid)
@@ -301,16 +106,15 @@ class TeslaExcelConverter:
         if header:
             detalles = header.find(class_='empresa-detalles')
             if detalles:
-                # Start at row 5 to avoid overlapping with Logo (B2-B4 approx)
-                info_row = 5
+                info_row = 2
                 for div in detalles.find_all('div'):
                     if info_row > 5: break
-                    # Merge B to F for address info (Align with Logo on Left)
-                    ws.merge_cells(f'B{info_row}:F{info_row}')
-                    cell = ws[f'B{info_row}']
+                    # Merge H to L for address info
+                    ws.merge_cells(f'H{info_row}:L{info_row}')
+                    cell = ws[f'H{info_row}']
                     cell.value = div.get_text(strip=True)
                     cell.font = Font(size=9, color=self.gris_texto)
-                    cell.alignment = Alignment(horizontal='left')
+                    cell.alignment = Alignment(horizontal='right')
                     info_row += 1
 
         # Title (B6-B8)
@@ -321,27 +125,27 @@ class TeslaExcelConverter:
             sub = titulo_div.find(class_='subtitulo-documento')
             num = titulo_div.find(class_='numero-cotizacion')
             
-            # Align Title Block to Right (Columns G-L) like HTML
+            # Center across full width (B-L)
             if h1:
-                ws.merge_cells(f'G{row_t}:L{row_t}')
-                c = ws[f'G{row_t}']
+                ws.merge_cells(f'B{row_t}:L{row_t}')
+                c = ws[f'B{row_t}']
                 c.value = h1.get_text(strip=True)
                 c.font = self.font_title
-                c.alignment = Alignment(horizontal='right')
+                c.alignment = Alignment(horizontal='center')
                 row_t += 1
             if sub:
-                ws.merge_cells(f'G{row_t}:L{row_t}')
-                c = ws[f'G{row_t}']
+                ws.merge_cells(f'B{row_t}:L{row_t}')
+                c = ws[f'B{row_t}']
                 c.value = sub.get_text(strip=True)
                 c.font = Font(size=12, italic=True, color=self.azul_secundario)
-                c.alignment = Alignment(horizontal='right')
+                c.alignment = Alignment(horizontal='center')
                 row_t += 1
             if num:
-                ws.merge_cells(f'G{row_t}:L{row_t}')
-                c = ws[f'G{row_t}']
+                ws.merge_cells(f'B{row_t}:L{row_t}')
+                c = ws[f'B{row_t}']
                 c.value = num.get_text(strip=True)
                 c.font = Font(size=14, bold=True, color=self.azul_secundario)
-                c.alignment = Alignment(horizontal='right')
+                c.alignment = Alignment(horizontal='center')
 
     def _render_zone_2_data(self, soup, ws, start_row):
         """Renderiza Info Boxes, Portada (Informe) o Título/Grid (Proyecto)"""
@@ -452,21 +256,13 @@ class TeslaExcelConverter:
         """Renderiza el resto del contenido con Rich Text (Universal)"""
         curr_row = start_row
         
-        # 0.1 Tables Reference (Items & Totals) - Render FIRST (HTML Logic)
-        tabla_section = soup.find(class_='tabla-section')
-        if tabla_section:
-            curr_row = self._render_items_table(tabla_section, ws, curr_row)
-            totales_section = soup.find(class_='totales-section')
-            if totales_section:
-                curr_row = self._render_totales(totales_section, ws, curr_row)
-
-        # 0.2 Resumen Ejecutivo (Reports)
+        # 0. Resumen Ejecutivo (Reports)
         resumen = soup.find(class_='resumen-ejecutivo')
         if resumen:
             curr_row = self._render_generic_content(resumen, ws, curr_row)
             curr_row += 1
 
-        # 1. Sections Universal (.seccion OR .seccion-completa) - Render LAST (After Totals)
+        # 1. Sections Universal (.seccion OR .seccion-completa)
         sections = soup.find_all(['div'], class_=['seccion', 'seccion-completa'])
         
         for section in sections:
@@ -509,6 +305,14 @@ class TeslaExcelConverter:
                 # If section has 'h3', 'p', 'ul', 'div.caja-destacada'
                 curr_row = self._render_generic_content_advanced(section, ws, curr_row)
 
+        # 2. Tables Reference (Cotizacion Specific) - kept for retro-compatibility
+        tabla_section = soup.find(class_='tabla-section')
+        if tabla_section:
+            curr_row = self._render_items_table(tabla_section, ws, curr_row)
+            totales_section = soup.find(class_='totales-section')
+            if totales_section:
+                curr_row = self._render_totales(totales_section, ws, curr_row)
+
         # 3. Footer
         footer = soup.find(class_='footer')
         if footer:
@@ -522,10 +326,6 @@ class TeslaExcelConverter:
     
     def _render_generic_content_advanced(self, container, ws, start_row):
         row = start_row
-        
-        # Estilos globales del contenedor
-        cont_color, cont_size = self._parse_style(container)
-        
         # Iterate direct children to preserve order
         for elem in container.children:
             if elem.name == 'h2': continue # Already handled
@@ -533,20 +333,11 @@ class TeslaExcelConverter:
             text = elem.get_text(strip=True) if hasattr(elem, 'get_text') else str(elem).strip()
             if not text: continue
             
-            # Estilos del elemento
-            elem_color, elem_size = self._parse_style(elem) if hasattr(elem, 'get') else (None, None)
-            final_color = elem_color or cont_color or self.gris_texto
-            final_size = elem_size or cont_size or self.base_size
-            
             if elem.name == 'h3':
-                # H3 siempre un poco más grande y bold
-                h3_size = final_size + 1 if final_size else 12
-                h3_color = final_color if elem_color else self.azul_secundario 
-                
                 ws.merge_cells(f'B{row}:L{row}')
                 c = ws[f'B{row}']
                 c.value = text
-                c.font = Font(size=h3_size, bold=True, color=h3_color)
+                c.font = Font(size=12, bold=True, color=self.azul_secundario)
                 row += 1
                 
             elif elem.name == 'p' or elem.name is None:
@@ -554,37 +345,26 @@ class TeslaExcelConverter:
                 c = ws[f'B{row}']
                 c.value = text
                 c.alignment = Alignment(wrap_text=True, vertical='center')
-                c.font = Font(name='Calibri', size=final_size, color=final_color)
                 row += 1
                 
             elif elem.name == 'ul' or elem.name == 'ol':
-                # Listas
-                ul_color = elem_color or final_color
-                ul_size = elem_size or final_size
-                
                 for li in elem.find_all('li'):
-                    li_color, li_size = self._parse_style(li)
-                    f_li_color = li_color or ul_color
-                    f_li_size = li_size or ul_size
-                    
                     ws.merge_cells(f'B{row}:L{row}')
                     c = ws[f'B{row}']
                     marker = "•" if elem.name == 'ul' else f"{li.parent.index(li)+1}." 
                     # Note: index might be wrong for ol logic, but simple enough for now
                     c.value = f"  {marker} {li.get_text(strip=True)}"
                     c.alignment = Alignment(wrap_text=True, indent=1, vertical='center')
-                    c.font = Font(name='Calibri', size=f_li_size, color=f_li_color)
                     row += 1
             
             elif elem.name == 'div' and 'caja-destacada' in elem.get('class', []):
                 # Box logic
                 h4 = elem.find('h4')
                 if h4:
-                    h4_color, h4_size = self._parse_style(h4)
                     ws.merge_cells(f'B{row}:L{row}')
                     c = ws[f'B{row}']
                     c.value = h4.get_text(strip=True)
-                    c.font = Font(bold=True, color=h4_color or self.azul_primario, size=h4_size or self.base_size)
+                    c.font = Font(bold=True, color=self.azul_primario)
                     c.fill = PatternFill(start_color=self.gris_fondo, end_color=self.gris_fondo, fill_type='solid')
                     row += 1
                 
@@ -661,7 +441,7 @@ class TeslaExcelConverter:
                     ws.merge_cells(start_row=row, start_column=curr_col, end_row=row, end_column=curr_col+col_span-1)
                     c = ws.cell(row=row, column=curr_col, value=td.get_text(strip=True))
                     c.alignment = Alignment(wrap_text=True, vertical='center')
-                    self.set_border(c)
+                    c.border = Border(bottom=Side(style='thin', color=self.borde_gris))
                     curr_col += col_span
                 row += 1
                 
@@ -696,44 +476,24 @@ class TeslaExcelConverter:
 
     def _render_generic_content(self, container, ws, start_row):
         row = start_row
-        
-        # Intentar aplicar estilo global del contenedor
-        container_color, container_size = self._parse_style(container)
-
         for elem in container.children:
             text = elem.get_text(strip=True) if hasattr(elem, 'get_text') else str(elem).strip()
             if not text: continue
             
-            # Estilos del elemento específico
-            elem_color, elem_size = self._parse_style(elem) if hasattr(elem, 'get') else (None, None)
-            
-            # Resolver estilos (Elemento > Contenedor > Default)
-            final_color = elem_color or container_color or self.gris_texto
-            final_size = elem_size or container_size or self.base_size
-            custom_font = Font(name='Calibri', size=final_size, color=final_color)
-
             # Rich Text logic: Wrap everything
             if elem.name == 'p' or elem.name is None:
                 ws.merge_cells(f'B{row}:L{row}')
                 c = ws[f'B{row}']
                 c.value = text
                 c.alignment = Alignment(wrap_text=True, vertical='center')
-                c.font = custom_font
                 # Check for "Justificado"? Excel justification is tricky, usually 'left' is cleaner.
                 row += 1
             elif elem.name == 'ul':
                 for li in elem.find_all('li'):
-                    # Estilo específico de LI
-                    li_color, li_size = self._parse_style(li)
-                    li_final_color = li_color or final_color
-                    li_final_size = li_size or final_size
-                    li_font = Font(name='Calibri', size=li_final_size, color=li_final_color)
-
                     ws.merge_cells(f'B{row}:L{row}')
                     c = ws[f'B{row}']
                     c.value = f"• {li.get_text(strip=True)}"
                     c.alignment = Alignment(wrap_text=True, indent=1, vertical='center')
-                    c.font = li_font
                     row += 1
         return row
 
@@ -741,13 +501,7 @@ class TeslaExcelConverter:
         curr_row = start_row + 2
         ws.merge_cells(f'B{curr_row}:L{curr_row}')
         ws[f'B{curr_row}'] = "DETALLE DE LA COTIZACIÓN"
-        
-        # Check custom color/font for section header
-        sec_color, sec_size = self._parse_style(section)
-        final_sec_size = sec_size or 12
-        final_sec_color = sec_color or self.azul_primario
-        
-        ws[f'B{curr_row}'].font = Font(name='Calibri', size=final_sec_size, bold=True, color=final_sec_color)
+        ws[f'B{curr_row}'].font = self.font_section
         curr_row += 1
         
         # New Grid Layout:
@@ -776,63 +530,46 @@ class TeslaExcelConverter:
             
             c.value = h_text
             c.font = self.font_header
-            # Usa el color de la sección como base para el relleno si está definido, sino el azul
-            fill_color = sec_color if sec_color else self.azul_primario
-            c.fill = PatternFill(start_color=fill_color, end_color=fill_color, fill_type="solid")
+            c.fill = PatternFill(start_color=self.azul_primario, end_color=self.azul_primario, fill_type="solid")
             c.alignment = Alignment(horizontal='center', vertical='center')
             
         curr_row += 1
         
         tbody = section.find('tbody')
         if tbody:
-            tb_color, tb_size = self._parse_style(tbody)
-            
             for tr in tbody.find_all('tr'):
                 tds = tr.find_all('td')
                 if len(tds) < 6: continue
                 
-                # Styles per row
-                tr_color, tr_size = self._parse_style(tr)
-                final_row_color = tr_color or tb_color or self.gris_texto
-                final_row_size = tr_size or tb_size or self.base_size
-                row_font = Font(name='Calibri', size=final_row_size, color=final_row_color)
-                
                 # Item
-                c = ws.cell(row=curr_row, column=2, value=tds[0].get_text(strip=True))
-                c.alignment = Alignment(horizontal='center')
-                c.font = row_font
+                ws.cell(row=curr_row, column=2, value=tds[0].get_text(strip=True)).alignment = Alignment(horizontal='center')
                 
                 # Desc
                 ws.merge_cells(start_row=curr_row, start_column=3, end_row=curr_row, end_column=6)
                 c_desc = ws.cell(row=curr_row, column=3, value=tds[1].get_text(strip=True))
                 c_desc.alignment = Alignment(wrap_text=True, vertical='center')
-                c_desc.font = row_font
                 
                 # Cant
-                c = ws.cell(row=curr_row, column=7, value=self.clean_numeric(tds[2].get_text(strip=True)))
-                c.font = row_font
+                ws.cell(row=curr_row, column=7, value=self.clean_numeric(tds[2].get_text(strip=True)))
                 
                 # Und
-                c = ws.cell(row=curr_row, column=8, value=tds[3].get_text(strip=True))
-                c.alignment = Alignment(horizontal='center')
-                c.font = row_font
+                ws.cell(row=curr_row, column=8, value=tds[3].get_text(strip=True)).alignment = Alignment(horizontal='center')
                 
                 # PU
                 ws.merge_cells(start_row=curr_row, start_column=9, end_row=curr_row, end_column=10)
                 c_pu = ws.cell(row=curr_row, column=9, value=self.clean_numeric(tds[4].get_text(strip=True)))
                 c_pu.number_format = '"$ "#,##0.00'
-                c_pu.font = row_font
                 
                 # Total
                 ws.merge_cells(start_row=curr_row, start_column=11, end_row=curr_row, end_column=12)
                 c_tot = ws.cell(row=curr_row, column=11, value=self.clean_numeric(tds[5].get_text(strip=True)))
                 c_tot.number_format = '"$ "#,##0.00'
-                c_tot.font = Font(name='Calibri', size=final_row_size, bold=True, color=final_row_color)
                 
-                # Bordes
-                for col in range(2, 13):
-                    cell = ws.cell(row=curr_row, column=col)
-                    self.set_border(cell)
+                # Borders?
+                # Need to set border for all merged cells range
+                # Simplifying: Set border on top-left of merge is usually enough if merge handled, but for correctness:
+                # We should set border on all edges.
+                # For now using simple logic.
                 
                 curr_row += 1
         return curr_row

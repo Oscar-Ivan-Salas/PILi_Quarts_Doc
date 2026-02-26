@@ -100,7 +100,11 @@ def generar_pdf_desde_datos(tipo_documento, datos, ruta_salida, opciones=None):
     Returns:
         Ruta del PDF generado
     """
-    from . import generar_documento
+    try:
+        from . import generar_documento
+    except (ImportError, ValueError):
+        import index
+        generar_documento = index.binary_factory.generate_document
     import tempfile
     
     # Generar Word temporal

@@ -1,42 +1,74 @@
 {% extends "MASTER_GOLDEN_TEMPLATE.html" %}
 
 {% block body_content %}
-<div class="content-block" style="text-align: center; margin-bottom: 40px;">
-    <div style="font-size: 18px; font-weight: bold;">RESUMEN EJECUTIVO (NORMA APA)</div>
-    <div style="font-style: italic; color: var(--text-light);">{{ FECHA_DOC }}</div>
+<!-- PORTADA APA FORMAL -->
+<div
+    style="height: 250mm; display: flex; flex-direction: column; justify-content: space-between; text-align: center; padding: 20mm; border-bottom: 1px solid var(--contrast); margin-bottom: 40px; background: white;">
+    <div style="margin-top: 60px;">
+        <h1 style="font-size: 26px; font-weight: bold; line-height: 1.8; text-transform: uppercase;">
+            INFORME EJECUTIVO ESTRATÉGICO:<br />
+            {{ TITULO_DOCUMENTO }}<br />
+            <span style="color: var(--primary);">{{ PROYECTO_NOMBRE }}</span>
+        </h1>
+    </div>
+    <div style="line-height: 2.2; font-size: 14px;">
+        <div style="font-weight: bold;">Elaborado para:</div>
+        <div>{{ CLIENTE_NOMBRE }}</div>
+        <div style="margin-top: 30px; font-weight: bold;">Preparado por:</div>
+        <div>{{ NOMBRE_EMISOR }}</div>
+        <div>{{ FECHA_DOC }}</div>
+        <div style="margin-top: 20px; font-size: 12px; color: var(--text-light);">
+            Código del Informe: {{ CODIGO_DOC|default('INF-N04-2026') }}
+        </div>
+    </div>
 </div>
 
-<div class="content-block">
-    <div class="block-title">INTRODUCCIÓN</div>
-    <div class="block-text">
-        {{ INTRODUCCION|default('El presente informe ejecutivo sistematiza la información relevante para la toma de
-        decisiones estratégicas.') }}
+<!-- GRID DE MÉTRICAS DE RENTABILIDAD -->
+<div class="seccion" style="margin-bottom: 30px;">
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+        <div
+            style="padding: 15px; background: var(--bg-luz); border: 1px solid var(--primary); border-radius: 8px; text-align: center;">
+            <div style="font-size: 10px; color: var(--primary); font-weight: bold; margin-bottom: 5px;">ROI Proyecto
+            </div>
+            <div style="font-size: 22px; color: var(--primary); font-weight: 900;">{{ METRICA_ROI|default('85%') }}
+            </div>
+        </div>
+        <div
+            style="padding: 15px; background: var(--bg-luz); border: 1px solid var(--secondary); border-radius: 8px; text-align: center;">
+            <div style="font-size: 10px; color: var(--secondary); font-weight: bold; margin-bottom: 5px;">Payback</div>
+            <div style="font-size: 22px; color: var(--secondary); font-weight: 900;">{{ METRICA_PAYBACK|default('14m')
+                }}</div>
+        </div>
+        <div
+            style="padding: 15px; background: var(--bg-luz); border: 1px solid #059669; border-radius: 8px; text-align: center;">
+            <div style="font-size: 10px; color: #059669; font-weight: bold; margin-bottom: 5px;">TIR Anual</div>
+            <div style="font-size: 22px; color: #059669; font-weight: 900;">{{ METRICA_TIR|default('32%') }}</div>
+        </div>
+        <div
+            style="padding: 15px; background: var(--bg-luz); border: 1px solid #7C3AED; border-radius: 8px; text-align: center;">
+            <div style="font-size: 10px; color: #7C3AED; font-weight: bold; margin-bottom: 5px;">Ahorro Proyectado</div>
+            <div style="font-size: 22px; color: #7C3AED; font-weight: 900;">{{ METRICA_AHORRO|default('S/ 15k') }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="content-block" style="border-left: 5px solid var(--primary); padding-left: 20px; margin-bottom: 30px;">
+    <div class="block-title" style="color: var(--primary); font-size: 16px; margin-bottom: 15px;">RESUMEN EJECUTIVO
+    </div>
+    <div class="block-text" style="font-size: 13px; line-height: 1.8; text-align: justify;">
+        {{ RESUMEN_EJECUTIVO|default('Este proyecto representa una oportunidad estratégica para la optimización de
+        activos industriales, con una tasa de retorno competitiva y un impacto directo en la eficiencia operativa de la
+        planta.') }}
     </div>
 </div>
 
 <div class="content-block">
-    <div class="block-title">ANÁLISIS DE RESULTADOS</div>
-    <div class="block-text">
-        {{ ANALISIS|default('Tras la evaluación de los indicadores clave, se determinó una correlación positiva entre
-        las variables analizadas.') }}
-    </div>
-</div>
-
-<div class="content-block">
-    <div class="block-title">LIMITACIONES Y ALCANCE</div>
-    <div class="block-text">
-        {{ LIMITACIONES|default('El estudio se limitó a la zona de influencia directa del proyecto durante el periodo
-        fiscal vigente.') }}
-    </div>
-</div>
-
-<div class="content-block">
-    <div class="block-title">REFERENCIAS Y ANEXOS</div>
+    <div class="block-title">CONCLUSIONES ESTRATÉGICAS</div>
     <div class="block-text">
         <ul style="padding-left: 20px;">
-            <li>Reportes de campo semanales.</li>
-            <li>Certificados de calibración de equipos.</li>
-            <li>Documentación de cumplimiento normativo.</li>
+            {% for concl in conclusiones %}
+            <li>{{ concl }}</li>
+            {% endfor %}
         </ul>
     </div>
 </div>
