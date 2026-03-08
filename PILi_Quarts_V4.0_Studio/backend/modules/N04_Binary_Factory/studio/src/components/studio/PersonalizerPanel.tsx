@@ -215,22 +215,49 @@ export const PersonalizerPanel: React.FC<PersonalizerPanelProps> = ({ settings, 
 
                     <div className="grid grid-cols-3 gap-3">
                         {[
-                            { id: 'PEN', label: 'Soles (S/)', icon: '🇵🇪' },
-                            { id: 'USD', label: 'Dólares ($)', icon: '🇺🇸' },
-                            { id: 'EUR', label: 'Euros (€)', icon: '🇪🇺' },
+                            { id: 'PEN', label: 'Sol', symbol: 'S/', flag: 'pe', name: 'Perú' },
+                            { id: 'USD', label: 'Dólar', symbol: '$', flag: 'us', name: 'EE.UU.' },
+                            { id: 'EUR', label: 'Euro', symbol: '€', flag: 'eu', name: 'Europa' },
                         ].map((curr) => (
                             <button
                                 key={curr.id}
                                 onClick={() => onUpdate({ currency: curr.id })}
                                 className={cn(
-                                    "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all duration-500",
+                                    "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all duration-500 relative overflow-hidden group",
                                     settings.currency === curr.id
                                         ? "bg-zinc-900 border-emerald-500/40 shadow-xl shadow-emerald-500/10"
-                                        : "bg-[#080808] border-white/5 hover:border-white/10"
+                                        : "bg-[#080808] border-white/5 hover:border-white/15 hover:bg-zinc-900/40"
                                 )}
                             >
-                                <span className="text-xl">{curr.icon}</span>
-                                <span className="text-[9px] font-black text-white uppercase tracking-tighter">{curr.label}</span>
+                                {/* Indicador activo */}
+                                {settings.currency === curr.id && (
+                                    <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                                )}
+                                {/* Bandera imagen */}
+                                <div className="relative">
+                                    <img
+                                        src={`https://flagcdn.com/w80/${curr.flag}.png`}
+                                        alt={curr.name}
+                                        width={48}
+                                        height={32}
+                                        className="rounded-md object-cover shadow-md"
+                                        style={{ width: 48, height: 32 }}
+                                        onError={(e) => {
+                                            // Fallback a emoji si no carga la imagen
+                                            (e.target as HTMLImageElement).style.display = 'none';
+                                        }}
+                                    />
+                                </div>
+                                {/* Símbolo */}
+                                <span className={cn(
+                                    "text-lg font-black transition-colors",
+                                    settings.currency === curr.id ? "text-emerald-400" : "text-zinc-500 group-hover:text-zinc-300"
+                                )}>{curr.symbol}</span>
+                                {/* Nombre */}
+                                <div className="flex flex-col items-center gap-0.5">
+                                    <span className="text-[9px] font-black text-white uppercase tracking-tighter">{curr.label}</span>
+                                    <span className="text-[8px] text-zinc-600 font-mono">{curr.id}</span>
+                                </div>
                             </button>
                         ))}
                     </div>
@@ -278,17 +305,16 @@ export const PersonalizerPanel: React.FC<PersonalizerPanelProps> = ({ settings, 
                             : "bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] hover:shadow-[0_25px_50px_-12px_rgba(37,99,235,0.6)] hover:-translate-y-1 active:scale-95"
                     )}
                 >
-                    {isSyncing ? (
-                        <>
-                            <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                            Sincronizando Visual DNA...
-                        </>
-                    ) : (
-                        <>
-                            <CheckCircle2 className="w-5 h-5 group-hover:animate-bounce" />
-                            Sincronizar Visual DNA
-                        </>
-                    )}
+                    {/* Elementos siempre presentes — controlados por opacity para evitar crash de React insertBefore */}
+                    <div
+                        className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full transition-opacity duration-200"
+                        style={{ opacity: isSyncing ? 1 : 0, animation: isSyncing ? 'spin 1s linear infinite' : 'none' }}
+                    />
+                    <CheckCircle2
+                        className="w-5 h-5 transition-opacity duration-200"
+                        style={{ opacity: isSyncing ? 0 : 1, position: isSyncing ? 'absolute' : 'relative' }}
+                    />
+                    <span>{isSyncing ? 'Sincronizando Visual DNA...' : 'Sincronizar Visual DNA'}</span>
                 </button>
                 <p className="text-[9px] text-zinc-500 font-mono mt-4 text-center uppercase tracking-tighter opacity-40">
                     Protocolo de Inyección V12.1 • Todos los cambios son permanentes

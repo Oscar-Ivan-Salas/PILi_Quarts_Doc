@@ -129,7 +129,7 @@ body {
 
 @keyframes scan {
   0% {
-    top: 0%;
+    transform: translateY(-10%);
     opacity: 0;
   }
 
@@ -142,7 +142,11 @@ body {
   }
 
   100% {
-    top: 100%;
+    transform: translateY(1100px);
     opacity: 0;
   }
+}
+
+.animate-scan {
+  animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }

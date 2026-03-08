@@ -7,11 +7,11 @@ Genera documentos Word con diseño profesional que coincide EXACTAMENTE
 con la vista previa HTML.
 """
 
-from docx import Document
-from docx.shared import Inches, Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.oxml.ns import qn
-from docx.oxml import OxmlElement
+from docx import Document  # type: ignore # pyre-ignore
+from docx.shared import Inches, Pt, RGBColor  # type: ignore # pyre-ignore
+from docx.enum.text import WD_ALIGN_PARAGRAPH  # type: ignore # pyre-ignore
+from docx.oxml.ns import qn  # type: ignore # pyre-ignore
+from docx.oxml import OxmlElement  # type: ignore # pyre-ignore
 from datetime import datetime
 from pathlib import Path
 
@@ -24,6 +24,11 @@ class CotizacionSimpleGenerator:
     COLOR_SECUNDARIO = RGBColor(30, 64, 175)   # #1E40AF
     COLOR_ACENTO = RGBColor(59, 130, 246)      # #3B82F6
     COLOR_CLARO = RGBColor(239, 246, 255)      # #EFF6FF
+    
+    # Declaraciones estáticas para linter (Pyre2)
+    color_primario_rgb: tuple
+    color_secundario_rgb: tuple
+    color_acento_rgb: tuple
     
     def __init__(self, datos, opciones=None):
         """

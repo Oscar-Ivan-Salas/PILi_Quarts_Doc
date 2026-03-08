@@ -1,6 +1,13 @@
 import React from 'react';
 import Editor, { loader } from '@monaco-editor/react';
 
+// Usar Monaco local (node_modules) en lugar de CDN
+loader.config({
+    paths: {
+        vs: '/node_modules/monaco-editor/min/vs'
+    }
+});
+
 
 interface EditorPanelProps {
     code: string;
@@ -16,9 +23,9 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({ code, onChange }) => {
                     <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] font-mono">Source Editor</span>
                 </div>
                 <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" title="Cerrar" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80" title="Minimizar" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" title="Maximizar" />
                 </div>
             </div>
             <div className="flex-1 overflow-hidden relative">

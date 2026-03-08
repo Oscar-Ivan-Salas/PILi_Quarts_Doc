@@ -64,69 +64,83 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.15em]">Plantillas Maestras</span>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto px-2 space-y-3 custom-scrollbar pr-2 mb-8">
-                        <AnimatePresence mode="popLayout">
+                    <div className="flex-1 overflow-y-auto px-2 custom-scrollbar pr-2 mb-8">
+                        <AnimatePresence>
                             {loading ? (
-                                <div className="flex flex-col gap-3">
+                                <motion.div
+                                    key="skeleton"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="flex flex-col gap-3 pt-1"
+                                >
                                     {[1, 2, 3].map(i => (
                                         <div key={i} className="h-20 w-full bg-white/5 rounded-2xl animate-pulse" />
                                     ))}
-                                </div>
+                                </motion.div>
                             ) : (
-                                templates.map((template, idx) => {
-                                    const { color, label } = getTemplateStyle(template);
-                                    const isActive = selectedTemplate === template;
+                                <motion.div
+                                    key="list"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="flex flex-col gap-3 pt-1"
+                                >
+                                    {templates.map((template, idx) => {
+                                        const { color, label } = getTemplateStyle(template);
+                                        const isActive = selectedTemplate === template;
 
-                                    return (
-                                        <motion.button
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: idx * 0.05 }}
-                                            key={idx}
-                                            onClick={() => onSelectTemplate(template)}
-                                            className={cn(
-                                                "w-full group relative flex items-center gap-4 px-4 py-4 rounded-2xl border transition-all duration-500 overflow-hidden shrink-0",
-                                                isActive
-                                                    ? "bg-zinc-900 border-blue-500/40 shadow-[0_0_20px_rgba(59,130,246,0.1)]"
-                                                    : "bg-[#080808] border-white/5 hover:border-white/10"
-                                            )}
-                                        >
-                                            <div className={cn(
-                                                "absolute left-0 top-0 bottom-0 w-1 transition-all duration-500",
-                                                isActive
-                                                    ? (color === 'blue' ? 'bg-blue-500' : color === 'red' ? 'bg-rose-500' : 'bg-emerald-500')
-                                                    : "bg-transparent group-hover:bg-zinc-800"
-                                            )} />
+                                        return (
+                                            <motion.button
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: idx * 0.05 }}
+                                                key={template}
+                                                onClick={() => onSelectTemplate(template)}
+                                                className={cn(
+                                                    "w-full group relative flex items-center gap-4 px-4 py-4 rounded-2xl border transition-all duration-500 overflow-hidden shrink-0",
+                                                    isActive
+                                                        ? "bg-zinc-900 border-blue-500/40 shadow-[0_0_20px_rgba(59,130,246,0.1)]"
+                                                        : "bg-[#080808] border-white/5 hover:border-white/10"
+                                                )}
+                                            >
+                                                <div className={cn(
+                                                    "absolute left-0 top-0 bottom-0 w-1 transition-all duration-500",
+                                                    isActive
+                                                        ? (color === 'blue' ? 'bg-blue-500' : color === 'red' ? 'bg-rose-500' : 'bg-emerald-500')
+                                                        : "bg-transparent group-hover:bg-zinc-800"
+                                                )} />
 
-                                            <div className={cn(
-                                                "p-3 rounded-xl bg-black/40 border border-white/5 shadow-inner transition-transform group-hover:scale-110 shrink-0",
-                                                isActive && (color === 'blue' ? 'text-blue-400' : color === 'red' ? 'text-rose-400' : 'text-emerald-400')
-                                            )}>
-                                                <FileText size={18} />
-                                            </div>
-
-                                            <div className="flex flex-col items-start min-w-0 flex-1 text-left">
-                                                <span className={cn(
-                                                    "text-[9px] font-black uppercase tracking-widest mb-0.5",
-                                                    isActive ? "text-zinc-300" : "text-zinc-600"
+                                                <div className={cn(
+                                                    "p-3 rounded-xl bg-black/40 border border-white/5 shadow-inner transition-transform group-hover:scale-110 shrink-0",
+                                                    isActive && (color === 'blue' ? 'text-blue-400' : color === 'red' ? 'text-rose-400' : 'text-emerald-400')
                                                 )}>
-                                                    {label}
-                                                </span>
-                                                <span className={cn(
-                                                    "text-xs font-bold truncate w-full",
-                                                    isActive ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"
-                                                )}>
-                                                    {template.replace(/_/g, ' ').replace('.html', '')}
-                                                </span>
-                                            </div>
+                                                    <FileText size={18} />
+                                                </div>
 
-                                            <ChevronRight className={cn(
-                                                "w-4 h-4 ml-auto shrink-0 transition-opacity",
-                                                isActive ? "opacity-100 text-blue-400" : "opacity-0 group-hover:opacity-40"
-                                            )} />
-                                        </motion.button>
-                                    );
-                                })
+                                                <div className="flex flex-col items-start min-w-0 flex-1 text-left">
+                                                    <span className={cn(
+                                                        "text-[9px] font-black uppercase tracking-widest mb-0.5",
+                                                        isActive ? "text-zinc-300" : "text-zinc-600"
+                                                    )}>
+                                                        {label}
+                                                    </span>
+                                                    <span className={cn(
+                                                        "text-xs font-bold truncate w-full",
+                                                        isActive ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"
+                                                    )}>
+                                                        {template.replace(/_/g, ' ').replace('.html', '')}
+                                                    </span>
+                                                </div>
+
+                                                <ChevronRight className={cn(
+                                                    "w-4 h-4 ml-auto shrink-0 transition-opacity",
+                                                    isActive ? "opacity-100 text-blue-400" : "opacity-0 group-hover:opacity-40"
+                                                )} />
+                                            </motion.button>
+                                        );
+                                    })}
+                                </motion.div>
                             )}
                         </AnimatePresence>
                     </div>

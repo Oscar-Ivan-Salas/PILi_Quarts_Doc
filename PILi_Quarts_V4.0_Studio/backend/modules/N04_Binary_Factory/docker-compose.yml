@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # ─────────────────────────────────
+  #  BACKEND: FastAPI + Uvicorn
+  #  Puerto: 8005
+  # ─────────────────────────────────
+  n04-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: n04-backend
+    ports:
+      - "8005:8005"
+    environment:
+      - PORT=8005
+      - HOST=0.0.0.0
+      - LOG_LEVEL=INFO
+      - CORS_ORIGINS=http://localhost:5173
+    volumes:
+      # Montar carpeta de outputs para persistencia
+      - ./output_mirror:/app/output_mirror
+      - ./output_sandbox:/app/output_sandbox
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8005/api/studio/ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ─────────────────────────────────
+  #  FRONTEND: React + Vite
+  #  Puerto: 5173
+  # ─────────────────────────────────
+  n04-frontend:
+    build:
+      context: ./studio
+      dockerfile: Dockerfile.frontend
+    container_name: n04-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      n04-backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+# ─────────────────────────────────
+#  USO:
+#  docker-compose up --build        ← Primera vez
+#  docker-compose up -d             ← En segundo plano
+#  docker-compose down              ← Parar
+# ─────────────────────────────────

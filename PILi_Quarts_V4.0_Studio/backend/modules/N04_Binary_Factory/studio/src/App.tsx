@@ -17,6 +17,7 @@ function App() {
     const [progress, setProgress] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [renderedHtml, setRenderedHtml] = useState<string>('');
+    const [rawHtmlCode, setRawHtmlCode] = useState<string>(''); // Jinja2 crudo para re-renderizar con moneda dinámica
 
     const [settings, setSettings] = useState({
         // ... (líneas intermedias omitidas por brevedad en el pensamiento, pero el reemplazo será total en el rango especificado o usaré chunks mejor)
@@ -43,7 +44,11 @@ function App() {
             setSelectedTemplate(name);
             const response = await axios.get(`http://localhost:8005/api/studio/template/${name}`);
             setHtmlCode(response.data.content);
-            setRenderedHtml(response.data.content); // Inicializar render
+            setRenderedHtml(response.data.content); // Inicializar render con datos mock
+            // Guardar el HTML crudo (Jinja2) para re-renderizar con moneda/logo dinámicos
+            if (response.data.raw_content) {
+                setRawHtmlCode(response.data.raw_content);
+            }
         } catch (error) {
             console.error("Error loading template:", error);
         }
@@ -57,8 +62,10 @@ function App() {
             setIsSyncing(true);
             try {
                 // Sincronizar con el motor Jinja2 del backend
+                // Enviar el HTML crudo (Jinja2) al renderizador para que procese MONEDA_SIMBOLO y logo_url dinámicamente
+                const htmlToRender = rawHtmlCode || htmlCode;
                 const response = await axios.post('http://localhost:8005/api/studio/render', {
-                    html: htmlCode,
+                    html: htmlToRender,
                     settings: {
                         ...settings,
                         data: {
@@ -80,7 +87,8 @@ function App() {
 
         const timeoutId = setTimeout(renderTemplate, 600); // Debounce para no saturar el socket
         return () => clearTimeout(timeoutId);
-    }, [htmlCode, settings.currency, settings.data, selectedTemplate]);
+        // Colores/fuente son manejados client-side por MirrorPanel — el logo y moneda sí van al backend (Jinja2)
+    }, [htmlCode, settings.currency, settings.data, settings.logo, selectedTemplate]);
 
     const handleDownload = async (format: 'word' | 'excel' | 'pdf') => {
         if (!selectedTemplate) return;
@@ -234,7 +242,7 @@ function App() {
                 <div className="flex-1 flex min-h-0 overflow-hidden relative">
                     {/* Editor / Personalizer side */}
                     <section className="flex-[0.45] min-w-0 border-r border-white/5 bg-zinc-950/20 overflow-y-auto custom-scrollbar relative">
-                        <AnimatePresence mode="wait">
+                        <AnimatePresence>
                             {activeTab === 'editor' ? (
                                 <motion.div
                                     key="editor"

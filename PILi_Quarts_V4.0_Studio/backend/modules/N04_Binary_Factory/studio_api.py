@@ -157,6 +157,9 @@ async def get_template(name: str):
         # Renderizado de prueba (Inyección de Datos Reales del Payload)
         template = jinja_env.get_template(template_file)
         
+        # Guardar HTML crudo para re-renderizado dinámico (moneda/logo)
+        raw_content = (TEMPLATES_DIR / template_file).read_text(encoding='utf-8')
+        
         # Mezclar data_payload con overrides si vienen de la sesión (simulado)
         # En el Studio, el usuario espera ver sus cambios.
         content = template.render(**data_payload)
@@ -167,7 +170,7 @@ async def get_template(name: str):
         content = re.sub(r'\{\{.*?\}\}', '', content)
         content = re.sub(r'\{%.*?%\}', '', content)
         
-        return {"content": content}
+        return {"content": content, "raw_content": raw_content}
     except Exception as e:
         logger.error(f"Error rendering template {name}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -185,8 +188,8 @@ async def render_html(payload: dict = Body(...)):
         return {"html": ""}
         
     try:
-        from jinja2 import Template
-        template = Template(html_content)
+        # CRÍTICO: usar jinja_env.from_string() (con filtros registrados) en vez de Template() directo
+        template = jinja_env.from_string(html_content)
         
         # Sincronizar data del Studio con lo que espera el motor (ADN Soberano)
         render_data = settings.get("data", {})
@@ -200,28 +203,83 @@ async def render_html(payload: dict = Body(...)):
         font_size = settings.get("fontSize", 11)
         logo_b64 = settings.get("logo", "")
         
-        # Enriquecer contexto de renderizado
-        render_data.update({
-            "MONEDA_SIMBOLO": simbolo,
-            "FECHA_DOC": datetime.now().strftime("%d/%m/%Y"),
+        # Enriquecer contexto de renderizado con datos mock base + datos del usuario
+        MOCK_BASE = {
             "TITULO_DOCUMENTO": render_data.get("PROYECTO_NOMBRE", "DOCUMENTO"),
-            "SUBTOTAL": render_data.get("SUBTOTAL", 0),
-            "IGV": render_data.get("IGV", 0),
-            "TOTAL": render_data.get("TOTAL", 0),
-            "items": render_data.get("items", [
-                {"item": "01", "descripcion": "Servicio de Ingeniería N04", "cantidad": 1, "unidad": "und", "precio_unitario": 1500, "total": 1500}
-            ]),
-            # ADN Visual para templates que lo usen directamente
+            "SUBTITULO_DOCUMENTO": "Servicios de Ingeniería Especializada",
+            "CODIGO_DOC": render_data.get("CODIGO_DOC", f"N04-SOL-{datetime.now().year}-045"),
+            "FECHA_DOC": datetime.now().strftime("%d/%m/%Y"),
+            "FECHA_COTIZACION": datetime.now().strftime("%d/%m/%Y"),
+            "NOMBRE_EMISOR": render_data.get("NOMBRE_EMISOR", "TU EMPRESA S.A.C."),
+            "RUC_EMISOR": render_data.get("RUC_EMISOR", "20123456789"),
+            "CLIENTE_NOMBRE": render_data.get("CLIENTE", "INDUSTRIAL SOLUTIONS PERÚ S.A."),
+            "CLIENTE_RUC": render_data.get("CLIENTE_RUC", "20555666777"),
+            "PROYECTO_NOMBRE": render_data.get("PROYECTO_NOMBRE", "SISTEMA DE CONTROL N04"),
+            "VIGENCIA": render_data.get("VIGENCIA", "15 días calendario"),
+            "NORMATIVA_APLICABLE": "CNE - Código Nacional de Electricidad",
+            "SERVICIO_NOMBRE": "Instalaciones Eléctricas",
+            "AREA_M2": render_data.get("AREA_M2", ""),
+            "DESCRIPCION_PROYECTO": render_data.get("DESCRIPCION_PROYECTO", "Implementación de sistema de control y automatización industrial."),
+            "SUBTOTAL": 4550.00,
+            "IGV": 819.00,
+            "TOTAL": 5369.00,
+            "RESUMEN_EJECUTIVO": "Se recomienda la aprobación inmediata dada la tasa de retorno proyectada.",
+            "METRICA_ROI": "85%",
+            "METRICA_PAYBACK": "14m",
+            "METRICA_TIR": "32%",
+            "METRICA_AHORRO": f"{simbolo} 12,500",
+            "KPI_SPI": "1.05",
+            "KPI_CPI": "0.98",
+            "AVANCE_FISICO": "45%",
+            "AVANCE_FINAN": "42%",
+            "DURACION": "60",
+            "logo_url": logo_b64 if logo_b64 else None,
+            "items": [
+                {"item": "01", "descripcion": "Ingeniería y Diseño del Sistema", "cantidad": 1, "unidad": "srv", "precio_unitario": 1500, "total": 1500},
+                {"item": "02", "descripcion": "Suministro de Equipos Principales", "cantidad": 1, "unidad": "glob", "precio_unitario": 2000, "total": 2000},
+                {"item": "03", "descripcion": "Instalación y Comisionamiento", "cantidad": 1, "unidad": "glob", "precio_unitario": 1050, "total": 1050},
+            ],
+            "suministros": [
+                {"item": "01", "descripcion": "Controlador PLC Siemens S7-1200", "cantidad": 1, "unidad": "und", "precioTotal": 1250.00},
+                {"item": "02", "descripcion": "Licencia TIA Portal V17", "cantidad": 1, "unidad": "srv", "precioTotal": 800.00},
+                {"item": "03", "descripcion": "Instalación y Configuración", "cantidad": 1, "unidad": "glob", "precioTotal": 2500.00},
+            ],
+            "entregables": ["Planos Eléctricos en AutoCAD", "Manuales de Operación", "Protocolos de Pruebas"],
+            "fases_pmi": [
+                {"nombre": "Ingeniería y Diseño", "descripcion": "Cálculos y planos.", "presupuesto": 5000.00},
+                {"nombre": "Instalación", "descripcion": "Montaje de componentes.", "presupuesto": 12000.00},
+                {"nombre": "Comisionamiento", "descripcion": "Puesta en marcha.", "presupuesto": 8000.00},
+            ],
+            "fases": [
+                {"nombre": "Fase 1: Preparación", "descripcion": "Logística.", "duracion": 2, "presupuesto": 5000},
+                {"nombre": "Fase 2: Ejecución", "descripcion": "Instalación.", "duracion": 4, "presupuesto": 10000},
+            ],
+            "riesgos": [
+                {"descripcion": "Retraso en importación", "probabilidad": "media", "mitigacion": "Uso de stock local"},
+            ],
+            "conclusiones": ["El sistema es viable.", "Se proyecta ahorro energético del 15%."],
+            "recomendaciones": ["Mantenimiento trimestral.", "Actualizar firmware."],
+        }
+        
+        # Los datos del usuario sobreescriben los mock base
+        MOCK_BASE.update(render_data)
+        
+        # Siempre agregar/sobreescribir estos valores dinámicos
+        MOCK_BASE.update({
+            "MONEDA_SIMBOLO": simbolo,
+            "MONEDA_NOMBRE": "SOLES" if currency == "PEN" else "DÓLARES AMERICANOS" if currency == "USD" else "EUROS",
             "PRIMARY_COLOR": primary_color,
             "SECONDARY_COLOR": secondary_color,
             "FONT_FAMILY": font_family,
             "FONT_SIZE": font_size,
-            "LOGO_URL": logo_b64
+            "LOGO_URL": logo_b64,
+            "logo_url": logo_b64 if logo_b64 else None,
         })
         
-        rendered_html = template.render(**render_data)
+        rendered_html = template.render(**MOCK_BASE)
         
-        # INYECCIÓN CSS ADN VISUAL - Para que la vista previa refleje la personalización
+        # INYECCIÓN CSS ADN VISUAL - Quirúrgico: aplica colores del usuario al template
+        # sin romper los fondos de info-box ni el layout general
         style_block = f"""
         <style id="adn-visual-preview">
             :root {{
@@ -230,46 +288,85 @@ async def render_html(payload: dict = Body(...)):
                 --pili-font: "{font_family}", sans-serif;
                 --pili-font-size: {font_size}pt;
             }}
-            * {{
+
+            /* Fuente global */
+            body {{
                 font-family: var(--pili-font) !important;
-                font-size: var(--pili-font-size) !important;
+                font-size: var(--pili-font-size);
+                background: white;
             }}
-            body {{ 
-                font-family: var(--pili-font) !important; 
-                font-size: var(--pili-font-size) !important;
-                color: #333;
+
+            /* === COLORES DE TEXTO === */
+            .color-primario, .empresa-nombre, .footer-empresa {{
+                color: {primary_color} !important;
             }}
-            h1, h2, h3, h4, h5, h6,
-            .color-primario, .empresa-nombre, .cotizacion-titulo, .titulo-documento,
-            .title, .subtitle, .header-text, .totales-label, 
-            .header, .info-box h3, .tabla-section h2 {{ 
-                color: var(--pili-primary) !important; 
+            .color-secundario, .info-label, .totales-label, .numero-cotizacion {{
+                color: {secondary_color} !important;
             }}
-            .color-secundario, .text-secondary, .info-card-label {{ 
-                color: var(--pili-secondary) !important; 
+            .totales-valor {{
+                color: {primary_color} !important;
             }}
-            thead, th, .fase-numero, .fase-duracion,
-            .totales-row:last-child, .header-main, .bg-primario,
-            .header, .info-box, .titulo-documento {{ 
-                background-color: var(--pili-primary) !important; 
-                color: white !important;
+            .info-box h3 {{
+                color: {primary_color} !important;
+                border-bottom-color: {primary_color} !important;
             }}
-            .border-primario, table, th, td, .info-card, .recurso-card,
-            .header, .info-box h3, .titulo-documento, .tabla-section h2 {{ 
-                border-color: var(--pili-primary) !important; 
+            .tabla-section h2 {{
+                color: {primary_color} !important;
+                border-bottom-color: {primary_color} !important;
             }}
-            /* Asegurar que tablas y celdas hereden colores */
-            table {{ border-color: var(--pili-primary) !important; }}
-            th {{ 
-                background-color: var(--pili-primary) !important; 
-                color: white !important;
-                border-color: var(--pili-primary) !important;
+            .observaciones h3 {{
+                color: {primary_color} !important;
             }}
-            td {{ border-color: var(--pili-primary) !important; }}
-            /* Logo placeholder */
+            .observaciones li:before {{
+                color: {primary_color} !important;
+            }}
+            .titulo-documento h1 {{
+                color: {primary_color} !important;
+            }}
+
+            /* === BORDES CON COLOR === */
+            .header {{
+                border-bottom-color: {primary_color} !important;
+            }}
+            .titulo-documento {{
+                border-left-color: {primary_color} !important;
+                background: linear-gradient(135deg, {primary_color}15 0%, {secondary_color}25 100%) !important;
+            }}
+            .totales-box {{
+                border-color: {primary_color} !important;
+            }}
+            .footer {{
+                border-top-color: {primary_color} !important;
+            }}
+            .observaciones {{
+                border-left-color: {secondary_color} !important;
+            }}
             .logo-placeholder, .pili-logo {{
-                background: #f8fafc !important;
-                border: 2px dashed var(--pili-primary) !important;
+                border-color: {primary_color} !important;
+            }}
+
+            /* === THEAD (fondo de tabla) === */
+            thead {{
+                background: linear-gradient(135deg, {primary_color} 0%, {secondary_color} 100%) !important;
+                color: white !important;
+            }}
+            thead th {{
+                color: white !important;
+            }}
+
+            /* === FILA TOTAL (azul) === */
+            .totales-row:last-child {{
+                background: linear-gradient(135deg, {primary_color} 0%, {secondary_color} 100%) !important;
+                color: white !important;
+            }}
+            .totales-row:last-child .totales-label,
+            .totales-row:last-child .totales-valor {{
+                color: white !important;
+            }}
+
+            /* === HOVER DE TABLA === */
+            tbody tr:hover {{
+                background-color: {primary_color}10 !important;
             }}
         </style>
         """
@@ -329,6 +426,30 @@ async def generate_doc(payload: dict = Body(...)):
     logger.info(f"🚀 Studio Trigger: Generating {format_type} for type: {doc_type}")
     logger.info(f"📦 HTML Payload Size: {len(html_content)} characters")
     
+    # 🎨 Procesar Logo Base64 → Archivo Temporal
+    logo_path = None
+    if settings.get("logo") and isinstance(settings["logo"], str) and settings["logo"].startswith("data:image"):
+        try:
+            import base64
+            import tempfile
+            
+            # Extraer datos Base64
+            logo_data = settings["logo"].split(",")[-1]
+            logo_bytes = base64.b64decode(logo_data)
+            
+            # Crear archivo temporal
+            logo_tmp = Path(tempfile.gettempdir()) / f"logo_studio_{int(datetime.now().timestamp())}.png"
+            with open(logo_tmp, "wb") as f:
+                f.write(logo_bytes)
+            
+            logo_path = str(logo_tmp)
+            logger.info(f"✅ Logo extraído a: {logo_path}")
+            
+            # Actualizar settings con ruta de archivo
+            settings["logo_path"] = logo_path
+        except Exception as e:
+            logger.error(f"⚠️ Error procesando logo: {e}")
+    
     # Pasar doc_type y settings explícitamente a la factoría
     try:
         result = await binary_factory.generate_document(html_content, str(output_path), format_type, doc_type, options=settings)
@@ -371,5 +492,5 @@ async def generate_doc(payload: dict = Body(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    logger.info("🎨 N04 Mirror Studio API starting on http://localhost:8006")
-    uvicorn.run(app, host="0.0.0.0", port=8006)
+    logger.info("🎨 N04 Mirror Studio API starting on http://localhost:8005")
+    uvicorn.run(app, host="0.0.0.0", port=8005)
