@@ -1,4 +1,9 @@
 {
   "site_package_search_strategy": "all",
-  "search_path": ["d:\\PILi_Quarts\\PILi_Quarts_V3.0\\backend\\venv\\Lib\\site-packages"]
+  "search_path": [
+    "d:\\PILi_Quarts\\PILi_Quarts_V3.0\\backend",
+    "d:\\PILi_Quarts\\PILi_Quarts_V3.0\\backend\\venv\\Lib\\site-packages"
+  ],
+  "source_directories": ["d:\\PILi_Quarts\\PILi_Quarts_V3.0\\backend"],
+  "python_version": "3.11"
 }

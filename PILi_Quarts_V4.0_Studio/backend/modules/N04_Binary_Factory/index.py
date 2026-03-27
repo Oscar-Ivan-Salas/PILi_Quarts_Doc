@@ -621,23 +621,27 @@ class BinaryFactory:
 
 
                 if mode == "cotizacion_simple":
-                    gen_fn = generar_cotizacion_simple
+                    gen_fn = html_to_word_generator.generar_cotizacion_simple
                 elif mode == "cotizacion_compleja":
-                    gen_fn = generar_cotizacion_compleja
+                    gen_fn = html_to_word_generator.generar_cotizacion_compleja
                 elif mode == "proyecto_simple":
-                    gen_fn = generar_proyecto_simple
+                    gen_fn = html_to_word_generator.generar_proyecto_simple
                 elif mode == "proyecto_complejo":
-                    gen_fn = generar_proyecto_complejo_pmi
+                    gen_fn = html_to_word_generator.generar_proyecto_complejo
                 elif mode == "informe_tecnico":
-                    gen_fn = generar_informe_tecnico
+                    gen_fn = html_to_word_generator.generar_informe_tecnico
                 elif mode == "informe_ejecutivo":
-                    gen_fn = generar_informe_ejecutivo_apa
+                    gen_fn = html_to_word_generator.generar_informe_ejecutivo
                 else:
-                    gen_fn = generar_cotizacion_simple
+                    gen_fn = html_to_word_generator.generar_cotizacion_simple
                 
-                # Execution with Options
-                path = gen_fn(input_data, str(output_path), opciones=options)
-                engine_used = "Native Word Generator (Alta Fidelidad - V10 Trasplanted)"
+                input_data['logo_path'] = logo_path
+                
+                # Execution using the original Mirror Engine
+                from pathlib import Path
+                path = gen_fn(input_data, Path(output_path))
+                path = str(path)
+                engine_used = "HTML to Word Generator (The Mirror Engine - Jinja2 + HTML)"
             except Exception as e:
                 import traceback
                 logger.error(f"FATAL ERROR in native generator {mode}: {e}")

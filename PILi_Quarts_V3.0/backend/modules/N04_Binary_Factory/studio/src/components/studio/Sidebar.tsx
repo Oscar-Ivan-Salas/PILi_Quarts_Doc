@@ -16,7 +16,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSelectTemplate, selectedTemp
     useEffect(() => {
         const fetchTemplates = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8004/api/studio/templates');
+                const response = await axios.get('http://127.0.0.1:8005/api/studio/templates');
                 setTemplates(response.data);
             } catch (error) {
                 console.error("Error fetching templates:", error);

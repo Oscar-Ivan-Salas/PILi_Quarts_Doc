@@ -85,7 +85,7 @@ const mapDocToQuote = (doc: any): Quote => ({
 })
 
 const USER_ID = 'demo-user-123'
-const API_URL = 'http://localhost:8005/api/documents'
+const API_URL = 'http://localhost:8006/api/documents'
 
 export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
     // Initial UI State

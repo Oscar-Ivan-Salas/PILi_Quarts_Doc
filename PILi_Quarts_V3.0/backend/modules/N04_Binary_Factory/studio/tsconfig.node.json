@@ -6,6 +6,7 @@
         "module": "ESNext",
         "moduleResolution": "bundler",
         "allowSyntheticDefaultImports": true,
+        "allowJs": true,
         "strict": true,
         "noEmit": true
     },

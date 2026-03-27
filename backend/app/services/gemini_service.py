@@ -19,7 +19,11 @@ inteligente sobre el servicio Gemini existente, especializando respuestas por ag
 - Toda la lógica de parseo JSON ✅
 """
 
-import google.generativeai as genai
+try:
+    import google.generativeai as genai
+except ImportError:
+    genai = None
+
 from typing import List, Dict, Any, Optional
 import json
 import logging
@@ -98,7 +102,7 @@ class GeminiService:
         
         # Configuración Gemini original
         try:
-            if hasattr(settings, 'GEMINI_API_KEY') and settings.GEMINI_API_KEY:
+            if genai and hasattr(settings, 'GEMINI_API_KEY') and settings.GEMINI_API_KEY:
                 genai.configure(api_key=settings.GEMINI_API_KEY)
                 self.model = genai.GenerativeModel(settings.GEMINI_MODEL)
                 self.aprendizaje_habilitado = True

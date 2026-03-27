@@ -8,7 +8,7 @@ app = FastAPI(title="PILi_Quarts Workspace API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3010", "http://127.0.0.1:3010"],
+    allow_origins=["http://localhost:5173", "http://localhost:3010", "http://127.0.0.1:3010", "http://localhost:3013", "http://127.0.0.1:3013"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

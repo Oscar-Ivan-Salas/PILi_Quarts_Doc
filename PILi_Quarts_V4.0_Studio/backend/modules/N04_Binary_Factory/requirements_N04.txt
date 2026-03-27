@@ -1,6 +1,7 @@
-# REQUISITOS TÉCNICOS - N04 BINARY FACTORY (SOBREANO)
-# =======================================================
-# Este nodo es independiente y requiere las siguientes librerías para funcionar.
+# REQUISITOS TÉCNICOS - N04 BINARY FACTORY
+# ==========================================
+# Nodo independiente de generación de documentos.
+# Actualizado 2025-03 con stack de última generación.
 
 # Web Framework & API
 fastapi
@@ -15,14 +16,20 @@ jinja2
 beautifulsoup4
 lxml
 
-# Generación de Documentos (Motores Nativos)
-python-docx
-openpyxl
-htmldocx
-fpdf
+# Generación Word (DOCX) — Stack 2025
+python-docx          # Base obligatoria
+html4docx            # Reemplaza htmldocx (activo y mantenido)
 
-# Generación de PDF (Alta Fidelidad)
-playwright
+# Generación PDF — Stack 2025
+playwright           # Mejor fidelidad HTML→PDF (usa Chromium)
+weasyprint           # Fallback CSS-compliant sin browser engine
+fpdf2                # PDF simple sin HTML
+
+# Generación Excel (XLSX) — Stack 2025
+openpyxl             # Lectura/escritura base
+xlsxwriter           # Escritura avanzada con estilos profesionales
+pandas               # Extracción de tablas HTML (pd.read_html)
+tablepyxl            # Bridge directo de <table> HTML a Excel sheets
 
 # Utilidades
 requests

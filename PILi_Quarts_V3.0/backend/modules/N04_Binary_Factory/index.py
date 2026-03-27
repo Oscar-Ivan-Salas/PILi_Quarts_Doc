@@ -3,6 +3,7 @@ import base64
 import json
 import os
 from pathlib import Path
+from typing import Optional
 from pydantic import ValidationError
 try:
     from .models import BinaryFactoryInput
@@ -24,6 +25,18 @@ except (ImportError, ValueError):
     from generators.proyecto_complejo_pmi_generator import generar_proyecto_complejo_pmi
     from generators.informe_tecnico_generator import generar_informe_tecnico
     from generators.informe_ejecutivo_apa_generator import generar_informe_ejecutivo_apa
+    try:
+        from .generators.cotizacion_simple_generator import CotizacionSimpleGenerator
+        from .generators.cotizacion_compleja_generator import CotizacionComplejaGenerator
+        from .generators.proyecto_simple_generator import ProyectoSimpleGenerator
+        from .generators.proyecto_complejo_pmi_generator import ProyectoComplejoPMIGenerator
+        from .generators.informe_tecnico_generator import InformeTecnicoGenerator
+        from .generators.informe_ejecutivo_apa_generator import InformeEjecutivoAPAGenerator
+    except ImportError:
+        pass
+
+# Binary Factory Entry Point - Restored to V9 "The Mirror" Engine
+logger = logging.getLogger("N04_Binary_Factory")
 
 # Importar Generador de Excel Profesional Original
 try:
@@ -34,10 +47,7 @@ except ImportError:
     except ImportError:
         ExcelGenerator = None
         logger.warning("⚠️ ExcelGenerator profesional no encontrado. Fallback activo.")
-# Binary Factory Entry Point - Restored to V9 "The Mirror" Engine
 
-
-logger = logging.getLogger("N04_Binary_Factory")
 
 class BinaryFactory:
     def __init__(self):
@@ -722,6 +732,7 @@ class BinaryFactory:
             }
         except Exception as e:
             logger.error(f"Playwright PDF Generation Failed: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
     def _generate_mirror_pdf(self, html_content: str, output_path: str) -> dict:
         """
         Generates a 100% fidelity PDF from raw HTML using Playwright.
@@ -774,7 +785,7 @@ class BinaryFactory:
             return {"success": False, "error": str(e)}
 
 
-    async def generate_document(self, html_content: str, output_path: str, format_type: str, doc_type: str, options: dict = None) -> dict:
+    async def generate_document(self, html_content: str, output_path: str, format_type: str, doc_type: str, options: Optional[dict] = None) -> dict:
         """
         Bridge method for V3 Compatibility.
         Parses HTML and then calls the V10 process_request.

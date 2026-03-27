@@ -134,9 +134,14 @@ export const PersonalizerPanel: React.FC<PersonalizerPanelProps> = ({ settings, 
 
                     <div className="space-y-4">
                         {[
-                            { id: 'cliente', label: 'RAZÓN SOCIAL / CLIENTE', icon: <Type className="w-4 h-4" /> },
-                            { id: 'id_documento', label: 'CÓDIGO DE PROTOCOLO', icon: <Hash className="w-4 h-4" /> },
-                            { id: 'fecha', label: 'DATO TEMPORAL (FECHA)', icon: <Layout className="w-4 h-4" /> }
+                            { id: 'CLIENTE_NOMBRE', label: 'Nombre / Razón Social del Cliente', icon: <Type className="w-4 h-4" /> },
+                            { id: 'CLIENTE_RUC', label: 'RUC del Cliente', icon: <Hash className="w-4 h-4" /> },
+                            { id: 'CLIENTE_DIRECCION', label: 'Dirección del Cliente', icon: <Layout className="w-4 h-4" /> },
+                            { id: 'NOMBRE_EMISOR', label: 'Nombre del Emisor (Tu Empresa)', icon: <Type className="w-4 h-4" /> },
+                            { id: 'RUC_EMISOR', label: 'RUC del Emisor', icon: <Hash className="w-4 h-4" /> },
+                            { id: 'FECHA_DOC', label: 'Fecha del Documento', icon: <Layout className="w-4 h-4" /> },
+                            { id: 'MONEDA_SIMBOLO', label: 'Símbolo de Moneda (S/, $)', icon: <Hash className="w-4 h-4" /> },
+                            { id: 'MONEDA_NOMBRE', label: 'Nombre de Moneda (Soles, USD)', icon: <Hash className="w-4 h-4" /> },
                         ].map((field) => (
                             <div key={field.id} className="relative group/field">
                                 <div className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-700 group-focus-within/field:text-blue-500 transition-colors">

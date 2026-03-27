@@ -27,16 +27,16 @@ function App() {
             CLIENTE_DIRECCION: 'Parque Industrial Lote 45, Lurín',
             NOMBRE_EMISOR: 'EMPRESA SOBERANA S.A.C.',
             RUC_EMISOR: '20600000001',
-            PROYECTO_NOMBRE: 'SISTEMA DE CONTROL N04',
-            CODIGO_DOC: 'N04-STUDIO-2026',
-            FECHA_DOC: new Date().toLocaleDateString('es-PE')
+            FECHA_DOC: new Date().toLocaleDateString('es-PE'),
+            MONEDA_SIMBOLO: 'S/',
+            MONEDA_NOMBRE: 'Soles',
         } as Record<string, string>
     });
 
     const handleSelectTemplate = async (name: string) => {
         try {
             setSelectedTemplate(name);
-            const response = await axios.get(`http://localhost:8004/api/studio/template/${name}`);
+            const response = await axios.get(`http://localhost:8005/api/studio/template/${name}`);
             setHtmlCode(response.data.content);
         } catch (error) {
             console.error("Error loading template:", error);
@@ -49,7 +49,7 @@ function App() {
         setIsGenerating(format);
         try {
             const response = await axios.post(
-                'http://localhost:8004/api/studio/generate',
+                'http://localhost:8005/api/studio/generate',
                 {
                     html: htmlCode,
                     format: format,

@@ -219,4 +219,4 @@ async def generate_doc(payload: dict = Body(...)):
 if __name__ == "__main__":
     import uvicorn
     logger.info("🎨 N04 Mirror Studio API starting on http://localhost:8004")
-    uvicorn.run(app, host="0.0.0.0", port=8004)
+    uvicorn.run(app, host="0.0.0.0", port=8005)

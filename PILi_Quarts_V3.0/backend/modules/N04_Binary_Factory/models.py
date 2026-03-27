@@ -17,7 +17,7 @@ class Branding(BaseModel):
 class Payload(BaseModel):
     items: List[Dict[str, Any]] = []
     totals: Dict[str, Any] = {}
-    technical_notes: Optional[str] = ""
+    technical_notes: Optional[Union[str, Dict[str, Any]]] = ""
     client_info: Optional[Dict[str, Any]] = {} # Added for generated docs context
 
 class BinaryFactoryInput(BaseModel):
